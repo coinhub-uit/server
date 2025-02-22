@@ -1,12 +1,27 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "start:dev",
-			"problemMatcher": [],
-			"label": "npm: start:dev",
-			"detail": "nest start --watch"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": [],
+      "label": "CoinHub: Start",
+      "detail": "Start for production"
+    },
+    {
+      "type": "npm",
+      "script": "start:dev",
+      "problemMatcher": [],
+      "label": "CoinHub: Start Dev",
+      "detail": "Start for dev (watching changes)"
+    },
+    {
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "problemMatcher": [],
+      "label": "CoinHub: Bootstrap",
+      "detail": "Bootstrap the project (install deps, install husky git hooks)"
+    }
+  ]
 }
