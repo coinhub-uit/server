@@ -1,1 +1,5 @@
+#!/usr/bin/env sh
+
 npm test
+
+# vim:fileformat=unix filetype=sh
