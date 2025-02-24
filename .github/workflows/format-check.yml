@@ -1,0 +1,26 @@
+name: Check format
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    name: Format check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: ESlint Checking
+        run: npx eslint 'src/*'
+
+      - name: Prettier Checking
+        run: npx prettier 'src/*' --check
