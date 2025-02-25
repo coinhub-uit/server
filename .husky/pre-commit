@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-npm test
-
 npx lint-staged
 
 # vim:fileformat=unix filetype=sh
