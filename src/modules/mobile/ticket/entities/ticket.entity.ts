@@ -1,5 +1,4 @@
-import { Method } from 'src/modules/users/entities/method.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from 'src/modules/mobile/user/entities/user.entity';
 import {
   Column,
   Entity,
@@ -28,8 +27,4 @@ export class Ticket {
   @ManyToOne(() => User, (user) => user.tickets)
   @JoinColumn({ name: 'id', foreignKeyConstraintName: 'fk_user_id' })
   user: User;
-
-  @ManyToOne(() => Method, (method) => method.tickets)
-  @JoinColumn({ name: 'id', foreignKeyConstraintName: 'fk_ticket_id' })
-  method: Method;
 }

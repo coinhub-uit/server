@@ -1,6 +1,6 @@
-import { Notification } from 'src/modules/users/entities/notification.entity';
-import { Ticket } from 'src/modules/users/entities/ticket.entity';
-import { Transaction } from 'src/modules/users/entities/transaction.entity';
+import { Notification } from 'src/modules/mobile/notification/entities/notification.entity';
+import { Ticket } from 'src/modules/mobile/ticket/entities/ticket.entity';
+import { Transaction } from 'src/modules/mobile/transaction/entities/transaction.entity';
 import {
   Column,
   Entity,

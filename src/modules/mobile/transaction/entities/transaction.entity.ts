@@ -1,11 +1,5 @@
-import { User } from 'src/modules/users/entities/user.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { User } from 'src/modules/mobile/user/entities/user.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Transaction {
@@ -22,6 +16,5 @@ export class Transaction {
   createAt: Date;
 
   @ManyToOne(() => User, (user) => user.transactions)
-  @JoinColumn({ name: 'id', foreignKeyConstraintName: 'fk_user_id' })
   user: User;
 }
