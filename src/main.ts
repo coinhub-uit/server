@@ -4,7 +4,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = new DocumentBuilder().build();
+  const config = new DocumentBuilder()
+    .setTitle('CoinHub')
+    .setDescription('CoinHub API endpoint')
+    .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
   await app.listen(process.env.PORT ?? 3000);
