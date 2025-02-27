@@ -1,11 +1,5 @@
 import { User } from 'src/modules/mobile/user/entities/user.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Ticket {
@@ -25,6 +19,5 @@ export class Ticket {
   status: boolean;
 
   @ManyToOne(() => User, (user) => user.tickets)
-  @JoinColumn({ name: 'id', foreignKeyConstraintName: 'fk_user_id' })
   user: User;
 }

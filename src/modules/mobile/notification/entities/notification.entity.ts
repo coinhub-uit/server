@@ -1,11 +1,5 @@
 import { User } from 'src/modules/mobile/user/entities/user.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class Notification {
   @PrimaryGeneratedColumn('increment')
@@ -21,6 +15,5 @@ export class Notification {
   createAt: Date;
 
   @ManyToOne(() => User, (user) => user.notifications)
-  @JoinColumn({ name: 'id', foreignKeyConstraintName: 'fk_user_id' })
   user: User;
 }
