@@ -4,6 +4,7 @@ import { NotificationModule } from './notification/notification.module';
 import { TicketModule } from './ticket/ticket.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { UserModule } from './user/user.module';
+import { GuardModule } from './guard/guard.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UserModule } from './user/user.module';
     TicketModule,
     TransactionModule,
     UserModule,
+    GuardModule,
   ],
   controllers: [],
   providers: [],
