@@ -1,0 +1,18 @@
+name: CoinHub API Server
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-coinhub}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-luckycube}
+      PGDATA: /data/postgres
+      POSTGRES_DB: ${DB_DATABASE:-coinhub}
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/data/postgres
+
+volumes:
+  db:
