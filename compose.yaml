@@ -14,5 +14,21 @@ services:
     volumes:
       - db:/data/postgres
 
+  backend:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    restart: unless-stopped
+    develop:
+      watch:
+        - path: src/
+          target: /app/src/
+          action: sync
+        - path: package.json
+          action: rebuild
+    volumes:
+      - ./.env:/app/.env
+    # TODO: No husky please?
+
 volumes:
   db:
