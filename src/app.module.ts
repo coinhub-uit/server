@@ -1,31 +1,43 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { Notification } from 'src/mobile/notification/entities/notification.entity';
-import { Ticket } from 'src/mobile/ticket/entities/ticker.entity';
-import { Transaction } from 'src/mobile/transaction/entities/transaction.entity';
-import { User } from 'src/mobile/user/entities/user.entity';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MobileModule } from './mobile/mobile.module';
+import { UserModule } from './user/user.module';
+import { NotificationModule } from './notification/notification.module';
+import { SourceModule } from './source/source.module';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { NotificationEntity } from 'src/notification/entities/notification.entity';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { TransactionModule } from './transaction/transaction.module';
 @Module({
   imports: [
-    MobileModule,
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT ?? '5432', 10),
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        entities: [Notification, Ticket, Transaction, User],
-        synchronize: false,
-        migrations: [
-          __dirname + '/modules/mobile/database/migration/**/*/{.ts}',
-        ],
-      }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT ?? '5432', 10),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [UserEntity, NotificationEntity, SourceEntity],
+      synchronize: true,
     }),
+    // TypeOrmModule.forRootAsync({
+    //   useFactory: () => ({
+    //     type: 'postgres',
+    //     host: process.env.DB_HOST,
+    //     port: parseInt(process.env.DB_PORT ?? '5432', 10),
+    //     username: process.env.DB_USERNAME,
+    //     password: process.env.DB_PASSWORD,
+    //     database: process.env.DB_NAME,
+    //     entities: [UserEntity, NotificationEntity, SourceEntity],
+    //     synchronize: false,
+    //   }),
+    // }),
+    UserModule,
+    NotificationModule,
+    SourceModule,
+    TransactionModule,
   ],
   controllers: [],
   providers: [],
