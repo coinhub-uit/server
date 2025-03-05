@@ -1,5 +1,5 @@
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
-import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceEntity } from 'src/user/source/entities/source.entity';
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('users')
@@ -33,5 +33,5 @@ export class UserEntity {
   notifications: NotificationEntity[];
 
   @OneToMany(() => SourceEntity, (source) => source.user)
-  source: SourceEntity[];
+  sources: SourceEntity[];
 }
