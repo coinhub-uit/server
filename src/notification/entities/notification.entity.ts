@@ -18,7 +18,4 @@ export class NotificationEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.notifications)
   user: UserEntity;
-
-  @Column({ type: 'uuid' })
-  userId: string;
 }
