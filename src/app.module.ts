@@ -15,6 +15,7 @@ import { TicketModule } from './ticket/ticket.module';
 import { TransactionEntity } from 'src/transaction/entities/transaction.entity';
 import { MethodModule } from './method/method.module';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { MethodEntity } from 'src/method/entities/method.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -30,6 +31,7 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
         NotificationEntity,
         SourceEntity,
         TicketEntity,
+        MethodEntity,
       ],
       synchronize: true,
     }),

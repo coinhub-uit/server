@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity('source')
-@Check(`"balance" >= 0`)
+@Check(`"balance"::numeric >= 0`)
 export class SourceEntity {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   sourceId: string;

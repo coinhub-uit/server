@@ -3,7 +3,7 @@ export class CreateUserDto {
   readonly userName: string;
   readonly fullName: string;
   readonly birthDay: string;
-  readonly pin: string;
+  readonly pin: number;
   readonly avatar?: Buffer;
   readonly address?: string;
   readonly email?: string;

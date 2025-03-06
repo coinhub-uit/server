@@ -12,7 +12,11 @@ export class UserService {
   ) {}
 
   createUser(userDetails: CreateUserParams) {
-    const newUser = this.userRepository.create({ ...userDetails });
+    const newUser = this.userRepository.create(userDetails);
     return this.userRepository.save(newUser);
+  }
+
+  getUsers() {
+    return this.userRepository.find();
   }
 }
