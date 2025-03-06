@@ -1,11 +1,11 @@
-name: CoinHub API Server
+name: coihub-api-server
 
 services:
   db:
     image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USERNAME:-coinhub}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-luckycube}
       PGDATA: /data/postgres
       POSTGRES_DB: ${DB_DATABASE:-coinhub}
@@ -14,19 +14,20 @@ services:
     volumes:
       - db:/data/postgres
 
-  backend:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    restart: unless-stopped
-    develop:
-      watch:
-        - path: src/
-          target: /app/src/
-          action: sync
-        - path: package.json
-          action: rebuild
-    volumes:
-      - ./.env:/app/.env
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: dev.Dockerfile
+  #   restart: unless-stopped
+  #   develop:
+  #     watch:
+  #       - path: src/
+  #         target: /app/src/
+  #         action: sync
+  #       - path: package.json
+  #         action: rebuild
+  #   volumes:
+  #     - ./.env:/app/.env
+
 volumes:
   db:

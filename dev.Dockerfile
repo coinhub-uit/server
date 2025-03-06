@@ -1,5 +1,7 @@
 FROM node:23.9.0-alpine
 
+ENV HUSKY=0
+
 WORKDIR /app
 
 COPY --chown=app:app package.json package-lock.json /app/
