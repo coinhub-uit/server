@@ -1,14 +1,16 @@
-name: Check format
+name: Code check
 
 on:
   push:
     branches:
       - '**'
+    paths:
+      - 'src/**'
 
 jobs:
-  format-check:
+  check:
     runs-on: ubuntu-latest
-    name: Format check
+    name: check
     steps:
       - uses: actions/checkout@v4
 
