@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 export default async function husky() {
   // Skip Husky install in production and CI
   if (process.env.NODE_ENV === 'production' || process.env.CI === 'true') {
@@ -6,3 +8,5 @@ export default async function husky() {
   const husky = (await import('husky')).default;
   console.log(husky());
 }
+
+await husky();

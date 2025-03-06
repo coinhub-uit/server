@@ -1,3 +1,4 @@
-import HuskyInstall from './install-husky.mjs';
+#!/usr/bin/env node
 
-await HuskyInstall();
+import './install-husky.mjs';
+import './config-env-files.mjs';

@@ -1,0 +1,37 @@
+name: coihub-api-server-dev-local
+
+services:
+  api-server:
+    extends:
+      file: api-server.compose.yaml
+      service: api-server
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+    env_file: ../.env.local
+    depends_on:
+      - db
+    develop:
+      watch:
+        - path: ../src/
+          target: /app/src/
+          action: sync
+        - path: ../test/
+          target: /app/test/
+          action: sync
+        - path: ../package.json
+          action: rebuild
+    volumes:
+      - ..:/app/
+      - /app/node_modules
+
+  db:
+    extends:
+      file: db.compose.yaml
+      service: db
+    volumes:
+      - db:/data/postgres
+
+volumes:
+  db:

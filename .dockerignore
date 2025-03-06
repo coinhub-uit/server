@@ -1,4 +1,6 @@
 .editorconfig
+.env*
+.git
 .github
 .husky
 .lintstagedrc.json
@@ -7,6 +9,6 @@
 LICENSE
 README.md
 commitlint.config.ts
-compose.yaml
 dist
+docker-compose
 node_modules
