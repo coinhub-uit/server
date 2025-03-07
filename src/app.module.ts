@@ -16,6 +16,8 @@ import { TransactionEntity } from 'src/transaction/entities/transaction.entity';
 import { MethodModule } from './method/method.module';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
+import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
+import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -26,12 +28,14 @@ import { MethodEntity } from 'src/method/entities/method.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [
+        InterestRateEntity,
         TransactionEntity,
         UserEntity,
         NotificationEntity,
         SourceEntity,
         TicketEntity,
         MethodEntity,
+        TicketInterestRateEntity,
       ],
       synchronize: true,
     }),

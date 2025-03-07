@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { InterestRateModule } from './interest_rate/interest_rate.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
 
 @Module({
-  imports: [InterestRateModule],
+  imports: [TypeOrmModule.forFeature([InterestRateEntity])],
 })
 export class PlanModule {}
