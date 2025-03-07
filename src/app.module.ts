@@ -18,6 +18,12 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
 import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
+import { AdminModule } from './admin/admin.module';
+import { PlanEntity } from 'src/plan/entities/plan.entity';
+import { StatisticModule } from './statistic/statistic.module';
+import { AdminEntity } from 'src/admin/entities/admin.entity';
+import { StatisticEntity } from 'src/statistic/entities/statistic.entity';
+import { SettingModule } from './setting/setting.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -36,6 +42,9 @@ import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rat
         TicketEntity,
         MethodEntity,
         TicketInterestRateEntity,
+        StatisticEntity,
+        AdminEntity,
+        PlanEntity,
       ],
       synchronize: true,
     }),
@@ -58,6 +67,9 @@ import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rat
     PlanModule,
     TicketModule,
     MethodModule,
+    AdminModule,
+    StatisticModule,
+    SettingModule,
   ],
   controllers: [],
   providers: [],
