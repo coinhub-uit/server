@@ -6,8 +6,8 @@ export class PlanEntity {
   @PrimaryGeneratedColumn('increment')
   planId: number;
 
-  @Column({ type: 'enum', unique: true })
-  days: -1 | 90 | 180;
+  @Column({ type: 'int', unique: true })
+  days: number;
 
   @Column()
   isDisabled: boolean;
