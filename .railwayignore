@@ -1,0 +1,14 @@
+.editorconfig
+.env*
+.git
+.github
+.husky
+.lintstagedrc.json
+.prettierrc
+.vscode
+LICENSE
+README.md
+commitlint.config.ts
+dist
+docker-compose
+node_modules

@@ -5,6 +5,10 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 export default async function configEnvFiles() {
+  if (process.env.NODE_ENV === 'production' || process.env.CI === 'true') {
+    return;
+  }
+
   const source = join(process.cwd(), '.env.example');
   const targets = ['.env'];
 
@@ -21,5 +25,3 @@ export default async function configEnvFiles() {
     }
   }
 }
-
-await configEnvFiles();
