@@ -6,48 +6,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { NotificationModule } from './notification/notification.module';
 import { SourceModule } from 'src/user/source/source.module';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { NotificationEntity } from 'src/notification/entities/notification.entity';
-import { SourceEntity } from 'src/user/source/entities/source.entity';
 import { TransactionModule } from './transaction/transaction.module';
 import { PlanModule } from './plan/plan.module';
 import { TicketModule } from './ticket/ticket.module';
-import { TransactionEntity } from 'src/transaction/entities/transaction.entity';
 import { MethodModule } from './method/method.module';
-import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { MethodEntity } from 'src/method/entities/method.entity';
-import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
-import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
 import { AdminModule } from './admin/admin.module';
-import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { StatisticModule } from './statistic/statistic.module';
-import { AdminEntity } from 'src/admin/entities/admin.entity';
-import { StatisticEntity } from 'src/statistic/entities/statistic.entity';
 import { SettingModule } from './setting/setting.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import databaseConfig from 'src/config/database.config';
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT ?? '5432', 10),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [
-        InterestRateEntity,
-        TransactionEntity,
-        UserEntity,
-        NotificationEntity,
-        SourceEntity,
-        TicketEntity,
-        MethodEntity,
-        TicketInterestRateEntity,
-        StatisticEntity,
-        AdminEntity,
-        PlanEntity,
-      ],
-      synchronize: true,
+    ConfigModule.forRoot({
+      load: [databaseConfig],
     }),
+    TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     // TypeOrmModule.forRootAsync({
     //   useFactory: () => ({
     //     type: 'postgres',
@@ -70,6 +44,8 @@ import { SettingModule } from './setting/setting.module';
     AdminModule,
     StatisticModule,
     SettingModule,
+    ConfigModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
