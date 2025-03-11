@@ -11,5 +11,6 @@ declare namespace NodeJS {
     SUPABASE_KEY: string;
     SUPABASE_JWT_SECRET: string;
     JWT_LOCAL_SECRET: string;
+    JWT_REFRESH_SECRET: string;
   }
 }

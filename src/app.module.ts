@@ -16,10 +16,13 @@ import { SettingModule } from './setting/setting.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';
+import jwtConfig from 'src/config/jwt.config';
+import refreshJwtConfig from 'src/config/refresh-jwt.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [databaseConfig],
+      load: [databaseConfig, jwtConfig, refreshJwtConfig],
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     // TypeOrmModule.forRootAsync({
