@@ -1,10 +1,11 @@
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
 import { SourceEntity } from 'src/user/source/entities/source.entity';
+import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('ticket')
-export class TicketEntity {
+export class TicketEntity extends AbstractEntity<TicketEntity> {
   @PrimaryColumn({ type: 'uuid' })
   ticketId: string;
 

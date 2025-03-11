@@ -1,7 +1,8 @@
+import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity()
-export class StatisticEntity {
+export class StatisticEntity extends AbstractEntity<StatisticEntity> {
   @Column({ type: 'date' })
   date: Date;
 

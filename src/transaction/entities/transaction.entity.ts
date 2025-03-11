@@ -1,4 +1,5 @@
 import { SourceEntity } from 'src/user/source/entities/source.entity';
+import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 enum TransactionTypes {
@@ -8,7 +9,7 @@ enum TransactionTypes {
 }
 
 @Entity('transaction')
-export class TransactionEntity {
+export class TransactionEntity extends AbstractEntity<TransactionEntity> {
   @PrimaryColumn({ type: 'uuid' })
   transactionid: string;
 
