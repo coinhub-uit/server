@@ -17,6 +17,9 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+  @Column({ type: 'boolean' })
+  isSeen: boolean;
+
   @ManyToOne(() => UserEntity, (user) => user.notifications)
   user: UserEntity;
 }
