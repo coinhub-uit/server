@@ -26,18 +26,6 @@ import refreshJwtConfig from 'src/config/refresh-jwt.config';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
-    // TypeOrmModule.forRootAsync({
-    //   useFactory: () => ({
-    //     type: 'postgres',
-    //     host: process.env.DB_HOST,
-    //     port: parseInt(process.env.DB_PORT ?? '5432', 10),
-    //     username: process.env.DB_USERNAME,
-    //     password: process.env.DB_PASSWORD,
-    //     database: process.env.DB_NAME,
-    //     entities: [UserEntity, NotificationEntity, SourceEntity],
-    //     synchronize: false,
-    //   }),
-    // }),
     UserModule,
     NotificationModule,
     SourceModule,
