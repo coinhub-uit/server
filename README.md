@@ -30,6 +30,9 @@
 - Use [OpenAPI schema](./web/swagger/swagger.json)
 - View with [Github static host page](https://coinhub-uit.github.io/server/swagger/) or at endpoint `/api` of the server
 
+> [!NOTE]
+> Github static host page cannot sending request to the API because it's not designed to do so. Can only be tested with a real server.
+
 ---
 
 ## DEV
