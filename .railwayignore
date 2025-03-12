@@ -12,3 +12,4 @@ commitlint.config.ts
 dist
 docker-compose
 node_modules
+Dockerfile
