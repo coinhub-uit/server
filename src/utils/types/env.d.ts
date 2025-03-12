@@ -8,8 +8,6 @@ declare namespace NodeJS {
     DB_NAME: string;
     DB_PORT: string;
     AI_API_KEY: string;
-    SUPABASE_URL: string;
-    SUPABASE_KEY: string;
     SUPABASE_JWT_SECRET: string;
     JWT_LOCAL_SECRET: string;
     JWT_REFRESH_SECRET: string;
