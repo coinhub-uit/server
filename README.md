@@ -25,7 +25,10 @@
 
 ## DOCS
 
-- API endpoint: TODO
+### API endpoint
+
+- Use [OpenAPI schema](./web/swagger/swagger.json)
+- View with [Github static host page](https://coinhub-uit.github.io/server/swagger/) or at endpoint `/api` of the server
 
 ---
 
