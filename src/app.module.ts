@@ -15,6 +15,7 @@ import { StatisticModule } from './statistic/statistic.module';
 import { SettingModule } from './setting/setting.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { PlanInterestRateModule } from './plan-interest-rate/plan-interest-rate.module';
 import databaseConfig from 'src/config/database.config';
 import jwtConfig from 'src/config/jwt.config';
 import refreshJwtConfig from 'src/config/refresh-jwt.config';
@@ -49,6 +50,7 @@ import refreshJwtConfig from 'src/config/refresh-jwt.config';
     SettingModule,
     ConfigModule,
     AuthModule,
+    PlanInterestRateModule,
   ],
   controllers: [],
   providers: [],
