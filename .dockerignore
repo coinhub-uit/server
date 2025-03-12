@@ -10,5 +10,5 @@ LICENSE
 README.md
 commitlint.config.ts
 dist
-docker-compose
+docker
 node_modules
