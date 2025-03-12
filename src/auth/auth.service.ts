@@ -21,16 +21,18 @@ export class AuthService {
     }
     throw new UnauthorizedException('Wrong password');
   }
-  async login(username: string) {
-    const [token, refreshToken] = await Promise.all([
-      this.jwtService.sign({ sub: username }),
-      this.jwtService.sign({ sub: username }, this.refreshTokenConfiguration),
-    ]);
-    return { username: username, token, refreshToken };
+
+  login(username: string) {
+    const token = this.jwtService.sign({ sub: username });
+    const refreshToken = this.jwtService.sign(
+      { sub: username },
+      this.refreshTokenConfiguration,
+    );
+    return { username, token, refreshToken };
   }
 
-  async refreshToken(adminId: string) {
-    const [token] = await Promise.all([this.jwtService.sign({ sub: adminId })]);
-    return { id: adminId, token };
+  refreshToken(username: string) {
+    const [token] = this.jwtService.sign({ sub: username });
+    return { username: username, token };
   }
 }

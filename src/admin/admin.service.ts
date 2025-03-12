@@ -13,14 +13,14 @@ export class AdminService {
 
   async createAdmin(adminDetails: CreateAdminParams) {
     const newAdmin = this.AdminRepository.create(adminDetails);
-    return this.AdminRepository.save(newAdmin);
+    return await this.AdminRepository.save(newAdmin);
   }
 
   async findOne(username: string) {
-    return this.AdminRepository.findOneByOrFail({ username });
+    return await this.AdminRepository.findOneByOrFail({ username });
   }
 
   async find() {
-    return this.AdminRepository.find();
+    return await this.AdminRepository.find();
   }
 }
