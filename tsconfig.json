@@ -17,5 +17,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": [
+    "src",
+    "test",
+    "scripts",
+    "commitlint.config.ts",
+    ".lintstagedrc.json",
+    "eslint.config.mjs"
+  ]
 }

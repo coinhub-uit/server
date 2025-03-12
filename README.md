@@ -31,6 +31,17 @@
 
 ## DEV
 
-```sh
-npm i
-```
+1. Setup dev env
+   ```sh
+   npm i
+   ```
+2. Setup `.env` file
+3. Run dev
+   - Start postgres using docker (skip if you have already had postgres database)
+   ```sh
+   docker compose up
+   ```
+   - Run api server
+   ```sh
+   npm run start:dev
+   ```

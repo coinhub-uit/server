@@ -1,0 +1,19 @@
+name: coihub-api-server-prod-local
+
+services:
+  api-server:
+    extends:
+      file: api-server.compose.yaml
+      service: api-server
+    build:
+      target: production
+    environment:
+      - NODE_ENV=production
+    env_file: ../.env.local
+    depends_on:
+      - db
+
+  db:
+    extends:
+      file: db.compose.yaml
+      service: db
