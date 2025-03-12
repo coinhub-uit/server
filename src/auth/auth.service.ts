@@ -17,16 +17,16 @@ export class AuthService {
     const admin = await this.adminService.findOne(username);
     if (!admin) throw new UnauthorizedException('User not found');
     if (password === admin.password) {
-      return admin;
+      return admin.username;
     }
     throw new UnauthorizedException('Wrong password');
   }
-  async login(adminId: string) {
+  async login(username: string) {
     const [token, refreshToken] = await Promise.all([
-      this.jwtService.sign({ sub: adminId }),
-      this.jwtService.sign({ sub: adminId }, this.refreshTokenConfiguration),
+      this.jwtService.sign({ sub: username }),
+      this.jwtService.sign({ sub: username }, this.refreshTokenConfiguration),
     ]);
-    return { id: adminId, token, refreshToken };
+    return { username: username, token, refreshToken };
   }
 
   async refreshToken(adminId: string) {
