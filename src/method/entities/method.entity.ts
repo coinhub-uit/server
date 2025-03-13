@@ -5,7 +5,7 @@ import { Entity, OneToMany, PrimaryColumn } from 'typeorm';
 @Entity('method')
 export class MethodEntity extends AbstractEntity<MethodEntity> {
   @PrimaryColumn('uuid')
-  methodId: string;
+  id: string;
 
   @OneToMany(() => TicketEntity, (ticket) => ticket.method)
   tickets: TicketEntity[];

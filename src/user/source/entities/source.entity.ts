@@ -14,7 +14,7 @@ import {
 @Check(`"balance"::numeric >= 0`)
 export class SourceEntity {
   @PrimaryColumn({ type: 'varchar', length: 20 })
-  sourceId: string;
+  id: string;
 
   @Column({ type: 'money', default: 0 })
   balance: number;

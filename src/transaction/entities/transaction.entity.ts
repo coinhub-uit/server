@@ -11,7 +11,7 @@ enum TransactionTypes {
 @Entity('transaction')
 export class TransactionEntity extends AbstractEntity<TransactionEntity> {
   @PrimaryColumn({ type: 'uuid' })
-  transactionid: string;
+  id: string;
 
   @Column({ type: 'money' })
   money: number;
