@@ -1,5 +1,5 @@
 import { MethodEntity } from 'src/method/entities/method.entity';
-import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
+import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
 import { SourceEntity } from 'src/user/source/entities/source.entity';
 import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
@@ -25,8 +25,8 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   method: MethodEntity;
 
   @OneToMany(
-    () => TicketInterestRateEntity,
-    (ticketInterestRate) => ticketInterestRate.ticket,
+    () => TicketPlanHistoryEntity,
+    (ticketPlanHistory) => ticketPlanHistory.ticket,
   )
-  ticketInterestRates: TicketInterestRateEntity[];
+  ticketPlanHistories: TicketPlanHistoryEntity[];
 }

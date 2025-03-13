@@ -1,5 +1,5 @@
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
+import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
 import {
   Column,
   Entity,
@@ -20,10 +20,10 @@ export class PlanHistoryEntity {
   rate: number;
 
   @OneToMany(
-    () => TicketInterestRateEntity,
-    (ticketInterestRateEntity) => ticketInterestRateEntity.interestRate,
+    () => TicketPlanHistoryEntity,
+    (ticketPlanHistoryEntity) => ticketPlanHistoryEntity.planHistory,
   )
-  ticketInterestRates: TicketInterestRateEntity[];
+  ticketPlanHistories: TicketPlanHistoryEntity[];
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
   plan: PlanEntity;

@@ -3,20 +3,20 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
 
-@Entity('ticket_interest_rate')
-export class TicketInterestRateEntity {
+@Entity('ticket_plan_history')
+export class TicketPlanHistoryEntity {
   @PrimaryColumn({ type: 'date' })
   issueDate: Date;
 
   @Column({ type: 'date' })
   maturityDate: Date;
 
-  @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketInterestRates)
+  @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketPlanHistories)
   ticket: TicketEntity;
 
   @ManyToOne(
     () => PlanHistoryEntity,
-    (interestRate) => interestRate.ticketInterestRates,
+    (planHistory) => planHistory.ticketPlanHistories,
   )
-  interestRate: PlanHistoryEntity;
+  planHistory: PlanHistoryEntity;
 }
