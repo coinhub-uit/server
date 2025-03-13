@@ -11,7 +11,7 @@ import {
 @Entity('plan_history')
 export class PlanHistoryEntity {
   @PrimaryGeneratedColumn('increment')
-  planHistoryId: number;
+  id: number;
 
   @Column({ type: 'date' })
   definedDate: Date;

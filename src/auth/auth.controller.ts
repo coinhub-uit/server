@@ -11,9 +11,9 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/auth.service';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth/local-auth.guard';
-import { RefreshAuthGuard } from 'src/auth/guards/refresh-auth/refresh-auth.guard';
+import { AuthService } from 'src/auth/services/auth.service';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth/admin-local-auth.guard';
+import { RefreshAuthGuard } from 'src/auth/guards/refresh-auth/admin-refresh-auth.guard';
 
 interface adminAuth extends Request {
   user: string;

@@ -7,7 +7,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 @Entity('ticket')
 export class TicketEntity extends AbstractEntity<TicketEntity> {
   @PrimaryColumn({ type: 'uuid' })
-  ticketId: string;
+  id: string;
 
   @Column({ type: 'money' })
   initMoney: number;
