@@ -1,4 +1,4 @@
-import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
 import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -13,6 +13,6 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column()
   isDisabled: boolean;
 
-  @OneToMany(() => InterestRateEntity, (interestRate) => interestRate.plan)
-  interestRates: InterestRateEntity[];
+  @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
+  planHistories: PlanHistoryEntity[];
 }

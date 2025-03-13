@@ -1,4 +1,4 @@
-import { InterestRateEntity } from 'src/plan/interest_rate/entities/interest_rate.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
 
@@ -14,8 +14,8 @@ export class TicketInterestRateEntity {
   ticket: TicketEntity;
 
   @ManyToOne(
-    () => InterestRateEntity,
+    () => PlanHistoryEntity,
     (interestRate) => interestRate.ticketInterestRates,
   )
-  interestRate: InterestRateEntity;
+  interestRate: PlanHistoryEntity;
 }

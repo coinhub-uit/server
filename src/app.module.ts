@@ -5,7 +5,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { NotificationModule } from './notification/notification.module';
-import { SourceModule } from 'src/user/source/source.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { PlanModule } from './plan/plan.module';
 import { TicketModule } from './ticket/ticket.module';
@@ -28,7 +27,6 @@ import refreshJwtConfig from 'src/config/refresh-jwt.config';
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
     NotificationModule,
-    SourceModule,
     TransactionModule,
     PlanModule,
     TicketModule,

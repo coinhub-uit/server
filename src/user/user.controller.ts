@@ -20,4 +20,8 @@ export class UserController {
   getUsers() {
     return this.userService.getUsers();
   }
+
+  'sources/?userId=:id';
+
+  ':userId/sources/:sourceId';
 }

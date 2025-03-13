@@ -8,10 +8,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('interest_rate')
-export class InterestRateEntity {
+@Entity('plan_history')
+export class PlanHistoryEntity {
   @PrimaryGeneratedColumn('increment')
-  interestRateId: number;
+  planHistoryId: number;
 
   @Column({ type: 'date' })
   definedDate: Date;
@@ -25,6 +25,6 @@ export class InterestRateEntity {
   )
   ticketInterestRates: TicketInterestRateEntity[];
 
-  @ManyToOne(() => PlanEntity, (plan) => plan.interestRates)
+  @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
   plan: PlanEntity;
 }
