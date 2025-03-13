@@ -1,4 +1,4 @@
-import { RefreshAuthGuard } from './refresh-auth.guard';
+import { RefreshAuthGuard } from './admin-refresh-auth.guard';
 
 describe('RefreshAuthGuard', () => {
   it('should be defined', () => {

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
-import { AdminService } from 'src/admin/admin.service';
+import { AdminService } from 'src/admin/services/admin.service';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
 import { CreateAdminParams } from 'src/admin/utils/types';
 

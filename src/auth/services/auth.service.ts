@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AdminService } from 'src/admin/admin.service';
+import { AdminService } from 'src/admin/services/admin.service';
 import refreshJwtConfig from 'src/config/refresh-jwt.config';
 
 @Injectable()

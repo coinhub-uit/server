@@ -5,4 +5,3 @@ describe('JwtAuthGuard', () => {
     expect(new JwtAuthGuard()).toBeDefined();
   });
 });
-
