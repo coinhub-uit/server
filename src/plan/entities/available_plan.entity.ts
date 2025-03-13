@@ -11,7 +11,7 @@ import { ViewColumn, ViewEntity, DataSource } from 'typeorm';
       .addSelect('plan_history.rate', 'rate')
       .addSelect('plan.id', 'planId')
       .from(PlanHistoryEntity, 'plan_history')
-      .leftJoin(PlanEntity, 'plan', 'plan.id = planHistoryId.id')
+      .innerJoin(PlanEntity, 'plan', 'plan.id = plan_history.id')
       .groupBy('plan.days'),
 })
 export class AvailablePlanEntity {

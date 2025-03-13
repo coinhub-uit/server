@@ -6,7 +6,7 @@ import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @PrimaryColumn({ type: 'uuid' })
-  userId: string;
+  id: string;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 20 })
