@@ -5,7 +5,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('plan')
 export class PlanEntity extends AbstractEntity<PlanEntity> {
   @PrimaryGeneratedColumn('increment')
-  id: number;
+  id: string;
 
   @Column({ type: 'int', unique: true })
   days: number;

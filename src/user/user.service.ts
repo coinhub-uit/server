@@ -19,4 +19,8 @@ export class UserService {
   getUsers() {
     return this.userRepository.find();
   }
+
+  getUserById(id: string) {
+    return this.userRepository.findOneOrFail({ where: { id: id } });
+  }
 }

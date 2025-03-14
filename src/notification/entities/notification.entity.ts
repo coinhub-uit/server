@@ -5,7 +5,7 @@ import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 @Entity('notification')
 export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   @PrimaryColumn({ type: 'uuid' })
-  id: number;
+  id: string;
 
   @Index()
   @Column({ type: 'varchar' })
