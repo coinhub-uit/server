@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { PlanService } from 'src/plan/plan.service';
+import { PlanService } from 'src/plan/services/plan.service';
 
 @Controller('plan')
 export class PlanController {

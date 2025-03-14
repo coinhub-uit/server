@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MethodEntity } from 'src/method/entities/method.entity';
-import { MethodController } from './method.controller';
-import { MethodService } from './method.service';
+import { MethodController } from './controllers/method.controller';
+import { MethodService } from './services/method.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MethodEntity])],

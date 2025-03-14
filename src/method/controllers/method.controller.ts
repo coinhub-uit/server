@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { MethodService } from 'src/method/method.service';
+import { MethodService } from 'src/method/services/method.service';
 
 @Controller('method')
 export class MethodController {

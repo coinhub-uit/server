@@ -1,4 +1,4 @@
-import { SourceEntity } from 'src/user/source/entities/source.entity';
+import { SourceEntity } from 'src/source/entities/source.entity';
 import { AbstractEntity } from 'src/utils/abstract.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 

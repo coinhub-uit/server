@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { CreateAdminParams } from 'src/admin/utils/types';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
@@ -12,7 +13,10 @@ export class AdminService {
   ) {}
 
   async createAdmin(adminDetails: CreateAdminParams) {
-    const newAdmin = this.AdminRepository.create(adminDetails);
+    const newAdmin = this.AdminRepository.create({
+      username: adminDetails.username,
+      password: await bcrypt.hash(adminDetails.password, 10),
+    });
     return await this.AdminRepository.save(newAdmin);
   }
 

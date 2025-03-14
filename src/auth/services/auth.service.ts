@@ -3,7 +3,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
 import refreshJwtConfig from 'src/config/refresh-jwt.config';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,7 +16,7 @@ export class AuthService {
   async validateAdmin(username: string, password: string) {
     const admin = await this.adminService.findOne(username);
     if (!admin) throw new UnauthorizedException('User not found');
-    if (password === admin.password) {
+    if (await bcrypt.compare(password, admin.password)) {
       return admin.username;
     }
     throw new UnauthorizedException('Wrong password');
