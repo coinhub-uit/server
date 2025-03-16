@@ -13,7 +13,7 @@ import { AdminModule } from './admin/admin.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { SettingModule } from './setting/setting.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './admin/auth/auth.module';
 import databaseConfig from 'src/config/database.config';
 import jwtConfig from 'src/config/jwt.config';
 import refreshJwtConfig from 'src/config/refresh-jwt.config';

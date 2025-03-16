@@ -2,17 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthService } from 'src/auth/services/auth.service';
-import jwtConfig from 'src/config/jwt.config';
+import { AuthService } from 'src/user/auth/services/auth.service';
+import jwtSupabaseConfig from 'src/config/jwt-supabase.config';
 
 export type AuthJwtPayload = {
-  sub: number;
+  sub: string;
 };
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
   constructor(
-    @Inject(jwtConfig.KEY) jwtConfiguration: ConfigType<typeof jwtConfig>,
+    @Inject(jwtSupabaseConfig.KEY)
+    jwtConfiguration: ConfigType<typeof jwtSupabaseConfig>,
     private AuthService: AuthService,
   ) {
     super({

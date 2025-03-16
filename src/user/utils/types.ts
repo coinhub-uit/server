@@ -1,6 +1,7 @@
 export type CreateUserParams = {
   userId: string;
   userName: string;
+  password: string;
   fullName: string;
   birthDay: string;
   pin: string;

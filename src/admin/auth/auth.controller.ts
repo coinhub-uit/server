@@ -11,16 +11,16 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/services/auth.service';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth/admin-local-auth.guard';
-import { RefreshAuthGuard } from 'src/auth/guards/refresh-auth/admin-refresh-auth.guard';
+import { AuthService } from 'src/admin/auth/services/auth.service';
+import { LocalAuthGuard } from 'src/admin/auth/guards/local-auth/admin-local-auth.guard';
+import { RefreshAuthGuard } from 'src/admin/auth/guards/refresh-auth/admin-refresh-auth.guard';
 
 interface adminAuth extends Request {
   user: string;
 }
 
 // TODO: the token response is not match ...
-@Controller('auth')
+@Controller('admin/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -37,7 +37,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @Post('admin/login')
+  @Post('login')
   login(@Request() req: adminAuth) {
     return this.authService.login(req.user);
   }
@@ -53,7 +53,7 @@ export class AuthController {
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @UseGuards(RefreshAuthGuard)
-  @Post('admin/refresh')
+  @Post('refresh')
   refreshToken(@Request() req: adminAuth) {
     return this.authService.refreshToken(req.user);
   }
