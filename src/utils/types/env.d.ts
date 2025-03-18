@@ -12,5 +12,8 @@ declare namespace NodeJS {
     JWT_LOCAL_SECRET: string;
     JWT_REFRESH_SECRET: string;
     APP_NO_LISTEN: string;
+    TMN_CODE: string;
+    SECURE_SECRET: string;
+    VNPAY_HOST: string;
   }
 }
