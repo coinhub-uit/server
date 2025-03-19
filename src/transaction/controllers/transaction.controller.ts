@@ -1,7 +1,13 @@
 import { Controller, Post, Get } from '@nestjs/common';
 import { TransactionService } from 'src/transaction/services/transaction.service';
-import { CreateVnPayDto } from 'src/transaction/utils/dtos/create-vnpay.dto';
-import { CreateVnPayParams } from 'src/transaction/utils/types';
+import {
+  CreateVnPayDto,
+  TranferMoneysDto,
+} from 'src/transaction/utils/dtos/create-vnpay.dto';
+import {
+  CreateVnPayParams,
+  TranferMoneysParams,
+} from 'src/transaction/utils/types';
 import { IpnSuccess } from 'vnpay';
 
 @Controller('transaction')
@@ -19,6 +25,11 @@ export class TransactionController {
     return this.transactionService.createVNPayPayment(paymentDetails);
   }
 
+  @Post('tranfermoney')
+  tranferMoney(tranferMoneyDto: TranferMoneysDto) {
+    const tranferMoneyDetails: TranferMoneysParams = tranferMoneyDto;
+    return this.transactionService.tranferMoney(tranferMoneyDetails);
+  }
   @Get('vnpay-ipn')
   paymentCallBack() {
     return IpnSuccess;
