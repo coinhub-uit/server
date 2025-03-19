@@ -27,8 +27,4 @@ export class SourceEntity {
 
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
   tickets: TicketEntity[];
-
-  changeMoney(amount: number) {
-    this.balance -= amount;
-  }
 }

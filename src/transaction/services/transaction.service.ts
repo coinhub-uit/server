@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { VnpayService } from 'nestjs-vnpay';
-import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceService } from 'src/source/services/source.service';
 import {
   CreateVnPayParams,
   TranferMoneysParams,
 } from 'src/transaction/utils/types';
-import { Repository } from 'typeorm';
 import { dateFormat, ProductCode, VnpLocale } from 'vnpay';
 
 @Injectable()
 export class TransactionService {
   constructor(
-    @InjectRepository(SourceEntity)
-    private readonly sourceRepository: Repository<SourceEntity>,
+    private readonly sourceService: SourceService,
     private readonly vnpayService: VnpayService,
   ) {}
 
@@ -22,20 +19,15 @@ export class TransactionService {
   }
 
   async tranferMoney(tranferMoneyDetails: TranferMoneysParams) {
-    const [fromSource, toSource] = [
-      await this.sourceRepository.findOneOrFail({
-        where: { id: tranferMoneyDetails.fromSourceId },
-      }),
-      await this.sourceRepository.findOneOrFail({
-        where: { id: tranferMoneyDetails.toSourceId },
-      }),
-    ];
-    if (!fromSource || !toSource) {
-      return 'Error';
-    }
-    fromSource.changeMoney(tranferMoneyDetails.money);
-    toSource.changeMoney(tranferMoneyDetails.money);
-    return 'Successful';
+    await this.sourceService.changeBalanceSource(
+      -tranferMoneyDetails.money,
+      tranferMoneyDetails.fromSourceId,
+    );
+    await this.sourceService.changeBalanceSource(
+      +tranferMoneyDetails.money,
+      tranferMoneyDetails.toSourceId,
+    );
+    return 'Successfule';
   }
 
   createVNPayPayment(paymentDetails: CreateVnPayParams) {

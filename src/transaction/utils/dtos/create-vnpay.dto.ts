@@ -1,6 +1,6 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-class CreateVnPayDto {
+export class CreateVnPayDto {
   @IsNotEmpty()
   @IsString()
   vnp_ReturnUrl: string;
@@ -21,7 +21,7 @@ class CreateVnPayDto {
   vnp_OrderInfo: string;
 }
 
-class TranferMoneysDto {
+export class TranferMoneysDto {
   @IsNotEmpty()
   @IsString()
   fromSourceId: string;
@@ -37,5 +37,3 @@ class TranferMoneysDto {
   @IsDate()
   createAt: Date;
 }
-
-export { CreateVnPayDto, TranferMoneysDto };

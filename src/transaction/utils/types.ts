@@ -1,4 +1,4 @@
-type CreateVnPayParams = {
+export type CreateVnPayParams = {
   vnp_ReturnUrl: string;
 
   vnp_Amount: number;
@@ -10,7 +10,7 @@ type CreateVnPayParams = {
   vnp_OrderInfo: string;
 };
 
-type TranferMoneysParams = {
+export type TranferMoneysParams = {
   fromSourceId: string;
 
   toSourceId: string;
@@ -19,5 +19,3 @@ type TranferMoneysParams = {
 
   createAt: Date;
 };
-
-export { CreateVnPayParams, TranferMoneysParams };
