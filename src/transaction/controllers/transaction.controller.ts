@@ -3,7 +3,7 @@ import { TransactionService } from 'src/transaction/services/transaction.service
 import {
   CreateVnPayDto,
   TranferMoneysDto,
-} from 'src/transaction/utils/dtos/create-vnpay.dto';
+} from 'src/transaction/dtos/create-vnpay.dto';
 import {
   CreateVnPayParams,
   TranferMoneysParams,
