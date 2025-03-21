@@ -6,6 +6,7 @@ import { TransactionService } from './services/transaction.service';
 import { VnpayModule } from 'nestjs-vnpay';
 import vnpayConfig from 'src/config/vnpay.config';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { LocalStrategy } from 'src/user/auth/strategies/local.strategy';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { SourceEntity } from 'src/source/entities/source.entity';
     TypeOrmModule.forFeature([TransactionEntity, SourceEntity]),
   ],
   controllers: [TransactionController],
-  providers: [TransactionService],
+  providers: [TransactionService, LocalStrategy],
 })
 export class TransactionModule {}
