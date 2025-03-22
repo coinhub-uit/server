@@ -2,8 +2,9 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
-import refreshJwtConfig from 'src/config/refresh-jwt.config';
+import refreshJwtConfig from 'src/config/admin-refresh-jwt.config';
 import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -12,6 +13,8 @@ export class AuthService {
     @Inject(refreshJwtConfig.KEY)
     private refreshTokenConfiguration: ConfigType<typeof refreshJwtConfig>,
   ) {}
+
+  // TODO: Maybe? check for admin / user -> Guard for both of them
 
   async validateAdmin(username: string, password: string) {
     const admin = await this.adminService.findOne(username);
@@ -22,7 +25,7 @@ export class AuthService {
     throw new UnauthorizedException('Wrong password');
   }
 
-  login(username: string) {
+  loginAdmin(username: string) {
     const token = this.jwtService.sign({ sub: username });
     const refreshToken = this.jwtService.sign(
       { sub: username },
@@ -31,7 +34,7 @@ export class AuthService {
     return { username, token, refreshToken };
   }
 
-  refreshToken(username: string) {
+  refreshTokenAdmin(username: string) {
     const [token] = this.jwtService.sign({ sub: username });
     return { username: username, token };
   }

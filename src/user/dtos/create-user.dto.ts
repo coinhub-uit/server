@@ -15,9 +15,14 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   birthDay: string;
+
   pin: number;
+
   avatar?: Buffer;
+
   address?: string;
+
   email?: string;
+
   phoneNumber?: string;
 }

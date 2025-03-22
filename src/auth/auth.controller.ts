@@ -11,9 +11,9 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AuthService } from 'src/admin/auth/services/auth.service';
-import { LocalAuthGuard } from 'src/admin/auth/guards/local-auth/admin-local-auth.guard';
-import { RefreshAuthGuard } from 'src/admin/auth/guards/refresh-auth/admin-refresh-auth.guard';
+import { AuthService } from 'src/auth/services/auth.service';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth/admin-local-auth.guard';
+import { RefreshAuthGuard } from 'src/auth/guards/refresh-auth/admin-refresh-auth.guard';
 
 interface adminAuth extends Request {
   user: string;
@@ -39,7 +39,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Request() req: adminAuth) {
-    return this.authService.login(req.user);
+    return this.authService.loginAdmin(req.user);
   }
 
   @ApiBearerAuth()
@@ -55,6 +55,6 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Request() req: adminAuth) {
-    return this.authService.refreshToken(req.user);
+    return this.authService.refreshTokenAdmin(req.user);
   }
 }

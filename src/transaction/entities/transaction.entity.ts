@@ -1,5 +1,5 @@
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 enum TransactionTypes {

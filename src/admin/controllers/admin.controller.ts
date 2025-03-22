@@ -2,24 +2,20 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AdminService } from 'src/admin/services/admin.service';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
-import { CreateAdminParams } from 'src/admin/utils/types';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  // TODO: Guard this!
   @ApiCreatedResponse({
-    description: 'Successfully created admin',
+    description: 'Successfully logged in',
   })
   @Post()
   async createAdmin(@Body() createAdminDto: CreateAdminDto) {
-    const admin: CreateAdminParams = { ...createAdminDto };
-    await this.adminService.createAdmin(admin);
+    await this.adminService.createAdmin(createAdminDto);
   }
 
   // TODO: Guard this
-  // TODO: Change the password to hashed
   @Get()
   @ApiOkResponse({
     description: "Get admins' information",

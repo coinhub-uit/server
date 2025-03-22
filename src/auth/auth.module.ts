@@ -5,12 +5,12 @@ import { AdminService } from 'src/admin/services/admin.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { JwtModule } from '@nestjs/jwt';
-import jwtConfig from 'src/config/jwt.config';
+import jwtConfig from 'src/config/admin-jwt.config';
 import { ConfigModule } from '@nestjs/config';
-import refreshJwtConfig from 'src/config/refresh-jwt.config';
-import { LocalStrategy } from 'src/admin/auth/strategies/local.strategy';
-import { JwtStrategy } from 'src/admin/auth/strategies/jwt.stategy';
-import { RefreshJwtStrategy } from 'src/admin/auth/strategies/refresh.strategy';
+import refreshJwtConfig from 'src/config/admin-refresh-jwt.config';
+import { LocalStrategy } from 'src/auth/strategies/local.strategy';
+import { JwtStrategy } from 'src/auth/strategies/jwt.stategy';
+import { RefreshJwtStrategy } from 'src/auth/strategies/refresh.strategy';
 
 @Module({
   imports: [

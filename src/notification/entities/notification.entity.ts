@@ -1,5 +1,5 @@
 import { UserEntity } from 'src/user/entities/user.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('notification')

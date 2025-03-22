@@ -1,6 +1,6 @@
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('users')

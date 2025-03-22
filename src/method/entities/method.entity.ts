@@ -1,5 +1,5 @@
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('method')

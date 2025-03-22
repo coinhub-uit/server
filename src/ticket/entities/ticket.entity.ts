@@ -1,7 +1,7 @@
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('ticket')
