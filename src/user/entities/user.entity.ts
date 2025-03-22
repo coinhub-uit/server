@@ -21,6 +21,10 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Column({ type: 'date' })
   birthDay: Date;
 
+  @Index({ unique: true })
+  @Column({ type: 'char', length: 12 })
+  citizenId: string;
+
   @Column({ type: 'text', nullable: true })
   pin: string;
 
