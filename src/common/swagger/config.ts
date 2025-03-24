@@ -1,14 +1,23 @@
 import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  OpenAPIObject,
+  SwaggerCustomOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 import * as path from 'path';
 import { writeFileSync } from 'fs';
 
 export function configSwagger(app: INestApplication<any>) {
+  // TODO: This seem isn't right? it's the site, not the api docs site?
   const config = new DocumentBuilder()
     .setTitle('CoinHub')
-    .setDescription('CoinHub API endpoint')
+    .setDescription('CoinHub API docs')
     .addBearerAuth()
     .build();
+  const options: SwaggerCustomOptions = {
+    customSiteTitle: 'CoinHub API docs',
+  };
   const documentFactory = () => {
     const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
     const outputPath = path.join(
@@ -20,5 +29,5 @@ export function configSwagger(app: INestApplication<any>) {
     writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8' });
     return document;
   };
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory, options);
 }
