@@ -29,13 +29,13 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   pin: string;
 
   @Column({ type: 'bytea', nullable: true })
-  avatar: Buffer;
+  avatar?: Buffer;
 
   @Column({ type: 'text', nullable: true })
-  address: string;
+  address?: string;
 
   @Column({ type: 'text', nullable: true })
-  email: string;
+  email?: string;
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: NotificationEntity[];

@@ -16,7 +16,10 @@ class PinTranformFnParams implements TransformFnParams {
 }
 
 // TODO: Add docs later
-@ApiSchema()
+@ApiSchema({
+  name: 'CreateUserRequest',
+  description: 'The payload of the user register request',
+})
 export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -46,16 +49,15 @@ export class CreateUserDto {
   )
   pin: string;
 
-  // FIXME: maybe add more description will emit the Buffer
-  @ApiProperty()
-  avatar?: Buffer;
+  @ApiProperty({ nullable: true })
+  avatar?: string;
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   address?: string;
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   email?: string;
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   phoneNumber?: string;
 }

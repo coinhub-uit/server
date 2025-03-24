@@ -13,9 +13,9 @@ export class UserService {
   ) {}
 
   async createUser(userDetails: CreateUserDto) {
-    // TODO: handle pipe bla bla bla
     const newUser = this.userRepository.create({
       ...userDetails,
+      avatar: userDetails.avatar ? Buffer.from(userDetails.avatar) : undefined,
       password: await brcypt.hash(userDetails.password, 2),
       pin: await brcypt.hash(userDetails.pin, 2),
     });
