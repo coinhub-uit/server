@@ -18,6 +18,7 @@ import databaseConfig from 'src/config/database.config';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
 import userJwtConfig from 'src/config/user.jwt.config';
+import { RootController } from 'src/root/controllers/root.controller';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import userJwtConfig from 'src/config/user.jwt.config';
     ConfigModule,
     AuthModule,
   ],
-  controllers: [],
+  controllers: [RootController],
   providers: [],
 })
 export class AppModule {}
