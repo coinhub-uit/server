@@ -6,8 +6,8 @@ export class PlanController {
   constructor(private planService: PlanService) {}
 
   @Get()
-  getPlans(@Query('isDisabled') isDisabled: boolean) {
-    return this.planService.getPlans(isDisabled);
+  getPlans(@Query('isActive') isActive: boolean) {
+    return this.planService.getPlans(isActive);
   }
 
   @Get(':id')

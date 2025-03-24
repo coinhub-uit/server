@@ -41,6 +41,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   birthDay: string;
 
+  // TODO: @NTGNguyen: validate only 4 char
   @ApiProperty()
   @Transform(
     ({ value }: PinTranformFnParams) =>

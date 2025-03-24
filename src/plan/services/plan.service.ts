@@ -10,9 +10,9 @@ export class PlanService {
     private readonly planRepository: Repository<PlanEntity>,
   ) {}
 
-  getPlans(isDisabled: boolean) {
+  getPlans(isActive: boolean) {
     return this.planRepository.findOneOrFail({
-      where: { isDisabled: isDisabled },
+      where: { isActive },
     });
   }
 

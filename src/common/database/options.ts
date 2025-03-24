@@ -1,7 +1,7 @@
 import { resolve as pathResolve } from 'path';
 import { DataSourceOptions } from 'typeorm';
 
-export const datasourceOptions: DataSourceOptions = {
+export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10),
