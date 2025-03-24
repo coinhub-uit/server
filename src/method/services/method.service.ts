@@ -11,6 +11,6 @@ export class MethodService {
   ) {}
 
   getMethodById(id: string) {
-    return this.methodRepository.findOneOrFail({ where: { id: id } });
+    return this.methodRepository.findOneOrFail({ where: { id } });
   }
 }

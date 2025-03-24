@@ -1,13 +1,12 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { MethodEntity } from 'src/method/entities/method.entity';
-import { MethodId } from 'src/method/types/method-id.enum';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 
 const methods: Partial<MethodEntity>[] = [
-  { id: MethodId.NR },
-  { id: MethodId.PR },
-  { id: MethodId.PIR },
+  { id: 'NR' },
+  { id: 'PR' },
+  { id: 'PIR' },
 ];
 
 const plans: Partial<PlanEntity>[] = [

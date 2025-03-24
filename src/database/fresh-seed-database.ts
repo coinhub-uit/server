@@ -1,7 +1,7 @@
 async function freshSeed() {
-  await import('src/database/drop-database');
-  await import('src/database/create-database');
-  await import('src/database/seed-database');
+  await import('./drop-database');
+  await import('./create-database');
+  await import('./seed-database');
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
