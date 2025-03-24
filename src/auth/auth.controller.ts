@@ -11,16 +11,15 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/auth.service';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth/local-auth.guard';
-import { RefreshAuthGuard } from 'src/auth/guards/refresh-auth/refresh-auth.guard';
+import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
+import { AuthService } from 'src/auth/services/auth.service';
 
 interface adminAuth extends Request {
   user: string;
 }
 
 // TODO: the token response is not match ...
-@Controller('auth')
+@Controller('admin/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -32,14 +31,14 @@ export class AuthController {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       refreshToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-    } satisfies ReturnType<AuthController['login']>,
+    } satisfies Awaited<ReturnType<AuthController['login']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
-  @Post('admin/login')
+  @UseGuards(AdminLocalAuthGuard)
+  @Post('login')
   login(@Request() req: adminAuth) {
-    return this.authService.login(req.user);
+    return this.authService.loginAdmin(req.user);
   }
 
   @ApiBearerAuth()
@@ -49,12 +48,12 @@ export class AuthController {
       username: 'GuessMe',
       token:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-    } satisfies ReturnType<AuthController['refreshToken']>,
+    } satisfies Awaited<ReturnType<AuthController['refreshToken']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
-  @UseGuards(RefreshAuthGuard)
-  @Post('admin/refresh')
+  @UseGuards(AdminLocalAuthGuard)
+  @Post('refresh')
   refreshToken(@Request() req: adminAuth) {
-    return this.authService.refreshToken(req.user);
+    return this.authService.refreshTokenAdmin(req.user);
   }
 }

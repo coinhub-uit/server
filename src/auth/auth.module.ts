@@ -1,30 +1,31 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { AdminService } from 'src/admin/admin.service';
+import { AuthService } from './services/auth.service';
+import { AuthController } from 'src/auth/auth.controller';
+import { AdminService } from 'src/admin/services/admin.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
-import { JwtModule } from '@nestjs/jwt';
-import jwtConfig from 'src/config/jwt.config';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import refreshJwtConfig from 'src/config/refresh-jwt.config';
-import { LocalStrategy } from 'src/auth/strategies/local.strategy';
-import { JwtStrategy } from 'src/auth/strategies/jwt.stategy';
-import { RefreshJwtStrategy } from 'src/auth/strategies/refresh.strategy';
+import { AdminLocalStrategy } from 'src/auth/strategies/admin.local.strategy';
+import { AdminRefreshJwtStrategy } from 'src/auth/strategies/admin.refresh.strategy';
+import adminJwtConfig from 'src/config/admin.jwt.config';
+import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
+import userJwtConfig from 'src/config/user.jwt.config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AdminEntity]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
-    ConfigModule.forFeature(refreshJwtConfig),
+    ConfigModule.forFeature(adminJwtConfig),
+    ConfigModule.forFeature(adminRefreshJwtConfig),
+    ConfigModule.forFeature(userJwtConfig),
   ],
   providers: [
     AuthService,
     AdminService,
-    LocalStrategy,
-    JwtStrategy,
-    RefreshJwtStrategy,
+    JwtService,
+    AdminLocalStrategy,
+    AdminLocalStrategy,
+    AdminRefreshJwtStrategy,
   ],
   controllers: [AuthController],
 })

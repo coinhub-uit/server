@@ -1,13 +1,19 @@
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
-import { TicketInterestRateEntity } from 'src/ticket/ticket_interest_rate/entities/ticket_interest_rate.entity';
-import { SourceEntity } from 'src/user/source/entities/source.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('ticket')
 export class TicketEntity extends AbstractEntity<TicketEntity> {
-  @PrimaryColumn({ type: 'uuid' })
-  ticketId: string;
+  @PrimaryGeneratedColumn('increment')
+  id: string;
 
   @Column({ type: 'money' })
   initMoney: number;
@@ -25,8 +31,8 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   method: MethodEntity;
 
   @OneToMany(
-    () => TicketInterestRateEntity,
-    (ticketInterestRate) => ticketInterestRate.ticket,
+    () => TicketPlanHistoryEntity,
+    (ticketPlanHistory) => ticketPlanHistory.ticket,
   )
-  ticketInterestRates: TicketInterestRateEntity[];
+  ticketPlanHistories: TicketPlanHistoryEntity[];
 }

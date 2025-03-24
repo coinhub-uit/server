@@ -1,22 +1,29 @@
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
-import { SourceEntity } from 'src/user/source/entities/source.entity';
-import { AbstractEntity } from 'src/utils/abstract.entity';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @PrimaryColumn({ type: 'uuid' })
-  userId: string;
+  id: string;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 20 })
   userName: string;
+
+  @Column()
+  password: string;
 
   @Column({ type: 'varchar' })
   fullName: string;
 
   @Column({ type: 'date' })
   birthDay: Date;
+
+  @Index({ unique: true })
+  @Column({ type: 'char', length: 12 })
+  citizenId: string;
 
   @Column({ type: 'text', nullable: true })
   pin: string;
