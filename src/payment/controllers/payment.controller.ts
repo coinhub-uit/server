@@ -1,8 +1,9 @@
-import { Controller, Post, Get } from '@nestjs/common';
+import { Controller, Post, Get, Req } from '@nestjs/common';
 import { PaymentService } from 'src/payment/services/payment.service';
 import { CreateVnPayDto } from 'src/payment/dtos/create-vnpay.dto';
-import { IpnSuccess } from 'vnpay';
+import { ReturnQueryFromVNPay } from 'vnpay';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
+import { Request } from 'express';
 
 @Controller('payment')
 export class PaymentController {
@@ -19,7 +20,9 @@ export class PaymentController {
   }
 
   @Get('vnpay-ipn')
-  paymentCallBack() {
-    return IpnSuccess;
+  async paymentCallBack(@Req() req: Request) {
+    return await this.paymentService.verifyIpn(
+      req.query as ReturnQueryFromVNPay,
+    );
   }
 }

@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { VnpayService } from 'nestjs-vnpay';
 import { SourceService } from 'src/source/services/source.service';
-import { dateFormat, ProductCode, VnpLocale } from 'vnpay';
+import {
+  dateFormat,
+  IpnFailChecksum,
+  IpnUnknownError,
+  ProductCode,
+  ReturnQueryFromVNPay,
+  VnpLocale,
+} from 'vnpay';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
 import { CreateVnPayDto } from '../dtos/create-vnpay.dto';
+import { Request } from 'express';
 
 @Injectable()
 export class PaymentService {
@@ -25,7 +33,18 @@ export class PaymentService {
       +tranferMoneyDetails.money,
       tranferMoneyDetails.toSourceId,
     );
-    return 'Successfule';
+    return 'Successful';
+  }
+
+  // FIXME: maybe need another transaction id... to track. Or,... Embed in the information.
+  async verifyIpn(query: ReturnQueryFromVNPay) {
+    const verification = await this.vnpayService.verifyIpnCall(query);
+    if (!verification.isVerified) {
+      return IpnFailChecksum;
+    }
+    if (!verification.isSuccess) {
+      return IpnUnknownError;
+    }
   }
 
   createVNPayPayment(paymentDetails: CreateVnPayDto) {
