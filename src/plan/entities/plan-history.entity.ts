@@ -1,5 +1,6 @@
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
+import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
 import {
   Column,
   Entity,
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('plan_history')
-export class PlanHistoryEntity {
+export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
   id: number;
 

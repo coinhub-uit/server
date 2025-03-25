@@ -12,9 +12,6 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Column({ type: 'varchar', length: 20 })
   userName: string;
 
-  @Column()
-  password: string;
-
   @Column({ type: 'varchar' })
   fullName: string;
 

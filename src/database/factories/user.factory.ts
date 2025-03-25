@@ -1,6 +1,14 @@
 import { hash } from 'src/common/utils/hashing';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { setSeederFactory } from 'typeorm-extension';
+import { faker } from '@faker-js/faker';
+
+async function getAvatarBytes() {
+  const avatarUrl = faker.image.avatar(); // Get a random avatar URL
+  const response = await fetch(avatarUrl);
+  const buffer = await response.arrayBuffer(); // Convert to bytes
+  return Buffer.from(buffer);
+}
 
 export default setSeederFactory(UserEntity, async (faker) => {
   const user = new UserEntity({
@@ -16,6 +24,7 @@ export default setSeederFactory(UserEntity, async (faker) => {
     birthDay: faker.date.birthdate(),
     email: faker.internet.email(),
     address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}, ${faker.location.country()}`,
+    avatar: faker.datatype.boolean() ? await getAvatarBytes() : undefined,
   });
 
   return user;

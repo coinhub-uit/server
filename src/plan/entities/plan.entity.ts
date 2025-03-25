@@ -1,4 +1,4 @@
-import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
   AfterInsert,

@@ -16,7 +16,6 @@ export class UserService {
     const newUser = this.userRepository.create({
       ...userDetails,
       avatar: userDetails.avatar ? Buffer.from(userDetails.avatar) : undefined,
-      password: await hash(userDetails.password),
       pin: await hash(userDetails.pin),
     });
     return this.userRepository.save(newUser);

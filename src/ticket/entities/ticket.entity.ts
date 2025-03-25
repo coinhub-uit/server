@@ -1,7 +1,7 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket_plan_history.entity';
+import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
 import {
   Column,
   Entity,

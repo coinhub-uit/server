@@ -1,4 +1,4 @@
-import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
