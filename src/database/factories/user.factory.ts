@@ -11,7 +11,7 @@ async function getAvatarBytes() {
 }
 
 export default setSeederFactory(UserEntity, async (faker) => {
-  const user = new UserEntity({
+  return new UserEntity({
     pin: await hash(
       faker.string.numeric({ length: 4, allowLeadingZeros: true }),
     ),
@@ -26,6 +26,4 @@ export default setSeederFactory(UserEntity, async (faker) => {
     address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}, ${faker.location.country()}`,
     avatar: faker.datatype.boolean() ? await getAvatarBytes() : undefined,
   });
-
-  return user;
 });
