@@ -3,6 +3,6 @@ export function generateTxnRef(): string {
   const randomString = Array.from({ length: 6 }, () =>
     Math.random().toString(36).charAt(2).toUpperCase(),
   ).join('');
-  const txnRef = `VN${timestamp}${randomString}`;
+  const txnRef = `VNPAY${timestamp}${randomString}`;
   return txnRef;
 }

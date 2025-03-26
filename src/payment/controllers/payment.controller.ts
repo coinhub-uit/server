@@ -4,6 +4,7 @@ import { CreateVnPayDto } from 'src/payment/dtos/create-vnpay.dto';
 import { ReturnQueryFromVNPay } from 'vnpay';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
 import { Request } from 'express';
+import { CreateVnpayTransactionDto } from 'src/payment/dtos/create-transaction.dto';
 
 @Controller('payment')
 export class PaymentController {
@@ -15,8 +16,10 @@ export class PaymentController {
   }
 
   @Post('vnpay-transaction')
-  createVnpayTransaction() {
-    return this.paymentService;
+  createVnpayTransaction(createVnpayTransactionDto: CreateVnpayTransactionDto) {
+    return this.paymentService.createVnpayTransaction(
+      createVnpayTransactionDto,
+    );
   }
   @Post('tranfer-money')
   tranferMoney(tranferMoneyDto: TranferMoneysDto) {
