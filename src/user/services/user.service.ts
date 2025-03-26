@@ -15,7 +15,9 @@ export class UserService {
   async createUser(userDetails: CreateUserDto) {
     const newUser = this.userRepository.create({
       ...userDetails,
-      avatar: userDetails.avatar ? Buffer.from(userDetails.avatar) : undefined,
+      avatar: userDetails.avatar
+        ? Buffer.from(userDetails.avatar, 'utf8')
+        : undefined,
       pin: await hash(userDetails.pin),
     });
     return this.userRepository.save(newUser);

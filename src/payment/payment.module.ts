@@ -6,11 +6,12 @@ import vnpayConfig from 'src/config/vnpay.config';
 import { SourceService } from 'src/source/services/source.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { VnpayTransactionEntity } from 'src/payment/entities/vnpay-transaction.entity';
 
 @Module({
   imports: [
     VnpayModule.registerAsync(vnpayConfig.asProvider()),
-    TypeOrmModule.forFeature([SourceEntity]),
+    TypeOrmModule.forFeature([SourceEntity, VnpayTransactionEntity]),
   ],
   controllers: [PaymentController],
   providers: [PaymentService, SourceService],

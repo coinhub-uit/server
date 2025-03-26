@@ -4,10 +4,12 @@ import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanService } from './services/plan.service';
 import { PlanController } from './controllers/plan.controller';
+import { AvailablePlanController } from './controllers/available-plan.controller';
+import { AvailablePlanService } from './available-plan/available-plan.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PlanHistoryEntity, PlanEntity])],
-  providers: [PlanService],
-  controllers: [PlanController],
+  providers: [PlanService, AvailablePlanService],
+  controllers: [PlanController, AvailablePlanController],
 })
 export class PlanModule {}
