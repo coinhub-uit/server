@@ -1,4 +1,4 @@
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { Seeder, SeederFactory, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
@@ -8,19 +8,29 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
 import { faker } from '@faker-js/faker';
+import {
+  QueryDeepPartialEntity,
+  QueryPartialEntity,
+} from 'typeorm/query-builder/QueryPartialEntity';
 
 // function seedTicketsPrMethod(nrEntity: MethodEntity, ticketFactory: SeederFactory<TicketEntity>){
 //
 // }
 
 const DATE_NOW = Object.freeze(new Date());
+const DATE_NOW_START_MONTH = Object.freeze(new Date().set);
 const DATE_PREVIOUS_YEAR = Object.freeze(new Date(new Date().setMonth(-12)));
-const PREVIOUS_YEAR = DATE_PREVIOUS_YEAR.getFullYear();
 const MONTH_OF_DATE_NOW = DATE_NOW.getMonth();
+
+const METHODS: QueryPartialEntity<MethodEntity>[] = [
+  { id: 'NR' },
+  { id: 'PR' },
+  { id: 'PIR' },
+];
 
 function getPlanHistoryEntities(
   planEntities: PlanEntity[],
-): Partial<PlanHistoryEntity>[] {
+): QueryPartialEntity<PlanHistoryEntity>[] {
   return [
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
@@ -105,6 +115,29 @@ function getPlanHistoryEntities(
   ];
 }
 
+type MethodEntitiesObject = {
+  nr: MethodEntity;
+  pir: MethodEntity;
+  pr: MethodEntity;
+};
+
+function seedTicketAndTicketHistory(
+  ticketFactory: SeederFactory<TicketEntity>,
+  sourceEntities: SourceEntity[],
+  methodEntitiesObject: MethodEntitiesObject,
+  planEntities: PlanEntity[],
+): void {
+  const ticketEntity: QueryDeepPartialEntity<TicketEntity> = {
+    source: faker.helpers.arrayElement(sourceEntities),
+    method: methodEntitiesObject.pr,
+    initMoney: 2000000,
+    createdAt: new Date(),
+  };
+
+  const ticketEntitiesWithTicketHistory: QueryDeepPartialEntity<TicketEntity>[] =
+    [{}];
+}
+
 export default class MethodSeeder implements Seeder {
   public async run(
     dataSource: DataSource,
@@ -112,19 +145,13 @@ export default class MethodSeeder implements Seeder {
   ): Promise<void> {
     // method
     const methodEntities = (
-      await dataSource
-        .getRepository(MethodEntity)
-        .insert([{ id: 'NR' }, { id: 'PR' }, { id: 'PIR' }])
+      await dataSource.getRepository(MethodEntity).insert(METHODS)
     ).generatedMaps as MethodEntity[];
-    // const nrMethodEntity = methodEntities.find(
-    //   (methodEntity) => methodEntity.id === 'NR',
-    // )!;
-    // const prMethodEntity = methodEntities.find(
-    //   (methodEntity) => methodEntity.id === 'PR',
-    // )!;
-    // const pirMethodEntity = methodEntities.find(
-    //   (methodEntity) => methodEntity.id === 'PIR',
-    // )!;
+    const methodEntitiesObj = {
+      nr: methodEntities.find((methodEntity) => methodEntity.id === 'NR')!,
+      pr: methodEntities.find((methodEntity) => methodEntity.id === 'PR')!,
+      pir: methodEntities.find((methodEntity) => methodEntity.id === 'PIR')!,
+    };
 
     // plan
     const planEntities = (
@@ -145,7 +172,7 @@ export default class MethodSeeder implements Seeder {
     });
 
     // plan_history
-    const planHistoryFactory = factoryManager.get(PlanHistoryEntity);
+    // const planHistoryFactory = factoryManager.get(PlanHistoryEntity);
     // const _planHistoryEntitiesMayDup = await planHistoryFactory.make({
     //   plan: faker.helpers.arrayElement(planEntities),
     // });
@@ -161,6 +188,10 @@ export default class MethodSeeder implements Seeder {
     // planHistoryEntities.sort((a, b) =>
     //   a.definedDate < b.definedDate ? -1 : 1,
     // );
+    const planHistoryRepository = dataSource.getRepository(PlanHistoryEntity);
+    const planHistoryEntities = await planHistoryRepository.insert(
+      getPlanHistoryEntities(planEntities),
+    );
 
     // ticket_plan_history
     const ticketPlanHistoryRepository = dataSource.getRepository(

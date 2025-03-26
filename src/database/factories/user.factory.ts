@@ -2,6 +2,7 @@ import { hash } from 'src/common/utils/hashing';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { setSeederFactory } from 'typeorm-extension';
 import { faker } from '@faker-js/faker';
+import { randomUUID } from 'crypto';
 
 async function getAvatarBytes() {
   const avatarUrl = faker.image.avatar(); // Get a random avatar URL
@@ -12,6 +13,7 @@ async function getAvatarBytes() {
 
 export default setSeederFactory(UserEntity, async (faker) => {
   return new UserEntity({
+    id: randomUUID(),
     pin: await hash(
       faker.string.numeric({ length: 4, allowLeadingZeros: true }),
     ),
