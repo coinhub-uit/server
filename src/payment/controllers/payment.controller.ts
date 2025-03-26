@@ -14,6 +14,10 @@ export class PaymentController {
     return this.paymentService.createVNPayPayment(createVnPayDto);
   }
 
+  @Post('vnpay-transaction')
+  createVnpayTransaction() {
+    return this.paymentService;
+  }
   @Post('tranfer-money')
   tranferMoney(tranferMoneyDto: TranferMoneysDto) {
     return this.paymentService.tranferMoney(tranferMoneyDto);

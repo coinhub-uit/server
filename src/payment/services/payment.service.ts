@@ -11,13 +11,19 @@ import {
 } from 'vnpay';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
 import { CreateVnPayDto } from '../dtos/create-vnpay.dto';
-import { Request } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { VnpayTransactionEntity } from 'src/payment/entities/vnpay-transaction.entity';
+import { CreateVnpayTransactionDto } from 'src/payment/dtos/create-transaction.dto';
+import { generateTxnRef } from 'src/common/utils/generate_txn_ref';
 
 @Injectable()
 export class PaymentService {
   constructor(
     private readonly sourceService: SourceService,
     private readonly vnpayService: VnpayService,
+    @InjectRepository(VnpayTransactionEntity)
+    private readonly vnpayTransactionRepository: Repository<VnpayTransactionEntity>,
   ) {}
 
   getBankList() {
@@ -34,6 +40,20 @@ export class PaymentService {
       tranferMoneyDetails.toSourceId,
     );
     return 'Successful';
+  }
+
+  async createVnpayTransaction(
+    vnpayTransactionDetails: CreateVnpayTransactionDto,
+  ) {
+    const vnpayTransaction = this.vnpayTransactionRepository.create({
+      ...vnpayTransactionDetails,
+      txnRef: generateTxnRef(),
+    });
+    await this.sourceService.changeBalanceSource(
+      vnpayTransactionDetails.amount,
+      vnpayTransactionDetails.sourceDestination,
+    );
+    return this.vnpayTransactionRepository.save(vnpayTransaction);
   }
 
   // FIXME: maybe need another transaction id... to track. Or,... Embed in the information.
