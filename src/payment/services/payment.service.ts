@@ -4,6 +4,9 @@ import { SourceService } from 'src/source/services/source.service';
 import {
   dateFormat,
   IpnFailChecksum,
+  IpnInvalidAmount,
+  IpnOrderNotFound,
+  IpnSuccess,
   IpnUnknownError,
   ProductCode,
   ReturnQueryFromVNPay,
@@ -56,7 +59,6 @@ export class PaymentService {
     return this.vnpayTransactionRepository.save(vnpayTransaction);
   }
 
-  // FIXME: maybe need another transaction id... to track. Or,... Embed in the information.
   async verifyIpn(query: ReturnQueryFromVNPay) {
     const verification = await this.vnpayService.verifyIpnCall(query);
     if (!verification.isVerified) {
@@ -65,6 +67,17 @@ export class PaymentService {
     if (!verification.isSuccess) {
       return IpnUnknownError;
     }
+    const foundOrder = await this.vnpayTransactionRepository.findOneOrFail({
+      where: { txnRef: verification.vnp_TxnRef },
+    });
+    if (!foundOrder || verification.vnp_TxnRef !== foundOrder.txnRef) {
+      return IpnOrderNotFound;
+    }
+    if (verification.vnp_Amount !== foundOrder.amount) {
+      return IpnInvalidAmount;
+    }
+    foundOrder.isPaid = true;
+    return IpnSuccess;
   }
 
   createVNPayPayment(paymentDetails: CreateVnPayDto) {
