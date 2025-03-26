@@ -29,6 +29,7 @@ export class CreateVnpayDto {
   })
   ipAddress: string;
 
+  // TODO: add desc
   @IsString()
   @ApiProperty({
     description: '',

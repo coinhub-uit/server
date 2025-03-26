@@ -1,34 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { VnpayService } from 'nestjs-vnpay';
 import { SourceService } from 'src/source/services/source.service';
-import {
-  dateFormat,
-  IpnFailChecksum,
-  IpnUnknownError,
-  ProductCode,
-  ReturnQueryFromVNPay,
-  VnpLocale,
-} from 'vnpay';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
-import { CreateVnpayDto } from '../dtos/create-vnpay.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { VnpayTransactionEntity } from 'src/payment/entities/vnpay-transaction.entity';
-import { CreateVnpayTransactionDto } from 'src/payment/dtos/create-transaction.dto';
-import { generateTxnRef } from 'src/common/utils/generate_txn_ref';
-
 @Injectable()
 export class PaymentService {
-  constructor(
-    private readonly sourceService: SourceService,
-    private readonly vnpayService: VnpayService,
-    @InjectRepository(VnpayTransactionEntity)
-    private readonly vnpayTransactionRepository: Repository<VnpayTransactionEntity>,
-  ) {}
-
-  getBankList() {
-    return this.vnpayService.getBankList();
-  }
+  constructor(private readonly sourceService: SourceService) {}
 
   async tranferMoney(tranferMoneyDetails: TranferMoneysDto) {
     await this.sourceService.changeBalanceSource(
@@ -40,45 +15,5 @@ export class PaymentService {
       tranferMoneyDetails.toSourceId,
     );
     return 'Successful';
-  }
-
-  async createVnpayTransaction(
-    vnpayTransactionDetails: CreateVnpayTransactionDto,
-  ) {
-    const vnpayTransaction = this.vnpayTransactionRepository.create({
-      ...vnpayTransactionDetails,
-      txnRef: generateTxnRef(),
-    });
-    await this.sourceService.changeBalanceSource(
-      vnpayTransactionDetails.amount,
-      vnpayTransactionDetails.sourceDestination,
-    );
-    return this.vnpayTransactionRepository.save(vnpayTransaction);
-  }
-
-  // FIXME: maybe need another transaction id... to track. Or,... Embed in the information.
-  async verifyIpn(query: ReturnQueryFromVNPay) {
-    const verification = await this.vnpayService.verifyIpnCall(query);
-    if (!verification.isVerified) {
-      return IpnFailChecksum;
-    }
-    if (!verification.isSuccess) {
-      return IpnUnknownError;
-    }
-  }
-
-  createVNPayPayment(paymentDetails: CreateVnpayDto) {
-    return this.vnpayService.buildPaymentUrl({
-      vnp_Amount: paymentDetails.amount,
-      vnp_ReturnUrl: paymentDetails.returnUrl,
-      vnp_IpAddr: paymentDetails.ipAddress,
-      vnp_OrderInfo: paymentDetails.orderInfo,
-      // TODO: Create new table[tnx ref, status], generate random bla
-      vnp_TxnRef: 'cool',
-      vnp_OrderType: ProductCode.Pay,
-      vnp_Locale: VnpLocale.VN,
-      vnp_CreateDate: dateFormat(new Date()),
-      vnp_ExpireDate: dateFormat(new Date()),
-    });
   }
 }

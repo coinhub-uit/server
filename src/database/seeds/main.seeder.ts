@@ -130,8 +130,7 @@ function seedTicketAndTicketHistory(
   const ticketEntity: QueryDeepPartialEntity<TicketEntity> = {
     source: faker.helpers.arrayElement(sourceEntities),
     method: methodEntitiesObject.pr,
-    initMoney: 2000000,
-    createdAt: new Date(),
+    openedDate: new Date(),
   };
 
   const ticketEntitiesWithTicketHistory: QueryDeepPartialEntity<TicketEntity>[] =
@@ -239,10 +238,10 @@ export default class MethodSeeder implements Seeder {
             for (let _month = 0; _month < _numberOfMonths; ++_month) {
               _startDate.setMonth(_startDate.getMonth() + 1);
               const _endCurrentIterateDate = new Date(_startDate);
-              _endCurrentIterateDate.setd;
-              ticketPlanHistoryRepository.insert({
-                ticket: _ticketEntity,
-              });
+              _endCurrentIterateDate.setd,
+                ticketPlanHistoryRepository.insert({
+                  ticket: _ticketEntity,
+                });
             }
           }),
       );

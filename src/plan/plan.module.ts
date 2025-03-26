@@ -5,10 +5,17 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanService } from './services/plan.service';
 import { PlanController } from './controllers/plan.controller';
 import { AvailablePlanController } from './controllers/available-plan.controller';
-import { AvailablePlanService } from './available-plan/available-plan.service';
+import { AvailablePlanService } from 'src/plan/services/available-plan.service';
+import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PlanHistoryEntity, PlanEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      PlanHistoryEntity,
+      PlanEntity,
+      AvailablePlanEntity,
+    ]),
+  ],
   providers: [PlanService, AvailablePlanService],
   controllers: [PlanController, AvailablePlanController],
 })

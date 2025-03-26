@@ -1,6 +1,6 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { SettingEntity } from 'src/setting/entities/setting.entity';
+import { SettingEntity } from 'src/setting/entities/settings.entity';
 
 export default class MoneySeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
