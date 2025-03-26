@@ -1,7 +1,7 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
+import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import {
   Column,
   Entity,
@@ -15,11 +15,8 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @PrimaryGeneratedColumn('increment')
   id: string;
 
-  @Column({ type: 'money' })
-  initMoney: number;
-
   @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  openedDate: Date;
 
   @Column({ type: 'date', nullable: true })
   closedDate: Date;
@@ -30,9 +27,6 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @ManyToOne(() => MethodEntity, (method) => method.tickets)
   method: MethodEntity;
 
-  @OneToMany(
-    () => TicketPlanHistoryEntity,
-    (ticketPlanHistory) => ticketPlanHistory.ticket,
-  )
-  ticketPlanHistories: TicketPlanHistoryEntity[];
+  @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
+  ticketHistories: TicketHistoryEntity[];
 }

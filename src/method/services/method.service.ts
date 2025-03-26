@@ -10,7 +10,7 @@ export class MethodService {
     private readonly methodRepository: Repository<MethodEntity>,
   ) {}
 
-  getMethodById(id: string) {
+  getMethodById(id: MethodEntity['id']) {
     return this.methodRepository.findOneOrFail({ where: { id } });
   }
 }

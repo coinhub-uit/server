@@ -1,6 +1,6 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
 import {
   Column,
   Entity,
@@ -21,10 +21,10 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   rate: number;
 
   @OneToMany(
-    () => TicketPlanHistoryEntity,
-    (ticketPlanHistoryEntity) => ticketPlanHistoryEntity.planHistory,
+    () => TicketHistoryEntity,
+    (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketPlanHistories: TicketPlanHistoryEntity[];
+  ticketHistories: TicketHistoryEntity[];
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
   plan: PlanEntity;

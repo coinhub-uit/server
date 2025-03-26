@@ -28,7 +28,6 @@ export class AdminController {
     await this.adminService.createAdmin(createAdminDto);
   }
 
-  // TODO: Guard this
   @Get()
   @ApiOkResponse({
     description: "Get admins' information",

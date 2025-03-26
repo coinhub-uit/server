@@ -6,7 +6,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { TicketPlanHistoryEntity } from 'src/ticket/entities/ticket-plan-history.entity';
+import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { faker } from '@faker-js/faker';
 import {
   QueryDeepPartialEntity,
@@ -194,9 +194,8 @@ export default class MethodSeeder implements Seeder {
     );
 
     // ticket_plan_history
-    const ticketPlanHistoryRepository = dataSource.getRepository(
-      TicketPlanHistoryEntity,
-    );
+    const ticketHistoryRepository =
+      dataSource.getRepository(TicketHistoryEntity);
 
     // ticket
     const ticketFactory = factoryManager.get(TicketEntity);
