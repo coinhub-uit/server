@@ -1,8 +1,8 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
-export class VnpayTransactionEntity extends AbstractEntity<VnpayTransactionEntity> {
+@Entity({ name: 'transaction' })
+export class TransactionEntity extends AbstractEntity<TransactionEntity> {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -15,6 +15,6 @@ export class VnpayTransactionEntity extends AbstractEntity<VnpayTransactionEntit
   @Column({ type: 'money' })
   amount: number;
 
-  @Column()
-  isPaid: boolean;
+  @Column({ type: 'boolean', default: false })
+  isPaid: boolean = false;
 }

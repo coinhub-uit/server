@@ -1,35 +1,13 @@
-import { Controller, Post, Get, Req } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
+import { TranferMoneysDto } from 'src/payment/dtos/transfer-money.dto';
 import { PaymentService } from 'src/payment/services/payment.service';
-import { CreateVnPayDto } from 'src/payment/dtos/create-vnpay.dto';
-import { ReturnQueryFromVNPay } from 'vnpay';
-import { TranferMoneysDto } from '../dtos/transfer-money.dto';
-import { Request } from 'express';
-import { CreateVnpayTransactionDto } from 'src/payment/dtos/create-transaction.dto';
 
 @Controller('payment')
 export class PaymentController {
   constructor(private paymentService: PaymentService) {}
 
-  @Post('vnpay')
-  createPaymentVNPay(createVnPayDto: CreateVnPayDto) {
-    return this.paymentService.createVNPayPayment(createVnPayDto);
-  }
-
-  @Post('vnpay-transaction')
-  createVnpayTransaction(createVnpayTransactionDto: CreateVnpayTransactionDto) {
-    return this.paymentService.createVnpayTransaction(
-      createVnpayTransactionDto,
-    );
-  }
   @Post('tranfer-money')
   tranferMoney(tranferMoneyDto: TranferMoneysDto) {
     return this.paymentService.tranferMoney(tranferMoneyDto);
-  }
-
-  @Get('vnpay-ipn')
-  async paymentCallBack(@Req() req: Request) {
-    return await this.paymentService.verifyIpn(
-      req.query as ReturnQueryFromVNPay,
-    );
   }
 }
