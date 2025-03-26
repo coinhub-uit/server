@@ -1,5 +1,5 @@
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { PlanHistoryEntity } from 'src/plan/entities/plan_history.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { ViewColumn, ViewEntity, DataSource } from 'typeorm';
 
 @ViewEntity({

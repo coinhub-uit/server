@@ -18,7 +18,6 @@ interface adminAuth extends Request {
   user: string;
 }
 
-// TODO: the token response is not match ...
 @Controller('admin/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
