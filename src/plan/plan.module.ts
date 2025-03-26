@@ -6,7 +6,7 @@ import { PlanService } from './services/plan.service';
 import { PlanController } from './controllers/plan.controller';
 import { AvailablePlanController } from './controllers/available-plan.controller';
 import { AvailablePlanService } from 'src/plan/services/available-plan.service';
-import { AvailablePlanEntity } from 'src/plan/entities/available_plan.entity';
+import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 
 @Module({
   imports: [
