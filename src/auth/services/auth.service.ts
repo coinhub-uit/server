@@ -1,7 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
+import { AdminJwtPayload } from 'src/auth/strategies/admin.jwt.stategy';
 import { verify } from 'src/common/utils/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
@@ -12,13 +13,15 @@ type UserTokenPayload = {
   email: string;
 };
 
+type universalPayload = UserTokenPayload | AdminJwtPayload;
+
 @Injectable()
 export class AuthService {
   constructor(
     private adminService: AdminService,
     private jwtService: JwtService,
     @Inject(adminRefreshJwtConfig.KEY)
-    private adminRefreshJwtConfig_: ConfigType<typeof adminRefreshJwtConfig>,
+    private _adminRefreshJwtConfig: ConfigType<typeof adminRefreshJwtConfig>,
     @Inject(adminJwtConfig.KEY)
     private adminJwtConfig_: ConfigType<typeof adminJwtConfig>,
     @Inject(userJwtConfig.KEY)
@@ -39,6 +42,27 @@ export class AuthService {
     }
   }
 
+  verifyUniversalToken(token: string) {
+    let signOptions: JwtSignOptions;
+    const decodedToken = this.jwtService.decode(
+      token,
+    ) satisfies AdminJwtPayload;
+    if (decodedToken?.isAdmin) {
+      signOptions = this.adminJwtConfig_;
+    } else {
+      signOptions = this.userJwtConfig_;
+    }
+    try {
+      const payload = this.jwtService.verify(
+        token,
+        signOptions,
+      ) satisfies universalPayload;
+      return payload;
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
+  }
+
   async validateAdmin(username: string, password: string) {
     console.log(`${username} ${password}`);
     const admin = await this.adminService.findOne(username);
@@ -52,16 +76,22 @@ export class AuthService {
   }
 
   loginAdmin(username: string) {
-    const token = this.jwtService.sign({ sub: username }, this.adminJwtConfig_);
+    const token = this.jwtService.sign(
+      { sub: username, isAdmin: true } satisfies AdminJwtPayload,
+      this.adminJwtConfig_,
+    );
     const refreshToken = this.jwtService.sign(
       { sub: username },
-      this.adminRefreshJwtConfig_,
+      this._adminRefreshJwtConfig,
     );
     return { username, token, refreshToken };
   }
 
   refreshTokenAdmin(username: string) {
-    const token = this.jwtService.sign({ sub: username }, this.adminJwtConfig_);
+    const token = this.jwtService.sign(
+      { sub: username, isAdmin: true } satisfies AdminJwtPayload,
+      this.adminJwtConfig_,
+    );
     return { username, token };
   }
 }

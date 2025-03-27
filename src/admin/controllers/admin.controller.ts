@@ -7,6 +7,7 @@ import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
 import { AuthService } from 'src/auth/services/auth.service';
 import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
+import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 
 interface adminAuth extends Request {
   user: string;
@@ -28,6 +29,7 @@ export class AdminController {
     await this.adminService.createAdmin(createAdminDto);
   }
 
+  @UseGuards(UniversalJwtAuthGuard)
   @Get()
   @ApiOkResponse({
     description: "Get admins' information",

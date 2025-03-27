@@ -5,12 +5,13 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from 'src/auth/services/auth.service';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 
-export type AuthJwtPayload = {
+export type AdminJwtPayload = {
   sub: string;
+  isAdmin: boolean;
 };
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
+export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
   constructor(
     @Inject(adminJwtConfig.KEY)
     jwtConfiguration: ConfigType<typeof adminJwtConfig>,
@@ -22,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
       ignoreExpiration: false,
     });
   }
-  validate(payload: AuthJwtPayload) {
+  validate(payload: AdminJwtPayload) {
     return { id: payload.sub };
   }
 }
