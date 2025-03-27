@@ -19,4 +19,8 @@ export class PlanService {
   getPlanById(id: string) {
     return this.planRepository.findOneOrFail({ where: { id: id } });
   }
+
+  getAll(days: number, isDisabled: boolean) {
+    return this.planRepository.findBy({ days: days, isDisabled: isDisabled });
+  }
 }

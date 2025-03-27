@@ -14,4 +14,12 @@ export class PlanController {
   getPlanById(@Param('id') id: string) {
     return this.planService.getPlanById(id);
   }
+
+  @Get()
+  findAll(
+    @Query('days') days: number,
+    @Query('isDisabled') isDisabled: boolean,
+  ) {
+    return this.planService.getAll(days, isDisabled);
+  }
 }
