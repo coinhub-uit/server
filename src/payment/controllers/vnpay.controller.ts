@@ -1,22 +1,20 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { CreateVnpayDto } from 'src/payment/dtos/create-vnpay.dto';
-import { VnpayService } from 'src/payment/services/vnpay.service';
+import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
+import { TopUpService } from 'src/payment/services/top-up.service';
 import { ReturnQueryFromVNPay } from 'vnpay';
 
 @Controller('payment/vnpay')
 export class VnpayController {
-  constructor(private paymentService: VnpayService) {}
+  constructor(private topUpService: TopUpService) {}
 
   @Post('create')
-  createPaymentVNPay(createVnPayDto: CreateVnpayDto) {
-    return this.paymentService.createVNPayPayment(createVnPayDto);
+  async createPaymentVNPay(@Body() createVnPayDto: CreateTopUpDto) {
+    return await this.topUpService.createVNPayPayment(createVnPayDto);
   }
 
   @Get('vnpay-ipn')
   async paymentCallBack(@Req() req: Request) {
-    return await this.paymentService.verifyIpn(
-      req.query as ReturnQueryFromVNPay,
-    );
+    return await this.topUpService.verifyIpn(req.query as ReturnQueryFromVNPay);
   }
 }

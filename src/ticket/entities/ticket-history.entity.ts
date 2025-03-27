@@ -11,7 +11,7 @@ export class TicketHistoryEntity {
   @Column({ type: 'date' })
   maturityDate: Date;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'integer' })
   amount: number;
 
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories)
