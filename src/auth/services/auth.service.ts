@@ -13,7 +13,7 @@ type UserTokenPayload = {
   email: string;
 };
 
-type universalPayload = UserTokenPayload | AdminJwtPayload;
+type UniversalPayload = UserTokenPayload | AdminJwtPayload;
 
 @Injectable()
 export class AuthService {
@@ -23,9 +23,9 @@ export class AuthService {
     @Inject(adminRefreshJwtConfig.KEY)
     private _adminRefreshJwtConfig: ConfigType<typeof adminRefreshJwtConfig>,
     @Inject(adminJwtConfig.KEY)
-    private adminJwtConfig_: ConfigType<typeof adminJwtConfig>,
+    private _adminJwtConfig: ConfigType<typeof adminJwtConfig>,
     @Inject(userJwtConfig.KEY)
-    private userJwtConfig_: ConfigType<typeof userJwtConfig>,
+    private _userJwtConfig: ConfigType<typeof userJwtConfig>,
   ) {}
 
   // TODO: Maybe? check for admin / user -> Guard for both of them
@@ -33,7 +33,7 @@ export class AuthService {
     try {
       const payload: UserTokenPayload = this.jwtService.verify(
         token,
-        this.userJwtConfig_,
+        this._userJwtConfig,
       );
       const { email, sub, ..._ } = payload; // eslint-disable-line @typescript-eslint/no-unused-vars
       return { email, sub };
@@ -44,19 +44,18 @@ export class AuthService {
 
   verifyUniversalToken(token: string) {
     let signOptions: JwtSignOptions;
-    const decodedToken = this.jwtService.decode(
-      token,
-    ) satisfies AdminJwtPayload;
-    if (decodedToken?.isAdmin) {
-      signOptions = this.adminJwtConfig_;
+    const payload: UniversalPayload = this.jwtService.decode(token);
+    if (payload['isAdmin']) {
+      signOptions = this._adminJwtConfig;
     } else {
-      signOptions = this.userJwtConfig_;
+      signOptions = this._userJwtConfig;
     }
     try {
-      const payload = this.jwtService.verify(
+      const payload: UniversalPayload = this.jwtService.verify(
         token,
         signOptions,
-      ) satisfies universalPayload;
+      );
+      console.log(payload);
       return payload;
     } catch (error) {
       throw new UnauthorizedException(error);
@@ -78,7 +77,7 @@ export class AuthService {
   loginAdmin(username: string) {
     const token = this.jwtService.sign(
       { sub: username, isAdmin: true } satisfies AdminJwtPayload,
-      this.adminJwtConfig_,
+      this._adminJwtConfig,
     );
     const refreshToken = this.jwtService.sign(
       { sub: username },
@@ -90,7 +89,7 @@ export class AuthService {
   refreshTokenAdmin(username: string) {
     const token = this.jwtService.sign(
       { sub: username, isAdmin: true } satisfies AdminJwtPayload,
-      this.adminJwtConfig_,
+      this._adminJwtConfig,
     );
     return { username, token };
   }

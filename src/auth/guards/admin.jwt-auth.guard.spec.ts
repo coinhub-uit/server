@@ -1,7 +1,7 @@
-import { JwtJwtAuthGuard } from './admin.jwt-auth.guard';
+import { AdminJwtAuthGuard } from './admin.jwt-auth.guard';
 
 describe('JwtAuthGuard', () => {
   it('should be defined', () => {
-    expect(new JwtJwtAuthGuard()).toBeDefined();
+    expect(new AdminJwtAuthGuard()).toBeDefined();
   });
 });
