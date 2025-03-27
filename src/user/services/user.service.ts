@@ -4,6 +4,8 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { hash } from 'src/common/utils/hashing';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,14 +15,33 @@ export class UserService {
   ) {}
 
   async createUser(userDetails: CreateUserDto) {
-    const newUser = this.userRepository.create({
+    const user = this.userRepository.create({
       ...userDetails,
-      avatar: userDetails.avatar
-        ? Buffer.from(userDetails.avatar, 'utf8')
-        : undefined,
       pin: await hash(userDetails.pin),
     });
-    return this.userRepository.save(newUser);
+    return this.userRepository.insert(user);
+  }
+
+  // FIXME: maybe not right
+  async updateUser(userDetails: UpdateUserDto) {
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userDetails.id },
+    });
+    user.pin = await hash(userDetails.pin);
+    Object.assign(user, userDetails);
+    return this.userRepository.save(user);
+  }
+
+  async updatePartialUser(userDetails: UpdateParitialUserDto) {
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userDetails.id },
+    });
+    if (userDetails.pin) {
+      user.pin = await hash(userDetails.pin);
+      delete userDetails.pin;
+    }
+    Object.assign(user, userDetails);
+    return this.userRepository.save(user);
   }
 
   getUsers() {
@@ -28,11 +49,7 @@ export class UserService {
   }
 
   getUserByUsername(username: string) {
-    return this.userRepository.findOneOrFail({ where: { userName: username } });
-  }
-
-  getUserByEmail(email: string) {
-    return this.userRepository.findOneOrFail({ where: { email: email } });
+    return this.userRepository.findOneOrFail({ where: { username: username } });
   }
 
   getUserById(id: string) {

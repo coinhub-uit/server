@@ -1,7 +1,8 @@
-import { hash as _hash, compare } from 'bcrypt';
+import { hash as _hash, compare, genSalt } from 'bcrypt';
 
 export async function hash(str: string): Promise<string> {
-  return await _hash(str, 2);
+  const salt = await genSalt(5);
+  return await _hash(str, salt);
 }
 
 export async function verify(str: string, hashedStr: string): Promise<boolean> {

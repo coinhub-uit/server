@@ -16,42 +16,44 @@ class PinTranformFnParams implements TransformFnParams {
 }
 
 @ApiSchema({
-  name: 'CreateUserRequest',
-  description: 'The payload of the user register request',
+  name: 'Create User Request Schema',
 })
 export class CreateUserDto {
   @ApiProperty({
-    description: 'UUID of user',
+    description: 'UUID of the user retreive from supabase',
     examples: ['20c75444-798a-4708-9105-69de67e35c1c'],
   })
   @IsNotEmpty()
-  userId: string;
+  id: string;
 
   @ApiProperty({
-    description: 'username of User',
+    description: 'Username',
     examples: ['chihencube123', 'luckycube321'],
   })
   @IsNotEmpty()
-  userName: string;
+  username: string;
 
   @ApiProperty({
-    description: 'fullname of User',
+    description: 'Fullname',
     examples: ['Huynh Thai Binh', 'Tran Nguyen Chi Hen'],
   })
   @IsNotEmpty()
-  fullName: string;
+  fullname: string;
 
   @ApiProperty({
-    description: 'birthday of User',
+    description: 'Birth date',
     examples: ['3/31/2001', '4/4/1698'],
   })
   @IsNotEmpty()
-  birthDay: string;
+  birthDate: string;
 
   // TODO: @NTGNguyen: validate only 4 char
   @ApiProperty({
-    description: 'Pin of User Account',
-    examples: ['132456', '896412'],
+    description: 'PIN code',
+    oneOf: [
+      { type: 'string', maxLength: 4, example: '1234' },
+      { type: 'number', minimum: 0, maximum: 9999, example: 1234 },
+    ],
   })
   @Transform(
     ({ value }: PinTranformFnParams) =>
@@ -62,31 +64,22 @@ export class CreateUserDto {
 
   @ApiProperty({
     nullable: true,
-    description: 'avatar of User Account ',
-    examples: [
-      'dGVzdCBpbWFnZSBkYXRhIHRoYXQgY2Fubm90IGJlIHByb2Nlc3NlZCBpbnRvIGEgaW1hZ2UgZmlsZSBvciBhbnkgY2FyaW91cyBlbmNvZGluZy4gU2VjdXJlIHRoZSBpbWFnZSBkYXRhIGluIHRoZSBpbnRlcm5hbCBkZXZlbG9wbWVudCBkYXQgb3IgdGVzdCBkYXRhIHRoYXQgYXJlIGVuY29kaW5nIHdpdGggQmFzZTY0Lg==',
-    ],
+    description: 'Avatar',
+    examples: ['https://avatars.githubusercontent.com/u/86353526?v=4'],
   })
   avatar?: string;
 
   @ApiProperty({
     nullable: true,
-    description: 'address',
+    description: 'Address',
     examples: ['4011 Lowland Drive,Woodstock', '429 Whitman Court, Stamford'],
   })
   address?: string;
 
   @ApiProperty({
     nullable: true,
-    description: 'Email of user account',
-    examples: ['luckycube2@doggg.com'],
-  })
-  email?: string;
-
-  @ApiProperty({
-    nullable: true,
-    description: 'Phone of User',
-    examples: ['0945678910`'],
+    description: 'Phone number',
+    examples: ['0945678910'],
   })
   phoneNumber?: string;
 }
