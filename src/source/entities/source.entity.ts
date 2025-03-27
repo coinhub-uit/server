@@ -1,3 +1,4 @@
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
@@ -11,7 +12,7 @@ import {
 
 @Entity('source')
 @Check(`"balance"::numeric >= 0`)
-export class SourceEntity {
+export class SourceEntity extends AbstractEntity<SourceEntity> {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   id: string;
 

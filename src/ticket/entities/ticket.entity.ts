@@ -18,8 +18,8 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
   openedDate: Date;
 
-  @Column({ type: 'date', nullable: true })
-  closedDate: Date;
+  @Column({ type: 'date', nullable: true, default: null })
+  closedDate: Date | null;
 
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
   source: SourceEntity;

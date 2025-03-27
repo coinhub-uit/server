@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { CreateVnPayDto } from 'src/payment/dtos/create-vnpay.dto';
+import { CreateVnpayDto } from 'src/payment/dtos/create-vnpay.dto';
 import { VnpayService } from 'src/payment/services/vnpay.service';
 import { ReturnQueryFromVNPay } from 'vnpay';
 
@@ -9,7 +9,7 @@ export class VnpayController {
   constructor(private paymentService: VnpayService) {}
 
   @Post('create')
-  createPaymentVNPay(createVnPayDto: CreateVnPayDto) {
+  createPaymentVNPay(createVnPayDto: CreateVnpayDto) {
     return this.paymentService.createVNPayPayment(createVnPayDto);
   }
 

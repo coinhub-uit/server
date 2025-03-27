@@ -11,12 +11,12 @@ import {
   ReturnQueryFromVNPay,
   VnpLocale,
 } from 'vnpay';
-import { CreateVnPayDto } from '../dtos/create-vnpay.dto';
 import { generateTxnRef } from 'src/common/utils/generate-txn-ref';
 import { SourceService } from 'src/source/services/source.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionEntity } from 'src/payment/entities/transaction.entity';
 import { Repository } from 'typeorm';
+import { CreateVnpayDto } from 'src/payment/dtos/create-vnpay.dto';
 
 @Injectable()
 export class VnpayService {
@@ -56,7 +56,7 @@ export class VnpayService {
     return IpnSuccess;
   }
 
-  createVNPayPayment(paymentDetails: CreateVnPayDto) {
+  createVNPayPayment(paymentDetails: CreateVnpayDto) {
     const txnRef = generateTxnRef();
     this.transactionRepository.create({
       amount: paymentDetails.amount,
@@ -68,7 +68,7 @@ export class VnpayService {
     return this.vnpayService.buildPaymentUrl({
       vnp_ReturnUrl: paymentDetails.returnUrl,
       vnp_Amount: paymentDetails.amount,
-      vnp_IpAddr: paymentDetails.ipAddr,
+      vnp_IpAddr: paymentDetails.ipAddress,
       vnp_OrderInfo: paymentDetails.orderInfo,
       vnp_TxnRef: txnRef,
       vnp_OrderType: ProductCode.Pay,

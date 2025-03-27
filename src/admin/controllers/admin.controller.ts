@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AdminService } from 'src/admin/services/admin.service';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
 import { HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
 import { AuthService } from 'src/auth/services/auth.service';
+import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
 
 interface adminAuth extends Request {
   user: string;
@@ -39,14 +40,15 @@ export class AdminController {
     return this.adminService.find();
   }
 
+  @ApiBody({ type: LoginAdminDto }) // Explicitly declare the request body
   @ApiOkResponse({
-    description: 'Successfully refreshed the token',
+    description: 'Login the admin',
     example: {
-      username: 'GuessMe',
+      username: 'admin',
       token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
       refreshToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
     } satisfies Awaited<ReturnType<AdminController['login']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
@@ -63,7 +65,7 @@ export class AdminController {
     example: {
       username: 'GuessMe',
       token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })

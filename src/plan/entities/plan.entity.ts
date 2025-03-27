@@ -19,8 +19,8 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ type: 'int', unique: true })
   days: number;
 
-  @Column()
-  isDisabled: boolean;
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
   planHistories: PlanHistoryEntity[];

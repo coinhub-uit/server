@@ -1,18 +1,39 @@
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateVnPayDto {
+@ApiSchema({
+  name: 'Create VNPAY payload',
+})
+export class CreateVnpayDto {
   @IsNotEmpty()
   @IsString()
+  @ApiProperty({
+    description: 'Return URL to client app',
+    example: 'coinhub://home',
+  })
   returnUrl: string;
 
   @IsNotEmpty()
   @IsNumber()
+  @ApiProperty({
+    description: 'The amount of money',
+    example: 100000,
+  })
   amount: number;
 
   @IsNotEmpty()
   @IsString()
-  ipAddr: string;
+  @ApiProperty({
+    description: 'IP of the client',
+    example: '42.114.190.170',
+  })
+  ipAddress: string;
 
+  // TODO: add desc
   @IsString()
+  @ApiProperty({
+    description: '',
+    example: '',
+  })
   orderInfo: string;
 }

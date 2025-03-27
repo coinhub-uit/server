@@ -1,12 +1,10 @@
 import { registerAs } from '@nestjs/config';
-import { JwtModuleOptions } from '@nestjs/jwt';
+import { JwtSignOptions } from '@nestjs/jwt';
 
 export default registerAs(
   'admin-jwt',
-  (): JwtModuleOptions => ({
+  (): JwtSignOptions => ({
     secret: process.env.ADMIN_JWT_SECRET,
-    signOptions: {
-      expiresIn: '1h',
-    },
+    expiresIn: '1h',
   }),
 );

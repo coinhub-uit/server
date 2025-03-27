@@ -11,7 +11,7 @@ import { TicketModule } from './ticket/ticket.module';
 import { MethodModule } from './method/method.module';
 import { AdminModule } from './admin/admin.module';
 import { StatisticModule } from './statistic/statistic.module';
-import { SettingModule } from './setting/setting.module';
+import { SettingModule } from './setting/settings.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';

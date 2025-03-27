@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
-import { AuthController } from 'src/auth/auth.controller';
 import { AdminService } from 'src/admin/services/admin.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
@@ -27,6 +26,6 @@ import userJwtConfig from 'src/config/user.jwt.config';
     AdminLocalStrategy,
     AdminRefreshJwtStrategy,
   ],
-  controllers: [AuthController],
+  controllers: [],
 })
 export class AuthModule {}

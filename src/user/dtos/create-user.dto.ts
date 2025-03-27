@@ -35,13 +35,6 @@ export class CreateUserDto {
   userName: string;
 
   @ApiProperty({
-    description: 'password of User',
-    examples: ['conbuombuomxinhdep123', 'conchuonchuonxauxi321'],
-  })
-  @IsNotEmpty()
-  password: string;
-
-  @ApiProperty({
     description: 'fullname of User',
     examples: ['Huynh Thai Binh', 'Tran Nguyen Chi Hen'],
   })
@@ -55,6 +48,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   birthDay: string;
 
+  // TODO: @NTGNguyen: validate only 4 char
   @ApiProperty({
     description: 'Pin of User Account',
     examples: ['132456', '896412'],

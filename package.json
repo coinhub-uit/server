@@ -20,7 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "node scripts/bootstrap.mjs",
     "commitlint": "commitlint --edit",
-    "db:seed": "npm run build && node ./dist/src/seed"
+    "db:seed": "npm run build && node ./dist/src/database/seed-database.js",
+    "db:fresh-seed": "npm run build && node ./dist/src/database/fresh-seed-database.js",
+    "db:create": "npm run build && node ./dist/src/database/create-database.js",
+    "db:drop": "npm run build && node ./dist/src/database/drop-database.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -80,6 +83,9 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
+  },
+  "peerDependencies": {
+    "@faker-js/faker": "^8.0.0"
   },
   "jest": {
     "moduleFileExtensions": [

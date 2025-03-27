@@ -2,10 +2,10 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 @ApiSchema({
-  name: 'Create admin payload',
-  description: 'The payload schema for body of creating admin',
+  name: 'Login Admin Payload',
+  description: 'The payload schema for body of login admin',
 })
-export class CreateAdminDto {
+export class LoginAdminDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
