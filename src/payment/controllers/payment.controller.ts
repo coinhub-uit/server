@@ -2,7 +2,7 @@ import { Controller, Post } from '@nestjs/common';
 import { TranferMoneysDto } from 'src/payment/dtos/transfer-money.dto';
 import { PaymentService } from 'src/payment/services/payment.service';
 
-@Controller('payment')
+@Controller('payments')
 export class PaymentController {
   constructor(private paymentService: PaymentService) {}
 

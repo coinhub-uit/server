@@ -1,4 +1,8 @@
 {
-  "{src,test}/**/*.ts": ["eslint --fix", "prettier --write"],
+  "{src,test}/**/*.ts": [
+    "tsc -p tsconfig.json --noEmit",
+    "eslint --fix",
+    "prettier --write"
+  ],
   "*.md": "prettier --list-different"
 }

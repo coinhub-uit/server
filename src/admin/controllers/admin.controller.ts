@@ -13,7 +13,7 @@ interface adminAuth extends Request {
   user: string;
 }
 
-@Controller('admin')
+@Controller('admins')
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
