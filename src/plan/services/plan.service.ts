@@ -20,7 +20,7 @@ export class PlanService {
     return this.planRepository.findOneOrFail({ where: { id: id } });
   }
 
-  getAll(days: number, isDisabled: boolean) {
-    return this.planRepository.findBy({ days: days, isDisabled: isDisabled });
+  getAll(days: number, isActive: boolean) {
+    return this.planRepository.findBy({ days: days, isActive });
   }
 }

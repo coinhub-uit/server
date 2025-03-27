@@ -1,7 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { AdminService } from 'src/admin/services/admin.service';
 import { verify } from 'src/common/utils/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
