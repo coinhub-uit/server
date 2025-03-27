@@ -1,5 +1,10 @@
 {
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  "typescript.preferences.importModuleSpecifier": "non-relative"
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "php.validate.enable": false,
+  "php.suggest.basic": false,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "typescript.surveys.enabled": false
 }
