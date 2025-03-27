@@ -1,7 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
+import { AdminJwtPayload } from 'src/auth/strategies/admin.jwt.stategy';
 import { verify } from 'src/common/utils/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
@@ -12,17 +13,19 @@ type UserTokenPayload = {
   email: string;
 };
 
+type UniversalPayload = UserTokenPayload | AdminJwtPayload;
+
 @Injectable()
 export class AuthService {
   constructor(
     private adminService: AdminService,
     private jwtService: JwtService,
     @Inject(adminRefreshJwtConfig.KEY)
-    private adminRefreshJwtConfig_: ConfigType<typeof adminRefreshJwtConfig>,
+    private _adminRefreshJwtConfig: ConfigType<typeof adminRefreshJwtConfig>,
     @Inject(adminJwtConfig.KEY)
-    private adminJwtConfig_: ConfigType<typeof adminJwtConfig>,
+    private _adminJwtConfig: ConfigType<typeof adminJwtConfig>,
     @Inject(userJwtConfig.KEY)
-    private userJwtConfig_: ConfigType<typeof userJwtConfig>,
+    private _userJwtConfig: ConfigType<typeof userJwtConfig>,
   ) {}
 
   // TODO: Maybe? check for admin / user -> Guard for both of them
@@ -30,10 +33,30 @@ export class AuthService {
     try {
       const payload: UserTokenPayload = this.jwtService.verify(
         token,
-        this.userJwtConfig_,
+        this._userJwtConfig,
       );
       const { email, sub, ..._ } = payload; // eslint-disable-line @typescript-eslint/no-unused-vars
       return { email, sub };
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
+  }
+
+  verifyUniversalToken(token: string) {
+    let signOptions: JwtSignOptions;
+    const payload: UniversalPayload = this.jwtService.decode(token);
+    if (payload['isAdmin']) {
+      signOptions = this._adminJwtConfig;
+    } else {
+      signOptions = this._userJwtConfig;
+    }
+    try {
+      const payload: UniversalPayload = this.jwtService.verify(
+        token,
+        signOptions,
+      );
+      console.log(payload);
+      return payload;
     } catch (error) {
       throw new UnauthorizedException(error);
     }
@@ -52,16 +75,22 @@ export class AuthService {
   }
 
   loginAdmin(username: string) {
-    const token = this.jwtService.sign({ sub: username }, this.adminJwtConfig_);
+    const token = this.jwtService.sign(
+      { sub: username, isAdmin: true } satisfies AdminJwtPayload,
+      this._adminJwtConfig,
+    );
     const refreshToken = this.jwtService.sign(
       { sub: username },
-      this.adminRefreshJwtConfig_,
+      this._adminRefreshJwtConfig,
     );
     return { username, token, refreshToken };
   }
 
   refreshTokenAdmin(username: string) {
-    const token = this.jwtService.sign({ sub: username }, this.adminJwtConfig_);
+    const token = this.jwtService.sign(
+      { sub: username, isAdmin: true } satisfies AdminJwtPayload,
+      this._adminJwtConfig,
+    );
     return { username, token };
   }
 }
