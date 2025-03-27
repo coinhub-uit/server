@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { hash } from 'src/common/utils/hashing';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class UserService {
       avatar: userDetails.avatar
         ? Buffer.from(userDetails.avatar, 'utf8')
         : undefined,
-      pin: await hash(userDetails.pin),
     });
     return this.userRepository.save(newUser);
   }
