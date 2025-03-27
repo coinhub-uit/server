@@ -1,10 +1,14 @@
-default: run-api-server
+default: run-api-server-dev
 
 restore:
   npm i
 
+[doc('run nestjs prod')]
+run-api-server-prod:
+  npm run start
+
 [doc('run nestjs dev')]
-run-api-server:
+run-api-server-dev:
   npm run start:dev
 
 [doc('run docker compose local postgres')]
