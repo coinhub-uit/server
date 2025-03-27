@@ -16,11 +16,11 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: string;
 
   @Index({ unique: true })
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'text' })
   username: string;
 
   @Column({ type: 'varchar' })

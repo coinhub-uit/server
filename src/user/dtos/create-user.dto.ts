@@ -1,19 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import {
-  Transform,
-  TransformFnParams,
-  TransformationType,
-  ClassTransformOptions,
-} from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
-
-class PinTranformFnParams implements TransformFnParams {
-  value: string | number;
-  key: string;
-  obj: any;
-  type: TransformationType;
-  options: ClassTransformOptions;
-}
 
 @ApiSchema({
   name: 'Create User Request Schema',
@@ -21,65 +7,59 @@ class PinTranformFnParams implements TransformFnParams {
 export class CreateUserDto {
   @ApiProperty({
     description: 'UUID of the user retreive from supabase',
-    examples: ['20c75444-798a-4708-9105-69de67e35c1c'],
+    example:
+      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserDto['id'],
   })
   @IsNotEmpty()
   id: string;
 
   @ApiProperty({
     description: 'Username',
-    examples: ['chihencube123', 'luckycube321'],
+    example: 'chihencube123' satisfies CreateUserDto['username'],
   })
   @IsNotEmpty()
   username: string;
 
   @ApiProperty({
     description: 'Fullname',
-    examples: ['Huynh Thai Binh', 'Tran Nguyen Chi Hen'],
+    example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullname'],
   })
   @IsNotEmpty()
   fullname: string;
 
   @ApiProperty({
     description: 'Birth date',
-    examples: ['3/31/2001', '4/4/1698'],
+    example: '3/31/2001' satisfies CreateUserDto['birthDate'],
   })
   @IsNotEmpty()
   birthDate: string;
 
-  // TODO: @NTGNguyen: validate only 4 char
   @ApiProperty({
-    description: 'PIN code',
-    oneOf: [
-      { type: 'string', maxLength: 4, example: '1234' },
-      { type: 'number', minimum: 0, maximum: 9999, example: 1234 },
-    ],
-  })
-  @Transform(
-    ({ value }: PinTranformFnParams) =>
-      typeof value === 'number' ? value.toString() : value,
-    { toClassOnly: true },
-  )
-  pin: string;
-
-  @ApiProperty({
-    nullable: true,
-    description: 'Avatar',
-    examples: ['https://avatars.githubusercontent.com/u/86353526?v=4'],
+    required: false,
+    description: 'Avatar URL',
+    example:
+      'https://avatars.githubusercontent.com/u/86353526?v=4' satisfies CreateUserDto['avatar'],
   })
   avatar?: string;
 
   @ApiProperty({
-    nullable: true,
+    required: false,
     description: 'Address',
-    examples: ['4011 Lowland Drive,Woodstock', '429 Whitman Court, Stamford'],
+    example: '4011 Lowland Drive,Woodstock' satisfies CreateUserDto['address'],
   })
   address?: string;
 
   @ApiProperty({
-    nullable: true,
+    required: false,
+    description: 'Email of user account',
+    example: 'luckycube2@doggg.com' satisfies CreateUserDto['email'],
+  })
+  email?: string;
+
+  @ApiProperty({
+    required: false,
     description: 'Phone number',
-    examples: ['0945678910'],
+    example: '0945678910' satisfies CreateUserDto['phoneNumber'],
   })
   phoneNumber?: string;
 }

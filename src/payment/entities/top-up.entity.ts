@@ -1,18 +1,20 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { TopUpEnum } from 'src/payment/types/top-up.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'transaction' })
-export class TransactionEntity extends AbstractEntity<TransactionEntity> {
+@Entity({ name: 'top_up' })
+export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  txnRef: string;
+  @Column({ type: 'text' })
+  type: TopUpEnum;
 
-  @Column({ type: 'varchar' })
+  // TODO: add relationship
+  @Column({ type: 'varchar', length: 20 })
   sourceDestination: string;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'integer' })
   amount: number;
 
   @Column({ type: 'boolean', default: false })

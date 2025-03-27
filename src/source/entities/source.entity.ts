@@ -16,7 +16,7 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   id: string;
 
-  @Column({ type: 'money', default: 0 })
+  @Column({ type: 'integer', default: 0 })
   balance: number;
 
   @ManyToOne(() => UserEntity, (user) => user.sources)

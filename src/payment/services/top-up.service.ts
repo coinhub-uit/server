@@ -11,20 +11,20 @@ import {
   ReturnQueryFromVNPay,
   VnpLocale,
 } from 'vnpay';
-import { generateTxnRef } from 'src/common/utils/generate-txn-ref';
 import { SourceService } from 'src/source/services/source.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionEntity } from 'src/payment/entities/transaction.entity';
+import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { Repository } from 'typeorm';
-import { CreateVnpayDto } from 'src/payment/dtos/create-vnpay.dto';
+import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
+import { TopUpEnum } from 'src/payment/types/top-up.enum';
 
 @Injectable()
-export class VnpayService {
+export class TopUpService {
   constructor(
     private readonly sourceService: SourceService,
     private readonly vnpayService: _VnpayService,
-    @InjectRepository(TransactionEntity)
-    private readonly transactionRepository: Repository<TransactionEntity>,
+    @InjectRepository(TopUpEntity)
+    private readonly topUpRepository: Repository<TopUpEntity>,
   ) {}
 
   getBankList() {
@@ -39,42 +39,49 @@ export class VnpayService {
     if (!verification.isSuccess) {
       return IpnUnknownError;
     }
-    const foundOrder = await this.transactionRepository.findOne({
-      where: { txnRef: verification.vnp_TxnRef },
+    const topUpEntity = await this.topUpRepository.findOne({
+      where: { id: verification.vnp_TxnRef },
     });
-    if (!foundOrder || verification.vnp_TxnRef !== foundOrder.txnRef) {
+    if (!topUpEntity) {
       return IpnOrderNotFound;
     }
-    if (verification.vnp_Amount !== foundOrder.amount) {
+    if (verification.vnp_Amount != topUpEntity.amount) {
       return IpnInvalidAmount;
     }
     await this.sourceService.changeBalanceSource(
-      foundOrder.amount,
-      foundOrder.sourceDestination,
+      topUpEntity.amount,
+      topUpEntity.sourceDestination,
     );
-    foundOrder.isPaid = true;
+    topUpEntity.isPaid = true;
+    await this.topUpRepository.save(topUpEntity);
     return IpnSuccess;
   }
 
-  createVNPayPayment(paymentDetails: CreateVnpayDto) {
-    const txnRef = generateTxnRef();
-    this.transactionRepository.create({
+  async createVNPayPayment(paymentDetails: CreateTopUpDto) {
+    await this.sourceService.getSourceById(paymentDetails.sourceDestination); // To check if exists, if not will raiase error
+
+    const now = new Date();
+    const topUpEntity = this.topUpRepository.create({
+      type: TopUpEnum.VNPAY,
       amount: paymentDetails.amount,
-      sourceDestination: paymentDetails.orderInfo,
-      txnRef,
+      sourceDestination: paymentDetails.sourceDestination,
       isPaid: false,
     });
+
+    await this.topUpRepository.save(topUpEntity);
 
     return this.vnpayService.buildPaymentUrl({
       vnp_ReturnUrl: paymentDetails.returnUrl,
       vnp_Amount: paymentDetails.amount,
       vnp_IpAddr: paymentDetails.ipAddress,
-      vnp_OrderInfo: paymentDetails.orderInfo,
-      vnp_TxnRef: txnRef,
+      vnp_OrderInfo: `Top up ${paymentDetails.amount} VND`,
+      vnp_TxnRef: topUpEntity.id,
       vnp_OrderType: ProductCode.Pay,
       vnp_Locale: VnpLocale.VN,
-      vnp_CreateDate: dateFormat(new Date()),
-      vnp_ExpireDate: dateFormat(new Date()),
+      vnp_CreateDate: dateFormat(now),
+      vnp_ExpireDate: dateFormat(
+        new Date(new Date(now).setMinutes(now.getMinutes() + 15)),
+      ),
     });
   }
 }

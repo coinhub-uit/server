@@ -15,6 +15,6 @@ export class StatisticEntity extends AbstractEntity<StatisticEntity> {
   @Column({ type: 'int' })
   tickets: number;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'integer' })
   deposits: number;
 }

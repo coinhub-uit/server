@@ -6,6 +6,6 @@ export class SettingsEntity extends AbstractEntity<SettingsEntity> {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'integer' })
   minAmountOpenTicket: number;
 }

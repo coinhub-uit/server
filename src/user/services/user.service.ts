@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { hash } from 'src/common/utils/hashing';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
@@ -15,31 +14,22 @@ export class UserService {
   ) {}
 
   async createUser(userDetails: CreateUserDto) {
-    const user = this.userRepository.create({
-      ...userDetails,
-      pin: await hash(userDetails.pin),
-    });
+    const user = this.userRepository.create({ ...userDetails });
     return this.userRepository.insert(user);
   }
 
   // FIXME: maybe not right
   async updateUser(userDetails: UpdateUserDto) {
-    const user = await this.userRepository.findOneOrFail({
+    await this.userRepository.findOneOrFail({
       where: { id: userDetails.id },
     });
-    user.pin = await hash(userDetails.pin);
-    Object.assign(user, userDetails);
-    return this.userRepository.save(user);
+    return this.userRepository.save(userDetails);
   }
 
   async updatePartialUser(userDetails: UpdateParitialUserDto) {
     const user = await this.userRepository.findOneOrFail({
       where: { id: userDetails.id },
     });
-    if (userDetails.pin) {
-      user.pin = await hash(userDetails.pin);
-      delete userDetails.pin;
-    }
     Object.assign(user, userDetails);
     return this.userRepository.save(user);
   }

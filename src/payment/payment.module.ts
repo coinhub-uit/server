@@ -7,15 +7,16 @@ import { SourceService } from 'src/source/services/source.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { VnpayController } from 'src/payment/controllers/vnpay.controller';
-import { VnpayService } from 'src/payment/services/vnpay.service';
-import { TransactionEntity } from 'src/payment/entities/transaction.entity';
+import { TopUpService } from 'src/payment/services/top-up.service';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 
 @Module({
   imports: [
     VnpayModule.registerAsync(vnpayConfig.asProvider()),
-    TypeOrmModule.forFeature([SourceEntity, TransactionEntity]),
+    TypeOrmModule.forFeature([SourceEntity, TopUpEntity, UserEntity]),
   ],
   controllers: [PaymentController, VnpayController],
-  providers: [PaymentService, SourceService, VnpayService],
+  providers: [PaymentService, SourceService, TopUpService],
 })
 export class PaymentModule {}
