@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -54,7 +55,18 @@ export class UserController {
   async updateParitialUser(
     @Body() updateParitialUserDto: UpdateParitialUserDto,
   ) {
-    await this.userService.createUser(updateParitialUserDto);
+    await this.userService.updatePartialUser(updateParitialUserDto);
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete user',
+    description: 'Delete user with user id',
+  })
+  @Delete(':id')
+  async deleteUserById(@Param('id') id: string) {
+    return this.userService.deleteUserById(id);
   }
 
   @Get()

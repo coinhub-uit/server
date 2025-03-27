@@ -17,7 +17,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   id: string;
 
   @CreateDateColumn({ type: 'datetime' })
-  createdAt: Date;
+  createdAt: string;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 20 })
@@ -27,7 +27,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   fullname: string;
 
   @Column({ type: 'date' })
-  birthDate: Date;
+  birthDate: string;
 
   @Index({ unique: true })
   @Column({ type: 'char', length: 12 })
