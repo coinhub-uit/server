@@ -17,21 +17,21 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   id: string;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: string;
+  createdAt!: string;
 
   @Index({ unique: true })
   @Column({ type: 'text' })
-  username: string;
+  username!: string;
 
   @Column({ type: 'varchar' })
-  fullname: string;
+  fullname!: string;
 
   @Column({ type: 'date' })
-  birthDate: string;
+  birthDate!: string;
 
   @Index({ unique: true })
   @Column({ type: 'char', length: 12 })
-  citizenId: string;
+  citizenId!: string;
 
   // TODO: think again do we need it in databaes
   @Exclude()
@@ -44,9 +44,13 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Column({ type: 'text', nullable: true })
   address?: string;
 
-  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
+    cascade: true,
+  })
   notifications: NotificationEntity[];
 
-  @OneToMany(() => SourceEntity, (source) => source.user)
+  @OneToMany(() => SourceEntity, (source) => source.user, {
+    cascade: true,
+  })
   sources: SourceEntity[];
 }

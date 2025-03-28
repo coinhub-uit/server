@@ -21,10 +21,8 @@ import { AdminService } from 'src/admin/services/admin.service';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
 import { AuthService } from 'src/auth/services/auth.service';
-
-interface adminAuth extends Request {
-  user: string;
-}
+import { AdminJwtRequest } from 'src/auth/types/admin.jwt-request';
+import { AdminLocalRequest } from 'src/auth/types/admin.local-request';
 
 @Controller('admins')
 export class AdminController {
@@ -71,8 +69,8 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AdminLocalAuthGuard)
   @Post('login')
-  login(@Request() req: adminAuth) {
-    return this.authService.loginAdmin(req.user);
+  login(@Request() req: Request & { user: AdminLocalRequest }) {
+    return this.authService.loginAdmin(req.user.username);
   }
 
   @ApiBearerAuth()
@@ -84,9 +82,10 @@ export class AdminController {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
   })
+  @UseGuards(AdminJwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @Post('refresh')
-  refreshToken(@Request() req: adminAuth) {
-    return this.authService.refreshTokenAdmin(req.user);
+  refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {
+    return this.authService.refreshTokenAdmin(req.user.username);
   }
 }

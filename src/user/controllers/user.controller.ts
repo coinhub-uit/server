@@ -3,15 +3,21 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
+import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
@@ -29,7 +35,15 @@ export class UserController {
       "Register a profile for exist user in supabase's auth database. (User only)",
   })
   @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  async createUser(
+    @Req() req: Request & { user: UserJwtRequest },
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    if (req.user.userId !== createUserDto.id) {
+      throw new UnauthorizedException(
+        'You are only allowed to create your own profile',
+      );
+    }
     await this.userService.createUser(createUserDto);
   }
 
@@ -40,21 +54,39 @@ export class UserController {
     description: "Update user's information, need to send all properties.",
   })
   @Put()
-  async updateUser(@Body() updateUserDto: UpdateUserDto) {
-    await this.userService.createUser(updateUserDto);
+  async updateUser(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== updateUserDto.id) {
+      throw new UnauthorizedException(
+        'You are only allowed to update your own profile',
+      );
+    }
+    await this.userService.updateUser(updateUserDto);
   }
 
-  // TODO: WIP
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update paritial information',
-    description: "Update paritial user's information.",
+    description:
+      "Update paritial user's information. User ID is required for admin request.",
   })
   @Patch()
   async updateParitialUser(
+    @Req() req: Request & { user: UniversalJwtRequest },
     @Body() updateParitialUserDto: UpdateParitialUserDto,
   ) {
+    if (
+      !req.user.isAdmin &&
+      updateParitialUserDto.id !== undefined &&
+      req.user.userId !== updateParitialUserDto.id
+    ) {
+      throw new UnauthorizedException(
+        'You are only allowed to update your own profile',
+      );
+    }
     await this.userService.updatePartialUser(updateParitialUserDto);
   }
 
@@ -65,17 +97,50 @@ export class UserController {
     description: 'Delete user with user id',
   })
   @Delete(':id')
-  async deleteUserById(@Param('id') id: string) {
-    return this.userService.deleteUserById(id);
+  async deleteUserById(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Param('id') id: string,
+  ) {
+    // HACK: This delete is not clean. It doesn't delete the user in supabase auth.
+    if (!req.user.isAdmin && req.user.userId !== id) {
+      throw new UnauthorizedException(
+        'You are only allowed to delete your own profile',
+      );
+    }
+    await this.userService.deleteUserById(id);
   }
 
+  @UseGuards(AdminJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get users',
+    description: 'Get all users',
+  })
   @Get()
   getUsers() {
     return this.userService.getUsers();
   }
 
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get user infomation',
+    description: 'Get user information by ID',
+  })
   @Get(':id')
-  getUserById(@Param('id') id: string) {
-    return this.userService.getUserById(id);
+  async getUserById(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Param('id') id: string,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== id) {
+      throw new UnauthorizedException(
+        'You are only allowed to get your own profile information',
+      );
+    }
+    const user = await this.userService.getUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }

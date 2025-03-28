@@ -18,7 +18,6 @@ export class UserService {
     return this.userRepository.insert(user);
   }
 
-  // FIXME: maybe not right
   async updateUser(userDetails: UpdateUserDto) {
     await this.userRepository.findOneOrFail({
       where: { id: userDetails.id },
@@ -35,23 +34,21 @@ export class UserService {
   }
 
   async deleteUserById(userId: string) {
-    const user = await this.userRepository.findOneOrFail({
-      where: {
-        id: userId,
-      },
+    const user = await this.userRepository.findOneByOrFail({
+      id: userId,
     });
-    return this.userRepository.remove(user);
+    return await this.userRepository.remove(user);
   }
 
-  getUsers() {
-    return this.userRepository.find();
+  async getUsers() {
+    return await this.userRepository.find();
   }
 
-  getUserByUsername(username: string) {
-    return this.userRepository.findOneOrFail({ where: { username: username } });
+  async getUserByUsername(username: string) {
+    return await this.userRepository.findOneBy({ username });
   }
 
-  getUserById(id: string) {
-    return this.userRepository.findOneOrFail({ where: { id: id } });
+  async getUserById(id: string) {
+    return await this.userRepository.findOneBy({ id });
   }
 }

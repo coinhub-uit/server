@@ -3,12 +3,9 @@ import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from 'src/auth/services/auth.service';
+import { AdminJwtPayload } from 'src/auth/types/admin.jwt-payload';
+import { AdminJwtRequest } from 'src/auth/types/admin.jwt-request';
 import adminJwtConfig from 'src/config/admin.jwt.config';
-
-export type AdminJwtPayload = {
-  sub: string;
-  isAdmin: boolean;
-};
 
 @Injectable()
 export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
@@ -23,7 +20,8 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
       ignoreExpiration: false,
     });
   }
-  validate(payload: AdminJwtPayload) {
-    return { id: payload.sub };
+
+  validate(payload: AdminJwtPayload): AdminJwtRequest {
+    return { username: payload.sub, isAdmin: true };
   }
 }
