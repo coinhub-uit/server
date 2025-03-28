@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'admin' })
 export class AdminEntity extends AbstractEntity<AdminEntity> {
-  @PrimaryColumn({ type: 'varchar' })
+  @PrimaryColumn({ type: 'text' })
   username: string;
 
   @Column({ type: 'text' })

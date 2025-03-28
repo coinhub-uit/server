@@ -1,42 +1,56 @@
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt!: string;
+
   @Index({ unique: true })
-  @Column({ type: 'varchar', length: 20 })
-  userName: string;
+  @Column({ type: 'text' })
+  username!: string;
 
   @Column({ type: 'varchar' })
-  fullName: string;
+  fullname!: string;
 
   @Column({ type: 'date' })
-  birthDay: Date;
+  birthDate!: string;
 
   @Index({ unique: true })
   @Column({ type: 'char', length: 12 })
-  citizenId: string;
+  citizenId!: string;
 
+  // TODO: think again do we need it in databaes
+  @Exclude()
   @Column({ type: 'text', nullable: true })
   pin: string;
 
-  @Column({ type: 'bytea', nullable: true })
-  avatar?: Buffer;
+  @Column({ type: 'text', nullable: true })
+  avatar?: string;
 
   @Column({ type: 'text', nullable: true })
   address?: string;
 
-  @Column({ type: 'text', nullable: true })
-  email?: string;
-
-  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
+    cascade: true,
+  })
   notifications: NotificationEntity[];
 
-  @OneToMany(() => SourceEntity, (source) => source.user)
+  @OneToMany(() => SourceEntity, (source) => source.user, {
+    cascade: true,
+  })
   sources: SourceEntity[];
 }

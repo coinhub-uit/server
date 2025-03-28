@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { Strategy } from 'passport-custom';
 import { ExtractJwt } from 'passport-jwt';
 import { AuthService } from 'src/auth/services/auth.service';
+import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 
 @Injectable()
 export class UniversalJwtStrategy extends PassportStrategy(
@@ -16,7 +17,7 @@ export class UniversalJwtStrategy extends PassportStrategy(
     super();
   }
 
-  validate(req: Request) {
+  validate(req: Request): UniversalJwtRequest {
     const token: string | null = UniversalJwtStrategy.jwtFromRequest(req);
     if (!token) {
       throw new UnauthorizedException();

@@ -1,66 +1,72 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 @ApiSchema({
-  name: 'CreateUserRequest',
-  description: 'The payload of the user register request',
+  name: 'Create User Request Schema',
 })
 export class CreateUserDto {
   @ApiProperty({
-    description: 'UUID of user',
+    description: 'UUID of the user retreive from supabase',
     example:
-      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserDto['userId'],
+      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserDto['id'],
   })
   @IsNotEmpty()
-  userId: string;
+  @IsString()
+  id: string;
 
   @ApiProperty({
-    description: 'username of User',
-    example: 'chihencube123' satisfies CreateUserDto['userName'],
+    description: 'Username',
+    example: 'chihencube123' satisfies CreateUserDto['username'],
   })
   @IsNotEmpty()
-  userName: string;
+  @IsString()
+  username: string;
 
   @ApiProperty({
-    description: 'fullname of User',
-    example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullName'],
+    description: 'Fullname',
+    example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullname'],
   })
   @IsNotEmpty()
-  fullName: string;
+  @IsString()
+  fullname: string;
 
   @ApiProperty({
-    description: 'birthday of User',
-    example: '3/31/2001' satisfies CreateUserDto['birthDay'],
+    description: 'Birth date',
+    example: '3/31/2001' satisfies CreateUserDto['birthDate'],
   })
   @IsNotEmpty()
-  birthDay: string;
+  @IsString()
+  birthDate: string;
+
+  @ApiProperty({
+    description: 'Citizen ID',
+    example: '077002455001' satisfies CreateUserDto['citizenId'],
+  })
+  @IsString()
+  citizenId: string;
 
   @ApiProperty({
     required: false,
-    description: 'avatar of User Account ',
+    description: 'Avatar URL',
     example:
       'https://avatars.githubusercontent.com/u/86353526?v=4' satisfies CreateUserDto['avatar'],
   })
+  @IsString()
   avatar?: string;
 
   @ApiProperty({
     required: false,
-    description: 'address',
+    description: 'Address',
     example: '4011 Lowland Drive,Woodstock' satisfies CreateUserDto['address'],
   })
+  @IsString()
   address?: string;
 
   @ApiProperty({
     required: false,
-    description: 'Email of user account',
-    example: 'luckycube2@doggg.com' satisfies CreateUserDto['email'],
-  })
-  email?: string;
-
-  @ApiProperty({
-    required: false,
-    description: 'Phone of User',
+    description: 'Phone number',
     example: '0945678910' satisfies CreateUserDto['phoneNumber'],
   })
+  @IsString()
   phoneNumber?: string;
 }

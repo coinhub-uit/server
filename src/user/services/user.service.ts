@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -12,28 +14,41 @@ export class UserService {
   ) {}
 
   async createUser(userDetails: CreateUserDto) {
-    const newUser = this.userRepository.create({
-      ...userDetails,
-      avatar: userDetails.avatar
-        ? Buffer.from(userDetails.avatar, 'utf8')
-        : undefined,
+    const user = this.userRepository.create({ ...userDetails });
+    return this.userRepository.insert(user);
+  }
+
+  async updateUser(userDetails: UpdateUserDto) {
+    await this.userRepository.findOneOrFail({
+      where: { id: userDetails.id },
     });
-    return this.userRepository.save(newUser);
+    return this.userRepository.save(userDetails);
   }
 
-  getUsers() {
-    return this.userRepository.find();
+  async updatePartialUser(userDetails: UpdateParitialUserDto) {
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userDetails.id },
+    });
+    Object.assign(user, userDetails);
+    return this.userRepository.save(user);
   }
 
-  getUserByUsername(username: string) {
-    return this.userRepository.findOneOrFail({ where: { userName: username } });
+  async deleteUserById(userId: string) {
+    const user = await this.userRepository.findOneByOrFail({
+      id: userId,
+    });
+    return await this.userRepository.remove(user);
   }
 
-  getUserByEmail(email: string) {
-    return this.userRepository.findOneOrFail({ where: { email: email } });
+  async getUsers() {
+    return await this.userRepository.find();
   }
 
-  getUserById(id: string) {
-    return this.userRepository.findOneOrFail({ where: { id: id } });
+  async getUserByUsername(username: string) {
+    return await this.userRepository.findOneBy({ username });
+  }
+
+  async getUserById(id: string) {
+    return await this.userRepository.findOneBy({ id });
   }
 }

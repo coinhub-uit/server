@@ -31,6 +31,7 @@ export class TranferMoneysDto {
   })
   money: number;
 
+  // FIXME: Generate server itself, not client
   @IsDate()
   createAt: Date;
 }

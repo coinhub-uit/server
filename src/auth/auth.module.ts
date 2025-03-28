@@ -10,6 +10,9 @@ import { AdminRefreshJwtStrategy } from 'src/auth/strategies/admin.refresh.strat
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
 import userJwtConfig from 'src/config/user.jwt.config';
+import { UserJwtStrategy } from 'src/auth/strategies/user.jwt.strategy';
+import { UniversalJwtStrategy } from 'src/auth/strategies/universal.jwt.strategy';
+import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
 
 @Module({
   imports: [
@@ -22,8 +25,10 @@ import userJwtConfig from 'src/config/user.jwt.config';
     AuthService,
     AdminService,
     JwtService,
+    UserJwtStrategy,
+    UniversalJwtStrategy,
     AdminLocalStrategy,
-    AdminLocalStrategy,
+    AdminJwtStrategy,
     AdminRefreshJwtStrategy,
   ],
   controllers: [],
