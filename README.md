@@ -39,15 +39,15 @@
 
 1. Setup dev env
    ```sh
-   npm i
+   npm i # or "just restore"
    ```
 2. Setup `.env` file
 3. Run dev
    - Start postgres using docker (skip if you have already had postgres database)
    ```sh
-   docker compose up
+   just run-docker-db
    ```
    - Run api server
    ```sh
-   npm run start:dev
+   just run-api-server-dev
    ```
