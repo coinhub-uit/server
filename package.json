@@ -2,10 +2,7 @@
   "name": "coinhub-server",
   "version": "0.0.0",
   "description": "CoinHub Server",
-  "author": [
-    "NTNGuyen",
-    "KevinNitro"
-  ],
+  "author": "NTNGuyen & KevinNitro",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -16,6 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "tsc": "tsc",
+    "check:type": "tsc --noEmit",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -42,6 +40,7 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "decimal.js": "^10.5.0",
     "dotenv": "^16.4.7",
     "nestjs-vnpay": "^1.0.0",
     "passport": "^0.7.0",

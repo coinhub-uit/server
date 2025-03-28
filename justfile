@@ -1,5 +1,8 @@
 default: run-api-server-dev
 
+alias c := type-check
+alias db := run-docker-db
+
 restore:
   npm i
 
@@ -14,6 +17,10 @@ run-api-server-dev:
 [doc('run docker compose local postgres')]
 run-docker-db:
   docker compose up
+
+[doc('typescript type checking')]
+type-check:
+  tsc --noEmit
 
 [doc('run with docker compose (local postgres, nestjs dev)')]
 run-dev-local:

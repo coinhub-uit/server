@@ -17,7 +17,7 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @Column({ type: 'date' })
   definedDate: Date;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', precision: 3, scale: 1 })
   rate: number;
 
   @OneToMany(

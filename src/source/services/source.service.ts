@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -18,11 +19,11 @@ export class SourceService {
     return await this.sourceRepository.findOneByOrFail({ id: sourceId });
   }
 
-  async changeBalanceSource(money: number, sourceId: string) {
+  async changeBalanceSource(money: Decimal, sourceId: string) {
     const source = await this.sourceRepository.findOneByOrFail({
       id: sourceId,
     });
-    source.balance += money;
+    source.balance.plus(money);
     return await this.sourceRepository.save(source);
   }
 
