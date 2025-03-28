@@ -1,8 +1,9 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
 import { AdminJwtPayload } from 'src/auth/strategies/admin.jwt.stategy';
+import { UserJwtPayload } from 'src/auth/strategies/user.jwt.strategy';
 import { verify } from 'src/common/utils/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
@@ -13,7 +14,7 @@ type UserTokenPayload = {
   email: string;
 };
 
-type UniversalPayload = UserTokenPayload | AdminJwtPayload;
+// type UniversalPayload = UserTokenPayload | AdminJwtPayload;
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,6 @@ export class AuthService {
     private _userJwtConfig: ConfigType<typeof userJwtConfig>,
   ) {}
 
-  // TODO: Maybe? check for admin / user -> Guard for both of them
   verifyUserToken(token: string) {
     try {
       const payload: UserTokenPayload = this.jwtService.verify(
@@ -42,23 +42,43 @@ export class AuthService {
     }
   }
 
+  // verifyUniversalToken(token: string) {
+  //   let signOptions: JwtSignOptions;
+  //   const payload: UniversalPayload = this.jwtService.decode(token);
+  //   if (payload['isAdmin']) {
+  //     signOptions = this._adminJwtConfig;
+  //   } else {
+  //     signOptions = this._userJwtConfig;
+  //   }
+  //   try {
+  //     const payload: UniversalPayload = this.jwtService.verify(
+  //       token,
+  //       signOptions,
+  //     );
+  //     console.log(payload);
+  //     return payload;
+  //   } catch (error) {
+  //     throw new UnauthorizedException(error);
+  //   }
+  // }
+
   verifyUniversalToken(token: string) {
-    let signOptions: JwtSignOptions;
-    const payload: UniversalPayload = this.jwtService.decode(token);
-    if (payload['isAdmin']) {
-      signOptions = this._adminJwtConfig;
-    } else {
-      signOptions = this._userJwtConfig;
-    }
     try {
-      const payload: UniversalPayload = this.jwtService.verify(
+      const payload: UserJwtPayload = this.jwtService.verify(
         token,
-        signOptions,
+        this._userJwtConfig,
       );
-      console.log(payload);
       return payload;
-    } catch (error) {
-      throw new UnauthorizedException(error);
+    } catch {
+      try {
+        const payload: AdminJwtPayload = this.jwtService.verify(
+          token,
+          this._adminJwtConfig,
+        );
+        return payload;
+      } catch {
+        throw new UnauthorizedException('No permission to access');
+      }
     }
   }
 
