@@ -18,6 +18,22 @@ export class UserService {
     return this.userRepository.insert(user);
   }
 
+  async getSources(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      return null;
+    }
+    return user.sources;
+  }
+
+  getTickets(userId: string) {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.sources', 'source')
+      .leftJoinAndSelect('source.tickets', 'ticket')
+      .where('user.id=:userId', { userId });
+  }
+
   async updateUser(userDetails: UpdateUserDto) {
     await this.userRepository.findOneOrFail({
       where: { id: userDetails.id },

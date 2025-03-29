@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
@@ -26,11 +26,12 @@ export class SourceService {
     return await this.sourceRepository.save(source);
   }
 
-  async getSourceByUserId(userId: string) {
-    const user = await this.userRepository.findOneOrFail({
-      where: { id: userId },
-    });
-    return this.sourceRepository.findBy({ user: user });
+  async getTickets(id: string) {
+    const source = await this.sourceRepository.findOne({ where: { id: id } });
+    if (!source) {
+      throw new NotFoundException('Source not found');
+    }
+    return source.tickets;
   }
 
   async createSource(sourceDetails: CreateSourceDto) {

@@ -9,7 +9,7 @@ import {
   Post,
   Put,
   Req,
-  UnauthorizedException,
+  ForbiddenException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -18,6 +18,7 @@ import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard'
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
+import { TicketService } from 'src/ticket/services/ticket.service';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
@@ -25,7 +26,10 @@ import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private ticketService: TicketService,
+  ) {}
 
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth()
@@ -40,7 +44,7 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
   ) {
     if (req.user.userId !== createUserDto.id) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You are only allowed to create your own profile',
       );
     }
@@ -59,11 +63,19 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== updateUserDto.id) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You are only allowed to update your own profile',
       );
     }
     await this.userService.updateUser(updateUserDto);
+  }
+
+  @Get(':id/sources')
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({})
+  async getSources(@Param('id') id: string) {
+    return this.userService.getSources(id);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -83,7 +95,7 @@ export class UserController {
       updateParitialUserDto.id !== undefined &&
       req.user.userId !== updateParitialUserDto.id
     ) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You are only allowed to update your own profile',
       );
     }
@@ -103,7 +115,7 @@ export class UserController {
   ) {
     // HACK: This delete is not clean. It doesn't delete the user in supabase auth.
     if (!req.user.isAdmin && req.user.userId !== id) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You are only allowed to delete your own profile',
       );
     }
@@ -133,7 +145,7 @@ export class UserController {
     @Param('id') id: string,
   ) {
     if (!req.user.isAdmin && req.user.userId !== id) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'You are only allowed to get your own profile information',
       );
     }
@@ -142,5 +154,16 @@ export class UserController {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get tickets of user',
+    description: 'Get all tickets of user with userif',
+  })
+  @Get(':id/tickets')
+  getTickets(@Param() id: string) {
+    return this.userService.getTickets(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { ExtractJwt } from 'passport-jwt';
@@ -17,15 +17,15 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     try {
       token = UserJwtStrategy.extractJwt(req);
     } catch {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
     if (!token) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
     const userJwtRequest: UserJwtRequest | null =
       this.authService.verifyUserToken(token);
     if (!userJwtRequest) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
     return userJwtRequest;
   }
