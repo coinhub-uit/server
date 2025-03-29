@@ -15,11 +15,8 @@ import { SettingModule } from './setting/settings.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';
-import adminJwtConfig from 'src/config/admin.jwt.config';
-import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
-import userJwtConfig from 'src/config/user.jwt.config';
 import { Controller, Get } from '@nestjs/common';
-
+import configOptions from 'src/config/config.module-options';
 @Controller()
 export class RootController {
   @Get()
@@ -30,15 +27,7 @@ export class RootController {
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [
-        databaseConfig,
-        adminJwtConfig,
-        adminRefreshJwtConfig,
-        userJwtConfig,
-      ],
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(configOptions()),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
     NotificationModule,

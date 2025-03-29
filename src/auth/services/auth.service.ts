@@ -37,6 +37,7 @@ export class AuthService {
       return null;
     }
   }
+
   verifyUniversalToken(token: string): UniversalJwtRequest {
     try {
       const payload: UserJwtPayload = this.jwtService.verify(
