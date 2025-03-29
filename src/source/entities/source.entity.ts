@@ -1,4 +1,10 @@
+import { Transform } from 'class-transformer';
+import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import {
+  decimalToString,
+  DecimalTransformer,
+} from 'src/common/transformers/decimal.transformer';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
@@ -16,8 +22,15 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   id: string;
 
-  @Column({ type: 'integer', default: 0 })
-  balance: number;
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 0,
+    default: 0,
+    transformer: new DecimalTransformer(),
+  })
+  @Transform(decimalToString, { toPlainOnly: true })
+  balance: Decimal;
 
   @ManyToOne(() => UserEntity, (user) => user.sources)
   user: UserEntity;

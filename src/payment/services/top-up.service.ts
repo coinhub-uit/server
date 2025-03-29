@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { VnpayService as _VnpayService } from 'nestjs-vnpay';
 import {
   dateFormat,
@@ -17,6 +17,7 @@ import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { Repository } from 'typeorm';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpEnum } from 'src/payment/types/top-up.enum';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TopUpService {
@@ -39,31 +40,37 @@ export class TopUpService {
     if (!verification.isSuccess) {
       return IpnUnknownError;
     }
-    const topUpEntity = await this.topUpRepository.findOne({
+    const topUp = await this.topUpRepository.findOne({
       where: { id: verification.vnp_TxnRef },
     });
-    if (!topUpEntity) {
+    if (!topUp) {
       return IpnOrderNotFound;
     }
-    if (verification.vnp_Amount != topUpEntity.amount) {
+    if (!topUp.amount.eq(verification.vnp_Amount)) {
       return IpnInvalidAmount;
     }
     await this.sourceService.changeBalanceSource(
-      topUpEntity.amount,
-      topUpEntity.sourceDestination,
+      topUp.amount,
+      topUp.sourceDestination,
     );
-    topUpEntity.isPaid = true;
-    await this.topUpRepository.save(topUpEntity);
+    topUp.isPaid = true;
+    await this.topUpRepository.save(topUp);
     return IpnSuccess;
   }
 
   async createVNPayPayment(paymentDetails: CreateTopUpDto) {
-    await this.sourceService.getSourceById(paymentDetails.sourceDestination); // To check if exists, if not will raiase error
+    const source = await this.sourceService.getSourceById(
+      paymentDetails.sourceDestination,
+    ); // To check if exists, if not will raiase error
+
+    if (!source) {
+      throw new NotFoundException('Source destination not found');
+    }
 
     const now = new Date();
     const topUpEntity = this.topUpRepository.create({
       type: TopUpEnum.VNPAY,
-      amount: paymentDetails.amount,
+      amount: new Decimal(paymentDetails.amount),
       sourceDestination: paymentDetails.sourceDestination,
       isPaid: false,
     });
