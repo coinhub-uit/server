@@ -9,4 +9,9 @@ export class TicketController {
   getTicketById(@Param('id') id: string) {
     return this.ticketService.getTicketById(id);
   }
+
+  @Get(':userId')
+  getTicketByUserId(@Param('userId') userId: string) {
+    return this.ticketService.getTicketByUserId(userId);
+  }
 }
