@@ -83,7 +83,7 @@ export class AuthService {
       { sub: username },
       this._adminRefreshJwtConfig,
     );
-    return { username, token, refreshToken };
+    return { token, refreshToken };
   }
 
   refreshTokenAdmin(username: string) {
@@ -91,6 +91,6 @@ export class AuthService {
       { sub: username, isAdmin: true } satisfies AdminJwtPayload,
       this._adminJwtConfig,
     );
-    return { username, token };
+    return { token };
   }
 }

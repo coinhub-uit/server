@@ -58,7 +58,6 @@ export class AdminController {
   @ApiOkResponse({
     description: 'Login the admin',
     example: {
-      username: 'admin',
       token:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
       refreshToken:
@@ -77,7 +76,6 @@ export class AdminController {
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
-      username: 'GuessMe',
       token:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
