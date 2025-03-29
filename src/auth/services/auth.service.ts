@@ -74,8 +74,8 @@ export class AuthService {
     throw new UnauthorizedException('Wrong admin password');
   }
 
-  loginAdmin(username: string) {
-    const token = this.jwtService.sign(
+  generateTokens(username: string) {
+    const accessToken = this.jwtService.sign(
       { sub: username, isAdmin: true } satisfies AdminJwtPayload,
       this._adminJwtConfig,
     );
@@ -83,14 +83,6 @@ export class AuthService {
       { sub: username },
       this._adminRefreshJwtConfig,
     );
-    return { token, refreshToken };
-  }
-
-  refreshTokenAdmin(username: string) {
-    const token = this.jwtService.sign(
-      { sub: username, isAdmin: true } satisfies AdminJwtPayload,
-      this._adminJwtConfig,
-    );
-    return { token };
+    return { accessToken, refreshToken };
   }
 }

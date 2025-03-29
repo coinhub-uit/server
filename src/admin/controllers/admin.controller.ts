@@ -58,7 +58,7 @@ export class AdminController {
   @ApiOkResponse({
     description: 'Login the admin',
     example: {
-      token:
+      accessToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
       refreshToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
@@ -69,21 +69,23 @@ export class AdminController {
   @UseGuards(AdminLocalAuthGuard)
   @Post('login')
   login(@Request() req: Request & { user: AdminLocalRequest }) {
-    return this.authService.loginAdmin(req.user.username);
+    return this.authService.generateTokens(req.user.username);
   }
 
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
-      token:
+      accessToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
+      refreshToken:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
   })
   @UseGuards(AdminJwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @Post('refresh')
   refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {
-    return this.authService.refreshTokenAdmin(req.user.username);
+    return this.authService.generateTokens(req.user.username);
   }
 }
