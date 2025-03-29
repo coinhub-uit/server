@@ -25,7 +25,6 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
-      username: 'GuessMe',
       token:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
       refreshToken:
@@ -44,7 +43,6 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
-      username: 'GuessMe',
       token:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
     } satisfies Awaited<ReturnType<AuthController['refreshToken']>>,
