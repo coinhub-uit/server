@@ -15,6 +15,5 @@ export class PaymentService {
       new Decimal(tranferMoneyDetails.money),
       tranferMoneyDetails.toSourceId,
     );
-    return 'Successful';
   }
 }

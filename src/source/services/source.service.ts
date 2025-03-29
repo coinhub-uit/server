@@ -16,14 +16,14 @@ export class SourceService {
   ) {}
 
   async getSourceById(sourceId: string) {
-    return await this.sourceRepository.findOneByOrFail({ id: sourceId });
+    return await this.sourceRepository.findOneBy({ id: sourceId });
   }
 
   async changeBalanceSource(money: Decimal, sourceId: string) {
     const source = await this.sourceRepository.findOneByOrFail({
       id: sourceId,
     });
-    source.balance.plus(money);
+    source.balance = source.balance.plus(money);
     return await this.sourceRepository.save(source);
   }
 

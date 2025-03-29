@@ -7,7 +7,7 @@ export class PaymentController {
   constructor(private paymentService: PaymentService) {}
 
   @Post('tranfer-money')
-  tranferMoney(tranferMoneyDto: TranferMoneysDto) {
-    return this.paymentService.tranferMoney(tranferMoneyDto);
+  async tranferMoney(tranferMoneyDto: TranferMoneysDto) {
+    await this.paymentService.tranferMoney(tranferMoneyDto);
   }
 }
