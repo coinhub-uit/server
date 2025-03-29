@@ -1,5 +1,5 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "javascript.format.enable": false,
   "javascript.preferences.importModuleSpecifier": "non-relative",
@@ -7,6 +7,6 @@
   "php.validate.enable": false,
   "typescript.format.enable": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.surveys.enabled": false
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.surveys.enabled": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }
