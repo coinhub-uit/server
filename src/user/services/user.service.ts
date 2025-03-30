@@ -44,10 +44,6 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async getUserByUsername(username: string) {
-    return await this.userRepository.findOneBy({ username });
-  }
-
   async getUserById(id: string) {
     return await this.userRepository.findOneBy({ id });
   }

@@ -18,10 +18,6 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: string;
 
-  @Index({ unique: true })
-  @Column({ type: 'text' })
-  username!: string;
-
   @Column({ type: 'varchar' })
   fullname!: string;
 

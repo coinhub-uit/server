@@ -15,14 +15,6 @@ export class CreateUserDto {
   id: string;
 
   @ApiProperty({
-    description: 'Username',
-    example: 'chihencube123' satisfies CreateUserDto['username'],
-  })
-  @IsNotEmpty()
-  @IsString()
-  username: string;
-
-  @ApiProperty({
     description: 'Fullname',
     example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullname'],
   })
