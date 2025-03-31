@@ -39,9 +39,9 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
 
   @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.sources)
-  user: UserEntity;
+  user: Promise<UserEntity>;
 
   @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
-  tickets: TicketEntity[];
+  tickets: Promise<TicketEntity[]>;
 }

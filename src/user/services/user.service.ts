@@ -6,6 +6,8 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { TicketService } from 'src/ticket/services/ticket.service';
+import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -15,58 +17,80 @@ export class UserService {
     private ticketService: TicketService,
   ) {}
 
+  private async checkExistAndFail(userId: string) {
+    const isExisted = await this.userRepository.existsBy({ id: userId });
+    if (isExisted) {
+      throw new UserAlreadyExistException();
+    }
+  }
+
+  private async getById(userId: string) {
+    return await this.userRepository.findOne({ where: { id: userId } });
+  }
+
+  async getByIdOrFail(userId: string) {
+    const user = await this.getById(userId);
+    if (!user) {
+      throw new UserNotExistException();
+    }
+    return user;
+  }
+
+  // TODO: Maybe paginate this
   async getAll() {
     return await this.userRepository.find();
   }
 
-  async getById(userId: string) {
-    return await this.userRepository.findOne({ where: { id: userId } });
-  }
-
   async createUser(userDetails: CreateUserDto, userId: string) {
-    const user = this.userRepository.create({ id: userId, ...userDetails });
-    return this.userRepository.insert(user);
-  }
-
-  async getSources(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      return [];
+    const user = this.userRepository.create({ ...userDetails, id: userId });
+    const insertResult = await this.userRepository.insert(user);
+    if (insertResult.identifiers.length === 0) {
+      throw new UserAlreadyExistException();
     }
-    return user.sources;
-  }
-
-  getTickets(userId: string) {
-    return this.ticketService.getTicketByUserId(userId);
+    return insertResult.generatedMaps[0] as UserEntity;
   }
 
   async update(userDetails: UpdateUserDto, userId: string) {
-    await this.userRepository.findOneOrFail({
-      where: { id: userId },
-    });
-    return this.userRepository.save(userDetails);
+    const updateResult = await this.userRepository.update(
+      userId,
+      userDetails as UserEntity,
+    );
+    if (updateResult.affected === 0) {
+      throw new UserNotExistException();
+    }
   }
 
   async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-    if (!user) {
-      return null;
-    }
-    Object.assign(user, userDetails);
-    return this.userRepository.save(user);
+    const user = await this.getByIdOrFail(userId);
+    const updatedUser = this.userRepository.merge(user, userDetails);
+    return await this.userRepository.save(updatedUser);
   }
 
+  // TODO: If soft delete / remove, return nothing
   async deleteById(userId: string) {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-    if (!user) {
-      return null;
-    }
+    const user = await this.getByIdOrFail(userId);
     return await this.userRepository.remove(user);
+  }
+
+  async getSources(userId: string) {
+    const user = await this.getByIdOrFail(userId);
+    return await user.sources;
+  }
+
+  async getTickets(userId: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.sources', 'source')
+      .leftJoinAndSelect('source.tickets', 'ticket')
+      .where('user.id = :userId', { userId })
+      .getOne();
+    if (!user) {
+      throw new UserNotExistException();
+    }
+    const sources = await user.sources;
+    const tickets = (
+      await Promise.all(sources.map(async (source) => await source.tickets))
+    ).flat();
+    return tickets;
   }
 }

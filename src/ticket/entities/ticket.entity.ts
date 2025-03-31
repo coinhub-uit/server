@@ -22,7 +22,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   closedDate: Date | null;
 
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
-  source: SourceEntity;
+  source: Promise<SourceEntity>;
 
   @ManyToOne(() => MethodEntity, (method) => method.tickets)
   method: MethodEntity;

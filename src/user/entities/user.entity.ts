@@ -46,10 +46,10 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @OneToMany(() => NotificationEntity, (notification) => notification.user, {
     cascade: true,
   })
-  notifications: NotificationEntity[];
+  notifications: Promise<NotificationEntity[]>;
 
   @OneToMany(() => SourceEntity, (source) => source.user, {
     cascade: true,
   })
-  sources: SourceEntity[];
+  sources: Promise<SourceEntity[]>;
 }

@@ -33,6 +33,8 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
@@ -54,10 +56,44 @@ export class UserController {
     return await this.userService.getAll();
   }
 
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Register profile',
+    description:
+      "Register a profile for existed user in Supabase's auth database. (User only)",
+  })
+  @ApiForbiddenResponse({
+    description: 'Conflict',
+    example: new ConflictException(
+      'User profile is already existed, cannot create a new one',
+    ),
+  })
+  @ApiCreatedResponse({
+    description: 'User profile created successfully',
+    type: UserEntity,
+  })
+  @Post()
+  async create(
+    @Req() req: Request & { user: UserJwtRequest },
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    try {
+      return await this.userService.createUser(createUserDto, req.user.userId);
+    } catch (error) {
+      if (error instanceof UserAlreadyExistException) {
+        throw new ConflictException(
+          'User profile is already existed, cannot create a new one',
+        );
+      }
+      throw error;
+    }
+  }
+
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('universal')
   @ApiOperation({
-    summary: 'Get infomation',
+    summary: 'Get profile',
     description: 'Get user profile by ID',
   })
   @ApiForbiddenResponse({
@@ -84,42 +120,15 @@ export class UserController {
         'You are only allowed to get your own profile',
       );
     }
-    const user = await this.userService.getById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+    try {
+      const user = await this.userService.getByIdOrFail(id);
+      return user;
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found');
+      }
+      throw error;
     }
-    return user;
-  }
-
-  @UseGuards(UserJwtAuthGuard)
-  @ApiBearerAuth('user')
-  @ApiOperation({
-    summary: 'Register profile',
-    description:
-      "Register a profile for existed user in Supabase's auth database. (User only)",
-  })
-  @ApiForbiddenResponse({
-    description: 'Conflict',
-    example: new ConflictException(
-      'User profile is already existed, cannot create a new one',
-    ),
-  })
-  @ApiCreatedResponse({
-    description: 'User profile created successfully',
-    type: UserEntity,
-  })
-  @Post()
-  async create(
-    @Req() req: Request & { user: UserJwtRequest },
-    @Body() createUserDto: CreateUserDto,
-  ) {
-    const user = await this.userService.getById(req.user.userId);
-    if (user) {
-      throw new ConflictException(
-        'User profile is already existed, cannot create a new one',
-      );
-    }
-    return await this.userService.createUser(createUserDto, req.user.userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -152,11 +161,14 @@ export class UserController {
         "You are not allowed to update other user's profile",
       );
     }
-    const user = await this.userService.getById(userId);
-    if (!user) {
-      throw new NotFoundException("User doesn't exist to be updated");
+    try {
+      await this.userService.update(updateUserDto, userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException("User doesn't exist to be updated");
+      }
+      throw error;
     }
-    await this.userService.update(updateUserDto, userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -191,20 +203,24 @@ export class UserController {
         "You are not allowed to paritially update other user's profile",
       );
     }
-    const user = await this.userService.getById(userId);
-    if (!user) {
-      throw new NotFoundException(
-        "User doesn't exist to be paritially updated",
+    try {
+      return await this.userService.partialUpdate(
+        updateParitialUserDto,
+        userId,
       );
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException("User doesn't exist to be updated");
+      }
+      throw error;
     }
-    return await this.userService.partialUpdate(updateParitialUserDto, userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('universal')
   @ApiOperation({
-    summary: 'Delete user',
-    description: 'Delete user with user id',
+    summary: 'Delete profile',
+    description: 'Delete user profile with user id',
   })
   @ApiForbiddenResponse({
     description: 'Not allowed',
@@ -230,11 +246,13 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    const user = await this.userService.getById(userId);
-    if (!user) {
-      throw new NotFoundException("User doesn't exist to be deleted");
+    try {
+      await this.userService.deleteById(userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException("User doesn't exist to be deleted");
+      }
     }
-    await this.userService.deleteById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -248,6 +266,10 @@ export class UserController {
     example: new ForbiddenException(
       "You are not allowed to get other user's sources",
     ),
+  })
+  @ApiNotFoundResponse({
+    description: "User doesn't exist to have sources",
+    example: new NotFoundException("User doesn't exist to have sources"),
   })
   @ApiOkResponse({
     description: 'Successful',
@@ -263,7 +285,13 @@ export class UserController {
         "You are not allowed to get other user's sources",
       );
     }
-    return await this.userService.getSources(userId);
+    try {
+      return await this.userService.getSources(userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException("User doesn't exist to have sources");
+      }
+    }
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -276,6 +304,12 @@ export class UserController {
     description: 'Not allowed',
     example: new ForbiddenException(
       "You are not allowed to get other user's sources",
+    ),
+  })
+  @ApiNotFoundResponse({
+    description: "User doesn't exist to have sources to have tickets",
+    example: new NotFoundException(
+      "User doesn't exist to have sources to have tickets",
     ),
   })
   @ApiOkResponse({
@@ -292,6 +326,14 @@ export class UserController {
         "You are not allowed to get other user's tickets",
       );
     }
-    return await this.userService.getTickets(userId);
+    try {
+      return await this.userService.getTickets(userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException(
+          "User doesn't exist to have sources to have tickets",
+        );
+      }
+    }
   }
 }

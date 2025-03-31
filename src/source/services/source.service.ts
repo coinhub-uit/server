@@ -51,6 +51,9 @@ export class SourceService {
     if (!user) {
       return null;
     }
-    return this.sourceRepository.insert({ ...newSourceDetails, user });
+    return this.sourceRepository.insert({
+      ...newSourceDetails,
+      user: Promise.resolve(user),
+    });
   }
 }
