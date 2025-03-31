@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -63,7 +64,7 @@ export class UserController {
     description:
       "Register a profile for existed user in Supabase's auth database. (User only)",
   })
-  @ApiForbiddenResponse({
+  @ApiConflictResponse({
     description: 'Conflict',
     example: new ConflictException(
       'User profile is already existed, cannot create a new one',
