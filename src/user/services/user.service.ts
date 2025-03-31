@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { TicketService } from 'src/ticket/services/ticket.service';
 import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 
@@ -14,15 +13,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private ticketService: TicketService,
   ) {}
-
-  private async checkExistAndFail(userId: string) {
-    const isExisted = await this.userRepository.existsBy({ id: userId });
-    if (isExisted) {
-      throw new UserAlreadyExistException();
-    }
-  }
 
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
