@@ -9,28 +9,37 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
+@ApiSchema({ description: 'User Entity Schema' })
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
+  @ApiProperty({ required: true })
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @ApiProperty({ required: true })
+  @CreateDateColumn({ type: 'timestamp', nullable: false })
   createdAt!: string;
 
-  @Column({ type: 'varchar' })
+  @ApiProperty({ required: true })
+  @Column({ type: 'varchar', nullable: false })
   fullname!: string;
 
-  @Column({ type: 'date' })
+  @ApiProperty({ required: true })
+  @Column({ type: 'date', nullable: false })
   birthDate!: string;
 
+  @ApiProperty({ required: true })
   @Index({ unique: true })
-  @Column({ type: 'char', length: 12 })
+  @Column({ type: 'char', length: 12, nullable: false })
   citizenId!: string;
 
+  @ApiProperty({ required: false })
   @Column({ type: 'text', nullable: true })
   avatar?: string;
 
+  @ApiProperty({ required: false })
   @Column({ type: 'text', nullable: true })
   address?: string;
 

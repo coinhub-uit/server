@@ -1,4 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AdminService } from 'src/admin/services/admin.service';
@@ -66,12 +71,12 @@ export class AuthService {
   async validateAdmin(username: string, password: string) {
     const admin = await this.adminService.findOne(username);
     if (!admin) {
-      throw new UnauthorizedException('Admin not found');
+      throw new NotFoundException('Admin not found');
     }
     if (await verify(password, admin.password)) {
       return admin.username;
     }
-    throw new UnauthorizedException('Wrong admin password');
+    throw new ForbiddenException('Wrong admin password');
   }
 
   generateTokens(username: string) {

@@ -16,32 +16,41 @@ export class SourceService {
   ) {}
 
   async getSourceById(sourceId: string) {
-    return await this.sourceRepository.findOneBy({ id: sourceId });
+    return await this.sourceRepository.findOne({ where: { id: sourceId } });
   }
 
   async changeBalanceSource(money: Decimal, sourceId: string) {
-    const source = await this.sourceRepository.findOneByOrFail({
-      id: sourceId,
+    const source = await this.sourceRepository.findOne({
+      where: {
+        id: sourceId,
+      },
     });
+    if (!source) {
+      return null;
+    }
     source.balance = source.balance.plus(money);
     return await this.sourceRepository.save(source);
   }
 
-  async getSourceByUserId(userId: string) {
-    const user = await this.userRepository.findOneOrFail({
-      where: { id: userId },
-    });
-    return this.sourceRepository.findBy({ user: user });
+  async getTickets(id: string) {
+    const source = await this.sourceRepository.findOne({ where: { id: id } });
+    if (!source) {
+      return null;
+    }
+    return source.tickets;
   }
 
   async createSource(sourceDetails: CreateSourceDto) {
     const { userId, ...newSourceDetails } = sourceDetails;
-    const user = await this.userRepository.findOneOrFail({
+    const user = await this.userRepository.findOne({
       where: {
         id: userId,
       },
     });
 
+    if (!user) {
+      return null;
+    }
     return this.sourceRepository.insert({ ...newSourceDetails, user });
   }
 }

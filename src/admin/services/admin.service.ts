@@ -21,7 +21,7 @@ export class AdminService {
   }
 
   async findOne(username: string) {
-    return await this.AdminRepository.findOneByOrFail({ username });
+    return await this.AdminRepository.findOne({ where: { username } });
   }
 
   async find() {

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-custom';
@@ -20,7 +20,7 @@ export class UniversalJwtStrategy extends PassportStrategy(
   validate(req: Request): UniversalJwtRequest {
     const token: string | null = UniversalJwtStrategy.jwtFromRequest(req);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException('Missing Token');
     }
     return this.authService.verifyUniversalToken(token);
   }

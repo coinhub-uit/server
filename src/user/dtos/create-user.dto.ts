@@ -6,15 +6,6 @@ import { IsNotEmpty, IsString } from 'class-validator';
 })
 export class CreateUserDto {
   @ApiProperty({
-    description: 'UUID of the user retreive from supabase',
-    example:
-      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserDto['id'],
-  })
-  @IsNotEmpty()
-  @IsString()
-  id: string;
-
-  @ApiProperty({
     description: 'Fullname',
     example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullname'],
   })
