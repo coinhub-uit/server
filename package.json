@@ -42,7 +42,7 @@
     "class-validator": "^0.14.1",
     "decimal.js": "^10.5.0",
     "dotenv": "^16.4.7",
-    "nestjs-vnpay": "^1.0.0",
+    "nestjs-vnpay": "^1.0.1",
     "passport": "^0.7.0",
     "passport-custom": "^1.1.1",
     "passport-jwt": "^4.0.1",
@@ -51,8 +51,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
-    "typeorm-extension": "^3.7.0",
-    "vnpay": "^2.1.1"
+    "typeorm-extension": "^3.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",

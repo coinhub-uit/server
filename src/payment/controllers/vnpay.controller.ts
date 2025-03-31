@@ -10,7 +10,7 @@ import { ReturnQueryFromVNPay } from 'vnpay';
 export class VnpayController {
   constructor(private topUpService: TopUpService) {}
 
-  @ApiBearerAuth()
+  @ApiBearerAuth('user')
   @UseGuards(UserJwtAuthGuard)
   @ApiOperation({
     summary: 'Generate payment link',
