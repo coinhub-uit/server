@@ -36,11 +36,11 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Column({ type: 'char', length: 12, nullable: false })
   citizenId!: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
   avatar!: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
   address!: string | null;
 
