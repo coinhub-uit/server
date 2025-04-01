@@ -10,44 +10,47 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 @ApiSchema({ description: 'User Entity Schema' })
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @CreateDateColumn({ type: 'timestamp', nullable: false })
   createdAt!: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @Column({ type: 'varchar', nullable: false })
   fullname!: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @Column({ type: 'date', nullable: false })
   birthDate!: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @Index({ unique: true })
   @Column({ type: 'char', length: 12, nullable: false })
   citizenId!: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @Column({ type: 'text', nullable: true })
-  avatar?: string;
+  avatar!: string | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @Column({ type: 'text', nullable: true })
-  address?: string;
+  address!: string | null;
 
+  @Exclude()
   @OneToMany(() => NotificationEntity, (notification) => notification.user, {
     cascade: true,
   })
   notifications: Promise<NotificationEntity[]>;
 
+  @Exclude()
   @OneToMany(() => SourceEntity, (source) => source.user, {
     cascade: true,
   })

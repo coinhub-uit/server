@@ -1,32 +1,27 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-@ApiSchema({
-  name: 'Create User Request Schema',
-})
+@ApiSchema()
 export class CreateUserDto {
-  @ApiProperty({
-    description: 'Fullname',
-    example: 'Tran Nguyen Chi Hen' satisfies CreateUserDto['fullname'],
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  fullname: string;
+  fullname!: string;
 
   @ApiProperty({
-    description: 'Birth date',
     example: '3/31/2001' satisfies CreateUserDto['birthDate'],
   })
   @IsNotEmpty()
   @IsString()
-  birthDate: string;
+  birthDate!: string;
 
+  // TODO: validate 12 digits
   @ApiProperty({
-    description: 'Citizen ID',
+    description: 'Citizen ID with 12 digits',
     example: '077002455001' satisfies CreateUserDto['citizenId'],
   })
   @IsString()
-  citizenId: string;
+  citizenId!: string;
 
   @ApiProperty({
     required: false,
@@ -39,15 +34,14 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: false,
-    description: 'Address',
-    example: '4011 Lowland Drive,Woodstock' satisfies CreateUserDto['address'],
   })
   @IsString()
   address?: string;
 
+  // TODO: validate 10 digits
   @ApiProperty({
     required: false,
-    description: 'Phone number',
+    description: 'Phone number with 10 digits',
     example: '0945678910' satisfies CreateUserDto['phoneNumber'],
   })
   @IsString()

@@ -5,7 +5,7 @@ import databaseConfig from 'src/config/database.config';
 import userJwtConfig from 'src/config/user.jwt.config';
 import vnpayConfig from 'src/config/vnpay.config';
 
-export default (): ConfigModuleOptions => ({
+export const configModuleOptions: ConfigModuleOptions = {
   load: [
     adminJwtConfig,
     adminRefreshJwtConfig,
@@ -13,5 +13,6 @@ export default (): ConfigModuleOptions => ({
     userJwtConfig,
     vnpayConfig,
   ],
+  envFilePath: ['.env', '.env.local', '.env.development'],
   isGlobal: true,
-});
+};

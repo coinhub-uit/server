@@ -16,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';
 import { Controller, Get } from '@nestjs/common';
-import configOptions from 'src/config/config.module-options';
+import { configModuleOptions } from 'src/config/nestjs-config.config';
 @Controller()
 export class RootController {
   @Get()
@@ -27,7 +27,7 @@ export class RootController {
 
 @Module({
   imports: [
-    ConfigModule.forRoot(configOptions()),
+    ConfigModule.forRoot(configModuleOptions),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
     NotificationModule,

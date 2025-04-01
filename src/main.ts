@@ -9,11 +9,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   configSwagger(app);
 
-  if (process.env.APP_NO_LISTEN) {
-    return await app.close();
-  }
-
   await app.listen(process.env.PORT ?? 3000);
 }
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+
+void bootstrap();

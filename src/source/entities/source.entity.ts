@@ -17,31 +17,30 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
-@ApiSchema({ description: 'Source Entity Schema' })
+@ApiSchema()
 @Entity('source')
 @Check(`"balance"::numeric >= 0`)
 export class SourceEntity extends AbstractEntity<SourceEntity> {
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @PrimaryColumn({ type: 'varchar', length: 20 })
-  id: string;
+  id!: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ type: String })
   @Column({
     type: 'decimal',
     precision: 12,
     scale: 0,
     default: 0,
     transformer: new DecimalTransformer(),
-    nullable: false,
   })
   @Transform(decimalToString, { toPlainOnly: true })
-  balance: Decimal;
+  balance!: Decimal;
 
   @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.sources)
-  user: Promise<UserEntity>;
+  user!: Promise<UserEntity>;
 
   @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
-  tickets: Promise<TicketEntity[]>;
+  tickets!: Promise<TicketEntity[]>;
 }

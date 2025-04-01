@@ -1,3 +1,5 @@
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
@@ -10,23 +12,30 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+@ApiSchema()
 @Entity('ticket')
 export class TicketEntity extends AbstractEntity<TicketEntity> {
+  @ApiProperty()
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id!: string;
 
+  @ApiProperty()
   @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  openedDate: Date;
+  openedDate!: Date;
 
+  @ApiProperty()
   @Column({ type: 'date', nullable: true, default: null })
-  closedDate: Date | null;
+  closedDate!: Date | null;
 
+  @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
-  source: Promise<SourceEntity>;
+  source!: Promise<SourceEntity>;
 
+  @Exclude()
   @ManyToOne(() => MethodEntity, (method) => method.tickets)
-  method: MethodEntity;
+  method!: MethodEntity;
 
+  @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
-  ticketHistories: TicketHistoryEntity[];
+  ticketHistories!: TicketHistoryEntity[];
 }

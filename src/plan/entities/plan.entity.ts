@@ -14,17 +14,18 @@ import {
 @Entity('plan')
 export class PlanEntity extends AbstractEntity<PlanEntity> {
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id!: string;
 
   @Column({ type: 'int', unique: true })
-  days: number;
+  days!: number;
 
   @Column({ type: 'boolean', default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
-  planHistories: PlanHistoryEntity[];
+  planHistories!: PlanHistoryEntity[];
 
+  // TODO: Refactor to ../subcribers/plan.subscriber.ts like admin module. Currently it's empty bruh @NTGNguyen
   @AfterInsert()
   @AfterUpdate()
   @AfterRemove()
