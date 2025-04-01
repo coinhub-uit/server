@@ -21,10 +21,6 @@ export function configSwagger(app: INestApplication<any>) {
       { type: 'http', bearerFormat: 'JWT', scheme: 'bearer' },
       'admin',
     )
-    .addBearerAuth(
-      { type: 'http', bearerFormat: 'JWT', scheme: 'bearer' },
-      'universal',
-    )
     .build();
   const options: SwaggerCustomOptions = {
     customSiteTitle: 'CoinHub API docs',

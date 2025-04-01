@@ -59,6 +59,7 @@ export class UserController {
 
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Register profile',
     description:
@@ -92,7 +93,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get profile',
     description: 'Get user profile by ID',
@@ -133,7 +135,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Update profile',
     description: "Update user's profile, need to send all properties.",
@@ -173,7 +176,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Update paritial profile',
     description:
@@ -218,7 +222,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Delete profile',
     description: 'Delete user profile with user id',
@@ -257,7 +262,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get sources of user',
     description: 'Get all sources of user with user id',
@@ -296,7 +302,8 @@ export class UserController {
   }
 
   @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('universal')
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get tickets of user',
     description: 'Get all tickets of user with user id',
