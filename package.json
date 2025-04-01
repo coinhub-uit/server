@@ -2,7 +2,7 @@
   "name": "coinhub-server",
   "version": "0.0.0",
   "description": "CoinHub Server",
-  "author": "NTNGuyen & KevinNitro",
+  "author": "NTGNguyen & KevinNitro",
   "private": true,
   "license": "MIT",
   "scripts": {

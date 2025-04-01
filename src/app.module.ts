@@ -21,7 +21,7 @@ import { configModuleOptions } from 'src/config/nestjs-config.config';
 export class RootController {
   @Get()
   root(): string {
-    return 'Made by NTNGuyen and KevinNitro';
+    return 'Made by NTGNguyen and KevinNitro';
   }
 }
 
