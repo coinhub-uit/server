@@ -29,7 +29,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty()
   @Column({ type: 'date', nullable: false })
-  birthDate!: string;
+  birthDate!: Date;
 
   @ApiProperty()
   @Index({ unique: true })

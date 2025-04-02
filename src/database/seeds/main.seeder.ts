@@ -18,7 +18,7 @@ import {
 // }
 
 const DATE_NOW = Object.freeze(new Date());
-const DATE_NOW_START_MONTH = Object.freeze(new Date().set);
+const DATE_NOW_START_MONTH = Object.freeze(new Date());
 const DATE_PREVIOUS_YEAR = Object.freeze(new Date(new Date().setMonth(-12)));
 const MONTH_OF_DATE_NOW = DATE_NOW.getMonth();
 
@@ -128,8 +128,8 @@ function seedTicketAndTicketHistory(
   planEntities: PlanEntity[],
 ): void {
   const ticketEntity: QueryDeepPartialEntity<TicketEntity> = {
-    source: faker.helpers.arrayElement(sourceEntities),
-    method: methodEntitiesObject.pr,
+    source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
+    method: Promise.resolve(methodEntitiesObject.pr),
     openedDate: new Date(),
   };
 
@@ -167,7 +167,7 @@ export default class MethodSeeder implements Seeder {
     // source
     const sourceFactory = factoryManager.get(SourceEntity);
     const sourceEntities = await sourceFactory.saveMany(5, {
-      user: faker.helpers.arrayElement(userEntities),
+      user: Promise.resolve(faker.helpers.arrayElement(userEntities)),
     });
 
     // plan_history
@@ -216,35 +216,35 @@ export default class MethodSeeder implements Seeder {
         return endDate;
       };
 
-      await Promise.all(
-        Array(10)
-          .fill(true)
-          .map(async () => {
-            const _randomSourceEntity =
-              faker.helpers.arrayElement(sourceEntities);
-            const _startDate = faker.date.past({ years: 2 });
-            const _numberOfMonths = faker.number.int({
-              min: 1,
-              max: MONTH_OF_DATE_NOW - _startDate.getMonth(),
-            });
-
-            const _ticketEntity = await ticketFactory.save({
-              method: _prMethodEntity,
-              source: _randomSourceEntity,
-              createdAt: _startDate,
-              closedDate: getClosedDate(_startDate, _numberOfMonths),
-            });
-
-            for (let _month = 0; _month < _numberOfMonths; ++_month) {
-              _startDate.setMonth(_startDate.getMonth() + 1);
-              const _endCurrentIterateDate = new Date(_startDate);
-              _endCurrentIterateDate.setd,
-                ticketPlanHistoryRepository.insert({
-                  ticket: _ticketEntity,
-                });
-            }
-          }),
-      );
+      // await Promise.all(
+      //   Array(10)
+      //     .fill(true)
+      //     .map(async () => {
+      //       const _randomSourceEntity =
+      //         faker.helpers.arrayElement(sourceEntities);
+      //       const _startDate = faker.date.past({ years: 2 });
+      //       const _numberOfMonths = faker.number.int({
+      //         min: 1,
+      //         max: MONTH_OF_DATE_NOW - _startDate.getMonth(),
+      //       });
+      //
+      //       const _ticketEntity = await ticketFactory.save({
+      //         method: _prMethodEntity,
+      //         source: _randomSourceEntity,
+      //         createdAt: _startDate,
+      //         closedDate: getClosedDate(_startDate, _numberOfMonths),
+      //       });
+      //
+      //       for (let _month = 0; _month < _numberOfMonths; ++_month) {
+      //         _startDate.setMonth(_startDate.getMonth() + 1);
+      //         const _endCurrentIterateDate = new Date(_startDate);
+      //         _endCurrentIterateDate.setd,
+      //           ticketPlanHistoryRepository.insert({
+      //             ticket: _ticketEntity,
+      //           });
+      //       }
+      //     }),
+      // );
     }
     // ticket: PR
   }
