@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreatePlanDto } from 'src/plan/dtos/create-plan.dto';
+import { UpdatePlanDto } from 'src/plan/dtos/update-user.dto';
 import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
+import { PlanAlreadyExist } from 'src/plan/exceptions/plan-already-exist';
+import { PlanNotExist } from 'src/plan/exceptions/plan-not-exist';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,11 +16,62 @@ export class PlanService {
     private readonly planRepository: Repository<PlanEntity>,
     @InjectRepository(AvailablePlanEntity)
     private readonly availablePlanRepository: Repository<AvailablePlanEntity>,
+    @InjectRepository(PlanHistoryEntity)
+    private readonly planHistoryRepository: Repository<PlanHistoryEntity>,
   ) {}
+
+  private async updatePlanHistory(rate: number, plan: PlanEntity) {
+    const planHistory = this.planHistoryRepository.create({
+      rate: rate,
+      definedDate: new Date(),
+      plan: Promise.resolve(plan),
+    });
+    const insertResult = await this.planHistoryRepository.insert(planHistory);
+    return insertResult.generatedMaps[0] as PlanHistoryEntity;
+  }
+
+  async createPlan(createPlanDto: CreatePlanDto) {
+    const plan = this.planRepository.create({
+      days: createPlanDto.days,
+      isActive: true,
+    });
+    const insertResult = await this.planRepository.insert(plan);
+    if (insertResult.identifiers.length === 0) {
+      throw new PlanAlreadyExist();
+    }
+    const planHistory = await this.updatePlanHistory(createPlanDto.rate, plan);
+    return {
+      plan: insertResult.generatedMaps[0] as PlanEntity,
+      planHistory: planHistory,
+    };
+  }
+
+  async updatePlan(updatePlanDto: UpdatePlanDto, plan: PlanEntity) {
+    const updatedPlan = (
+      await this.planRepository.update(updatePlanDto.days, plan)
+    ).generatedMaps[0] as PlanEntity;
+    const planHistory = await this.updatePlanHistory(
+      updatePlanDto.rate,
+      updatedPlan,
+    );
+    return {
+      updatedplan: updatedPlan,
+      planHistory: planHistory,
+    };
+  }
+
+  async findPlanByDays(days: number) {
+    const plan = await this.planRepository.findOne({ where: { days: days } });
+    if (!plan) {
+      throw new PlanNotExist();
+    }
+    return plan;
+  }
 
   getAvailablePlans() {
     return this.availablePlanRepository.find();
   }
+
   getPlans(isActive: boolean) {
     return this.planRepository.findOneOrFail({
       where: { isActive },

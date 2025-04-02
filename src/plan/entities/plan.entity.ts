@@ -9,21 +9,23 @@ import {
   EntityManager,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('plan')
+@Unique(['days'])
 export class PlanEntity extends AbstractEntity<PlanEntity> {
   @PrimaryGeneratedColumn('increment')
   id!: string;
 
-  @Column({ type: 'int', unique: true })
+  @Column({ name: 'days', type: 'int', unique: true })
   days!: number;
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
-  planHistories!: PlanHistoryEntity[];
+  planHistories!: Promise<PlanHistoryEntity[]>;
 
   // TODO: Refactor to ../subcribers/plan.subscriber.ts like admin module. Currently it's empty bruh @NTGNguyen
   @AfterInsert()
