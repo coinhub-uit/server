@@ -19,14 +19,14 @@ import { ViewColumn, ViewEntity, DataSource } from 'typeorm';
 })
 export class AvailablePlanEntity {
   @ViewColumn()
-  id: string;
+  id!: string;
 
   @ViewColumn()
-  definedDate: Date;
+  definedDate!: Date;
 
   @ViewColumn()
-  rate: number;
+  rate!: number;
 
   @ViewColumn()
-  planId: string;
+  planId!: string;
 }

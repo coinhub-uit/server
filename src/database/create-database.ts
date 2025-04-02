@@ -6,5 +6,4 @@ async function create() {
   await createDatabase({ options: dataSourceOptions });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-create();
+void create();

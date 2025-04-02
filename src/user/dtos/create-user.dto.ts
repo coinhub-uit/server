@@ -1,92 +1,49 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import {
-  Transform,
-  TransformFnParams,
-  TransformationType,
-  ClassTransformOptions,
-} from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-class PinTranformFnParams implements TransformFnParams {
-  value: string | number;
-  key: string;
-  obj: any;
-  type: TransformationType;
-  options: ClassTransformOptions;
-}
-
-@ApiSchema({
-  name: 'CreateUserRequest',
-  description: 'The payload of the user register request',
-})
+@ApiSchema()
 export class CreateUserDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  fullname!: string;
+
   @ApiProperty({
-    description: 'UUID of user',
-    examples: ['20c75444-798a-4708-9105-69de67e35c1c'],
+    example: '3/31/2001' satisfies CreateUserDto['birthDate'],
   })
   @IsNotEmpty()
-  userId: string;
+  @IsString()
+  birthDate!: string;
+
+  // TODO: validate 12 digits
+  @ApiProperty({
+    description: 'Citizen ID with 12 digits',
+    example: '077002455001' satisfies CreateUserDto['citizenId'],
+  })
+  @IsString()
+  citizenId!: string;
 
   @ApiProperty({
-    description: 'username of User',
-    examples: ['chihencube123', 'luckycube321'],
+    required: false,
+    description: 'Avatar URL',
+    example:
+      'https://avatars.githubusercontent.com/u/86353526?v=4' satisfies CreateUserDto['avatar'],
   })
-  @IsNotEmpty()
-  userName: string;
-
-  @ApiProperty({
-    description: 'fullname of User',
-    examples: ['Huynh Thai Binh', 'Tran Nguyen Chi Hen'],
-  })
-  @IsNotEmpty()
-  fullName: string;
-
-  @ApiProperty({
-    description: 'birthday of User',
-    examples: ['3/31/2001', '4/4/1698'],
-  })
-  @IsNotEmpty()
-  birthDay: string;
-
-  // TODO: @NTGNguyen: validate only 4 char
-  @ApiProperty({
-    description: 'Pin of User Account',
-    examples: ['132456', '896412'],
-  })
-  @Transform(
-    ({ value }: PinTranformFnParams) =>
-      typeof value === 'number' ? value.toString() : value,
-    { toClassOnly: true },
-  )
-  pin: string;
-
-  @ApiProperty({
-    nullable: true,
-    description: 'avatar of User Account ',
-    examples: [
-      'dGVzdCBpbWFnZSBkYXRhIHRoYXQgY2Fubm90IGJlIHByb2Nlc3NlZCBpbnRvIGEgaW1hZ2UgZmlsZSBvciBhbnkgY2FyaW91cyBlbmNvZGluZy4gU2VjdXJlIHRoZSBpbWFnZSBkYXRhIGluIHRoZSBpbnRlcm5hbCBkZXZlbG9wbWVudCBkYXQgb3IgdGVzdCBkYXRhIHRoYXQgYXJlIGVuY29kaW5nIHdpdGggQmFzZTY0Lg==',
-    ],
-  })
+  @IsString()
   avatar?: string;
 
   @ApiProperty({
-    nullable: true,
-    description: 'address',
-    examples: ['4011 Lowland Drive,Woodstock', '429 Whitman Court, Stamford'],
+    required: false,
   })
+  @IsString()
   address?: string;
 
+  // TODO: validate 10 digits
   @ApiProperty({
-    nullable: true,
-    description: 'Email of user account',
-    examples: ['luckycube2@doggg.com'],
+    required: false,
+    description: 'Phone number with 10 digits',
+    example: '0945678910' satisfies CreateUserDto['phoneNumber'],
   })
-  email?: string;
-
-  @ApiProperty({
-    nullable: true,
-    description: 'Phone of User',
-    examples: ['0945678910`'],
-  })
+  @IsString()
   phoneNumber?: string;
 }

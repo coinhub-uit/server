@@ -11,5 +11,8 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [
     pathResolve(__dirname, '../../') + '/**/entities/*.entity.{ts,js}',
   ],
+  migrations: [
+    pathResolve(__dirname, '../../../') + '/database/migrations/*{.ts,.js}',
+  ],
   synchronize: process.env.NODE_ENV === 'development',
 };

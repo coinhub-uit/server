@@ -4,5 +4,4 @@ async function freshSeed() {
   await import('./seed-database');
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-freshSeed();
+void freshSeed();

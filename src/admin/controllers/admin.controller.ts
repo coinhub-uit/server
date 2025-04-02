@@ -1,18 +1,31 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
-import { AdminService } from 'src/admin/services/admin.service';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
-import { HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
-import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
+import { AdminEntity } from 'src/admin/entities/admin.entity';
+import { AdminService } from 'src/admin/services/admin.service';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
 import { AuthService } from 'src/auth/services/auth.service';
-import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
+import { AdminJwtRequest } from 'src/auth/types/admin.jwt-request';
+import { AdminLocalRequest } from 'src/auth/types/admin.local-request';
 
-interface adminAuth extends Request {
-  user: string;
-}
-
-@Controller('admin')
+@Controller('admins')
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
@@ -28,24 +41,27 @@ export class AdminController {
     await this.adminService.createAdmin(createAdminDto);
   }
 
-  @Get()
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     description: "Get admins' information",
+    type: [AdminEntity],
     example: [
       { username: 'GuessMe', password: 'StealMe!!' },
       { username: 'foo', password: 'bar' },
     ] satisfies Awaited<ReturnType<AdminController['getAdmins']>>,
   })
+  @UseGuards(AdminJwtAuthGuard)
+  @Get()
   async getAdmins() {
     return this.adminService.find();
   }
 
-  @ApiBody({ type: LoginAdminDto }) // Explicitly declare the request body
+  @ApiBearerAuth('admin')
+  @ApiBody({ type: LoginAdminDto }) // Explicitly declarethe request body
   @ApiOkResponse({
     description: 'Login the admin',
     example: {
-      username: 'admin',
-      token:
+      accessToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
       refreshToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
@@ -55,22 +71,24 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AdminLocalAuthGuard)
   @Post('login')
-  login(@Request() req: adminAuth) {
-    return this.authService.loginAdmin(req.user);
+  login(@Request() req: Request & { user: AdminLocalRequest }) {
+    return this.authService.generateTokens(req.user.username);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
-      username: 'GuessMe',
-      token:
+      accessToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
+      refreshToken:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
+  @UseGuards(AdminJwtAuthGuard)
   @Post('refresh')
-  refreshToken(@Request() req: adminAuth) {
-    return this.authService.refreshTokenAdmin(req.user);
+  refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {
+    return this.authService.generateTokens(req.user.username);
   }
 }

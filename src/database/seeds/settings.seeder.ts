@@ -1,13 +1,13 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { SettingEntity } from 'src/setting/entities/settings.entity';
+import { SettingsEntity } from 'src/setting/entities/settings.entity';
 
 export default class MoneySeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
-    const repository = dataSource.getRepository(SettingEntity);
+    const repository = dataSource.getRepository(SettingsEntity);
     await repository.insert({
       id: 'main',
-      minimumInitMoney: 1000000,
+      minAmountOpenTicket: 1000000,
     });
   }
 }

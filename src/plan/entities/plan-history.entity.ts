@@ -12,20 +12,20 @@ import {
 @Entity('plan_history')
 export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
-  id: number;
+  id!: number;
 
   @Column({ type: 'date' })
-  definedDate: Date;
+  definedDate!: Date;
 
-  @Column({ type: 'decimal' })
-  rate: number;
+  @Column({ type: 'decimal', precision: 3, scale: 1 })
+  rate!: number;
 
   @OneToMany(
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketHistories: TicketHistoryEntity[];
+  ticketHistories!: TicketHistoryEntity[];
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
-  plan: PlanEntity;
+  plan!: PlanEntity;
 }

@@ -5,5 +5,4 @@ async function drop() {
   await dropDatabase({ options: dataSourceOptions });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-drop();
+void drop();

@@ -15,22 +15,19 @@ import { SettingModule } from './setting/settings.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';
-import adminJwtConfig from 'src/config/admin.jwt.config';
-import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
-import userJwtConfig from 'src/config/user.jwt.config';
-import { RootController } from 'src/root/controllers/root.controller';
+import { Controller, Get } from '@nestjs/common';
+import { configModuleOptions } from 'src/config/nestjs-config.config';
+@Controller()
+export class RootController {
+  @Get()
+  root(): string {
+    return 'Made by NTGNguyen and KevinNitro';
+  }
+}
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [
-        databaseConfig,
-        adminJwtConfig,
-        adminRefreshJwtConfig,
-        userJwtConfig,
-      ],
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(configModuleOptions),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
     NotificationModule,

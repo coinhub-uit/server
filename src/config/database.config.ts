@@ -3,6 +3,6 @@ import { dataSourceOptions } from 'src/common/database/options';
 import { DataSourceOptions } from 'typeorm';
 
 export default registerAs(
-  'database',
+  'database_config',
   (): DataSourceOptions => dataSourceOptions,
 );

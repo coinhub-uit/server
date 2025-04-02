@@ -24,6 +24,7 @@
     "scripts",
     "commitlint.config.ts",
     ".lintstagedrc.json",
-    "eslint.config.mjs"
+    "eslint.config.mjs",
+    "database"
   ]
 }

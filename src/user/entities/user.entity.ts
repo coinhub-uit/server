@@ -1,42 +1,58 @@
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
+@ApiSchema()
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
+  @ApiProperty()
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
+  @ApiProperty()
+  @CreateDateColumn({ type: 'timestamp', nullable: false })
+  createdAt!: string;
+
+  @ApiProperty()
+  @Column({ type: 'varchar', nullable: false })
+  fullname!: string;
+
+  @ApiProperty()
+  @Column({ type: 'date', nullable: false })
+  birthDate!: string;
+
+  @ApiProperty()
   @Index({ unique: true })
-  @Column({ type: 'varchar', length: 20 })
-  userName: string;
+  @Column({ type: 'char', length: 12, nullable: false })
+  citizenId!: string;
 
-  @Column({ type: 'varchar' })
-  fullName: string;
-
-  @Column({ type: 'date' })
-  birthDay: Date;
-
-  @Index({ unique: true })
-  @Column({ type: 'char', length: 12 })
-  citizenId: string;
-
+  @ApiProperty({ type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
-  pin: string;
+  avatar!: string | null;
 
-  @Column({ type: 'bytea', nullable: true })
-  avatar?: Buffer;
-
+  @ApiProperty({ type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
-  address?: string;
+  address!: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  email?: string;
+  @Exclude()
+  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
+    cascade: true,
+  })
+  notifications: Promise<NotificationEntity[]>;
 
-  @OneToMany(() => NotificationEntity, (notification) => notification.user)
-  notifications: NotificationEntity[];
-
-  @OneToMany(() => SourceEntity, (source) => source.user)
-  sources: SourceEntity[];
+  @Exclude()
+  @OneToMany(() => SourceEntity, (source) => source.user, {
+    cascade: true,
+  })
+  sources: Promise<SourceEntity[]>;
 }
