@@ -16,9 +16,8 @@ export class TranferMoneysDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty()
-  money: number;
+  money!: number;
 
-  // FIXME: Generate server itself, not client
   @IsDate()
   createAt: Date;
 }

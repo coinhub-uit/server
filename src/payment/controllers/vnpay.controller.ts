@@ -11,7 +11,6 @@ export class VnpayController {
   constructor(private topUpService: TopUpService) {}
 
   @ApiBearerAuth('user')
-  @UseGuards(UserJwtAuthGuard)
   @ApiOperation({
     summary: 'Generate payment link',
     description: 'Generate payment link for VNPay',
@@ -23,6 +22,7 @@ export class VnpayController {
         ReturnType<VnpayController['create']>
       >,
   })
+  @UseGuards(UserJwtAuthGuard)
   @Post('create')
   async create(@Body() createVnPayDto: CreateTopUpDto) {
     return await this.topUpService.createVNPayPayment(createVnPayDto);

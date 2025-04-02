@@ -16,5 +16,6 @@ import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
   ],
   providers: [PlanService],
   controllers: [PlanController],
+  exports: [PlanService, TypeOrmModule],
 })
 export class PlanModule {}

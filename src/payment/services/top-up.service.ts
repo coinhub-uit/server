@@ -59,7 +59,7 @@ export class TopUpService {
   }
 
   async createVNPayPayment(paymentDetails: CreateTopUpDto) {
-    const source = await this.sourceService.getSourceById(
+    const source = await this.sourceService.getSourceByIdOrFail(
       paymentDetails.sourceDestination,
     ); // To check if exists, if not will raiase error
 

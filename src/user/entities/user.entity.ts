@@ -12,7 +12,7 @@ import {
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
-@ApiSchema({ description: 'User Entity Schema' })
+@ApiSchema()
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()

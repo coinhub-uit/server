@@ -1,8 +1,5 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
-import { AdminService } from 'src/admin/services/admin.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { AdminLocalStrategy } from 'src/auth/strategies/admin.local.strategy';
@@ -13,17 +10,17 @@ import userJwtConfig from 'src/config/user.jwt.config';
 import { UserJwtStrategy } from 'src/auth/strategies/user.jwt.strategy';
 import { UniversalJwtStrategy } from 'src/auth/strategies/universal.jwt.strategy';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AdminEntity]),
+    forwardRef(() => AdminModule),
     ConfigModule.forFeature(adminJwtConfig),
     ConfigModule.forFeature(adminRefreshJwtConfig),
     ConfigModule.forFeature(userJwtConfig),
   ],
   providers: [
     AuthService,
-    AdminService,
     JwtService,
     UserJwtStrategy,
     UniversalJwtStrategy,
@@ -32,5 +29,6 @@ import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
     AdminRefreshJwtStrategy,
   ],
   controllers: [],
+  exports: [AuthService],
 })
 export class AuthModule {}

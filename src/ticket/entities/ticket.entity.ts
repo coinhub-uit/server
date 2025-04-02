@@ -33,7 +33,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
 
   @Exclude()
   @ManyToOne(() => MethodEntity, (method) => method.tickets)
-  method!: MethodEntity;
+  method!: Promise<MethodEntity>;
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)

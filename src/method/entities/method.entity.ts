@@ -13,5 +13,5 @@ export class MethodEntity extends AbstractEntity<MethodEntity> {
 
   @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.method)
-  tickets!: TicketEntity[];
+  tickets!: Promise<TicketEntity[]>;
 }

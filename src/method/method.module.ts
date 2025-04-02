@@ -8,5 +8,6 @@ import { MethodService } from './services/method.service';
   imports: [TypeOrmModule.forFeature([MethodEntity])],
   controllers: [MethodController],
   providers: [MethodService],
+  exports: [MethodService, TypeOrmModule],
 })
 export class MethodModule {}

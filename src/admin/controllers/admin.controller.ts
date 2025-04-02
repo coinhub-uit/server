@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
 import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
+import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { AdminService } from 'src/admin/services/admin.service';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { AdminLocalAuthGuard } from 'src/auth/guards/admin.local-auth.guard';
@@ -40,21 +41,23 @@ export class AdminController {
     await this.adminService.createAdmin(createAdminDto);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AdminJwtAuthGuard)
-  @Get()
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     description: "Get admins' information",
+    type: [AdminEntity],
     example: [
       { username: 'GuessMe', password: 'StealMe!!' },
       { username: 'foo', password: 'bar' },
     ] satisfies Awaited<ReturnType<AdminController['getAdmins']>>,
   })
+  @UseGuards(AdminJwtAuthGuard)
+  @Get()
   async getAdmins() {
     return this.adminService.find();
   }
 
-  @ApiBody({ type: LoginAdminDto }) // Explicitly declare the request body
+  @ApiBearerAuth('admin')
+  @ApiBody({ type: LoginAdminDto }) // Explicitly declarethe request body
   @ApiOkResponse({
     description: 'Login the admin',
     example: {
@@ -72,7 +75,7 @@ export class AdminController {
     return this.authService.generateTokens(req.user.username);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     description: 'Successfully refreshed the token',
     example: {
@@ -82,8 +85,8 @@ export class AdminController {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
     } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
   })
-  @UseGuards(AdminJwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
+  @UseGuards(AdminJwtAuthGuard)
   @Post('refresh')
   refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {
     return this.authService.generateTokens(req.user.username);
