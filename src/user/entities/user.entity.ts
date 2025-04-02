@@ -16,12 +16,12 @@ import { Exclude } from 'class-transformer';
 @Entity('users')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  @PrimaryColumn({ type: 'uuid', nullable: false })
+  id!: string;
 
   @ApiProperty()
   @CreateDateColumn({ type: 'timestamp', nullable: false })
-  createdAt!: string;
+  createdAt!: Date;
 
   @ApiProperty()
   @Column({ type: 'varchar', nullable: false })
@@ -29,7 +29,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty()
   @Column({ type: 'date', nullable: false })
-  birthDate!: string;
+  birthDate!: Date;
 
   @ApiProperty()
   @Index({ unique: true })

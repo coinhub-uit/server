@@ -1,5 +1,6 @@
 export class UserNotExistException extends Error {
-  constructor() {
-    super("User doesn't exist");
+  constructor(message: string = 'User does not exist') {
+    super();
+    this.message = message;
   }
 }

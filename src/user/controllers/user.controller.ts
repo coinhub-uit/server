@@ -25,9 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
-import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
-import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
@@ -37,6 +35,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
+import { QueryFailedError } from 'typeorm';
 
 @Controller('users')
 export class UserController {
@@ -57,7 +56,7 @@ export class UserController {
     return await this.userService.getAll();
   }
 
-  @UseGuards(UserJwtAuthGuard)
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
   @ApiOperation({
@@ -65,11 +64,15 @@ export class UserController {
     description:
       "Register a profile for existed user in Supabase's auth database. (User only)",
   })
+  @ApiForbiddenResponse({
+    description: 'Not allowed',
+    example: new ForbiddenException(
+      'You are only allowed to create your own profile',
+    ),
+  })
   @ApiConflictResponse({
     description: 'Conflict',
-    example: new ConflictException(
-      'User profile is already existed, cannot create a new one',
-    ),
+    example: new ConflictException('User already exists'),
   })
   @ApiCreatedResponse({
     description: 'User profile created successfully',
@@ -77,16 +80,22 @@ export class UserController {
   })
   @Post()
   async create(
-    @Req() req: Request & { user: UserJwtRequest },
+    @Req() req: Request & { user: UniversalJwtRequest },
     @Body() createUserDto: CreateUserDto,
   ) {
+    if (!req.user.isAdmin && req.user.userId !== createUserDto.id) {
+      throw new ForbiddenException(
+        'You are only allowed to create your own profile',
+      );
+    }
     try {
-      return await this.userService.createUser(createUserDto, req.user.userId);
+      return await this.userService.createUser(createUserDto);
     } catch (error) {
-      if (error instanceof UserAlreadyExistException) {
-        throw new ConflictException(
-          'User profile is already existed, cannot create a new one',
-        );
+      if (
+        error instanceof UserAlreadyExistException ||
+        error instanceof QueryFailedError
+      ) {
+        throw new ConflictException(error.message);
       }
       throw error;
     }
