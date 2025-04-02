@@ -4,7 +4,7 @@ import Decimal from 'decimal.js';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { SourceAlreadyExistException } from 'src/user/exceptions/source-already-exist';
+import { SourceAlreadyExistException } from 'src/source/exceptions/source-already-exist';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
 import { Repository } from 'typeorm';

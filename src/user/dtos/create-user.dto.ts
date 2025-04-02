@@ -1,26 +1,39 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
+import { stringToDate } from 'src/common/transformers/date.transformer';
 
 @ApiSchema()
 export class CreateUserDto {
+  @ApiProperty({
+    description: 'UUID of the user retreive from supabase',
+    example:
+      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserDto['id'],
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  id!: string;
+
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
   fullname!: string;
 
   @ApiProperty({
-    example: '3/31/2001' satisfies CreateUserDto['birthDate'],
+    description: 'I guess it follows ISO8601 aka ISO, not strictly check.',
+    example: '2005-9-27',
+    examples: ['2005-9-27', new Date('2005-9-27').toISOString()],
   })
-  @IsNotEmpty()
-  @IsString()
-  birthDate!: string;
+  @Transform(stringToDate)
+  // @IsDateString() // FIXME: This doesn't work. This is bruh, there's not ensured
+  birthDate!: Date;
 
-  // TODO: validate 12 digits
   @ApiProperty({
     description: 'Citizen ID with 12 digits',
     example: '077002455001' satisfies CreateUserDto['citizenId'],
   })
   @IsString()
+  @Length(12, 12)
   citizenId!: string;
 
   @ApiProperty({
@@ -38,12 +51,12 @@ export class CreateUserDto {
   @IsString()
   address?: string;
 
-  // TODO: validate 10 digits
   @ApiProperty({
     required: false,
     description: 'Phone number with 10 digits',
     example: '0945678910' satisfies CreateUserDto['phoneNumber'],
   })
   @IsString()
+  @Length(10, 10)
   phoneNumber?: string;
 }
