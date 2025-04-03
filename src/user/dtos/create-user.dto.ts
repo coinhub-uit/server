@@ -1,6 +1,13 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  Length,
+  MaxDate,
+} from 'class-validator';
 import { stringToDate } from 'src/common/transformers/date.transformer';
 
 @ApiSchema()
@@ -27,6 +34,7 @@ export class CreateUserDto {
   })
   @Transform(stringToDate)
   @IsDate()
+  @MaxDate(() => new Date())
   birthDate!: Date;
 
   @ApiProperty({
