@@ -13,6 +13,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
@@ -33,17 +34,11 @@ export class PlanController {
   }
 
   @ApiBearerAuth('admin')
-  @ApiOperation({
-    description: 'Create new plan',
-  })
+  @ApiOperation({})
+  @ApiConflictResponse({})
+  @ApiUnprocessableEntityResponse({})
   @ApiOkResponse({
-    description: 'Successfully',
     type: CreatePlanResponseDto,
-  })
-  @ApiConflictResponse({
-    description:
-      'This Plan with this day number is already existed, please try new one',
-    example: new ConflictException(),
   })
   @UseGuards(AdminJwtAuthGuard)
   @Post()
@@ -61,16 +56,11 @@ export class PlanController {
   }
 
   @ApiBearerAuth('admin')
-  @ApiOperation({
-    description: "Update plan and save it's new version to plan history",
-  })
+  @ApiOperation({})
+  @ApiNotFoundResponse({})
+  @ApiUnprocessableEntityResponse({})
   @ApiOkResponse({
-    description: 'Successful',
     type: UpdatePlanResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: 'This plan is not exist, may you find another one?',
-    example: new NotFoundException(),
   })
   @UseGuards(AdminJwtAuthGuard)
   @Post('update')
