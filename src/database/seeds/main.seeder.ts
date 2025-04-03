@@ -1,4 +1,4 @@
-import { Seeder, SeederFactory, SeederFactoryManager } from 'typeorm-extension';
+import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
@@ -8,10 +8,6 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { faker } from '@faker-js/faker';
-import {
-  QueryDeepPartialEntity,
-  QueryPartialEntity,
-} from 'typeorm/query-builder/QueryPartialEntity';
 import Decimal from 'decimal.js';
 
 type MethodEntitiesObject = {
@@ -19,10 +15,6 @@ type MethodEntitiesObject = {
   pir: MethodEntity;
   pr: MethodEntity;
 };
-
-// function seedTicketsPrMethod(nrEntity: MethodEntity, ticketFactory: SeederFactory<TicketEntity>){
-//
-// }
 
 const DATE_NOW = Object.freeze(new Date());
 const DATE_NOW_START_MONTH = Object.freeze(new Date());
@@ -46,7 +38,7 @@ const METHODS: DeepPartial<MethodEntity>[] = [
 ];
 
 const PLANS: DeepPartial<PlanEntity>[] = [
-  { days: -1 }, // For new Method that has no name
+  { days: -1 }, // For new Method that has no name yet
   { days: 30 },
   { days: 90 },
   { days: 180 },
@@ -56,6 +48,7 @@ function getPlanHistoryEntities(
   planHistoryRepository: Repository<PlanHistoryEntity>,
   planEntities: PlanEntity[],
 ) {
+  // FIXME: This is not minus month. Maybe need another lib
   return planHistoryRepository.create([
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
@@ -228,26 +221,22 @@ export default class MethodSeeder implements Seeder {
       getPlanHistoryEntities(planHistoryRepository, planEntities),
     );
 
-    // ticket_plan_history
+    // ticket
+    const ticketRepository = dataSource.getRepository(TicketEntity);
     const ticketHistoryRepository =
       dataSource.getRepository(TicketHistoryEntity);
-
-    // ticket
-    const ticketFactory = factoryManager.get(TicketEntity);
 
     // ticket: NR
 
     await Promise.all(
       Array.from({ length: 20 }).map(() =>
         seedTicketAndTicketHistoryNr({
-          ticketRepository: dataSource.getRepository(TicketEntity),
-          ticketHistoryRepository:
-            dataSource.getRepository(TicketHistoryEntity),
+          ticketRepository,
+          ticketHistoryRepository,
           sourceEntities,
           methodEntitiesObject,
           planEntities,
-          planHistoryEntities:
-            planHistoryEntities.generatedMaps as PlanHistoryEntity[],
+          planHistoryEntities,
         }),
       ),
     );
