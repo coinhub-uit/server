@@ -278,6 +278,7 @@ export class UserController {
           "User doesn't exist to have sources to have tickets",
         );
       }
+      throw error;
     }
   }
 }

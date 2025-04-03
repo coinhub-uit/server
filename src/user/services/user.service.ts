@@ -66,17 +66,29 @@ export class UserService {
   }
 
   async getSources(userId: string) {
-    const user = await this.getByIdOrFail(userId);
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: {
+        sources: true,
+      },
+    });
+    if (!user) {
+      throw new UserNotExistException();
+    }
     return await user.sources;
   }
 
   async getTickets(userId: string) {
-    const user = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.sources', 'source')
-      .leftJoinAndSelect('source.tickets', 'ticket')
-      .where('user.id = :userId', { userId })
-      .getOne();
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        sources: {
+          tickets: true,
+        },
+      },
+    });
     if (!user) {
       throw new UserNotExistException();
     }
