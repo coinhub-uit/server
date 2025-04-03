@@ -32,10 +32,9 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
+import { UserConflictException } from 'src/user/exceptions/user-conflict.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
-import { QueryFailedError } from 'typeorm';
 
 @Controller('users')
 export class UserController {
@@ -91,10 +90,7 @@ export class UserController {
     try {
       return await this.userService.createUser(createUserDto);
     } catch (error) {
-      if (
-        error instanceof UserAlreadyExistException ||
-        error instanceof QueryFailedError
-      ) {
+      if (error instanceof UserConflictException) {
         throw new ConflictException(error.message);
       }
       throw error;
@@ -160,6 +156,10 @@ export class UserController {
     description: "User doesn't exist to be updated",
     example: new NotFoundException("User doesn't exist to be updated"),
   })
+  @ApiConflictResponse({
+    description: 'User cannot be update',
+    example: new ConflictException(),
+  })
   @ApiNoContentResponse({
     description: 'User profile updated successfully',
   })
@@ -180,6 +180,9 @@ export class UserController {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to be updated");
       }
+      if (error instanceof UserConflictException) {
+        throw new ConflictException(error.message);
+      }
       throw error;
     }
   }
@@ -198,9 +201,9 @@ export class UserController {
       "You are not allowed to paritially update other user's profile",
     ),
   })
-  @ApiNotFoundResponse({
-    description: "User doesn't exist to be updated",
-    example: new NotFoundException("User doesn't exist to be updated"),
+  @ApiConflictResponse({
+    description: 'User cannot be partial update',
+    example: new ConflictException(),
   })
   @ApiOkResponse({
     description: 'User profile updated successfully',
@@ -223,8 +226,8 @@ export class UserController {
         userId,
       );
     } catch (error) {
-      if (error instanceof UserNotExistException) {
-        throw new NotFoundException("User doesn't exist to be updated");
+      if (error instanceof UserConflictException) {
+        throw new ConflictException(error.message);
       }
       throw error;
     }
