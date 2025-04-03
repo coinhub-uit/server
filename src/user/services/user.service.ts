@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { UserConflictException } from 'src/user/exceptions/user-conflict.exception';
+import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -14,14 +13,6 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
-
-  // private async checkUserExistAndFail(userId: string) {
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
-  //   if (user) {
-  //     throw new UserAlreadyExistException();
-  //   }
-  //   return user;
-  // }
 
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
@@ -42,46 +33,25 @@ export class UserService {
 
   async createUser(userDetails: CreateUserDto) {
     const user = this.userRepository.create(userDetails as UserEntity);
-    try {
-      const savedUser = await this.userRepository.save(user);
-      return savedUser;
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new UserConflictException(error.message);
-      }
-      throw error;
-    }
+    const savedUser = await this.userRepository.save(user);
+    return savedUser;
   }
 
   async update(userDetails: UpdateUserDto, userId: string) {
-    try {
-      const updateResult = await this.userRepository.update(
-        userId,
-        userDetails as UserEntity,
-      );
-      if (updateResult.affected === 0) {
-        throw new UserNotExistException();
-      }
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new UserConflictException(error.message);
-      }
-      throw error;
+    const updateResult = await this.userRepository.update(
+      userId,
+      userDetails as UserEntity,
+    );
+    if (updateResult.affected === 0) {
+      throw new UserNotExistException();
     }
   }
 
   async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
     const user = await this.getByIdOrFail(userId);
     const updatedUser = this.userRepository.merge(user, userDetails);
-    try {
-      const newUser = await this.userRepository.save(updatedUser);
-      return newUser;
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new UserConflictException(error.message);
-      }
-      throw error;
-    }
+    const newUser = await this.userRepository.save(updatedUser);
+    return newUser;
   }
 
   // TODO: If soft delete / remove, return nothing

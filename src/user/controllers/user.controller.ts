@@ -11,29 +11,27 @@ import {
   Req,
   ForbiddenException,
   UseGuards,
-  ConflictException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserConflictException } from 'src/user/exceptions/user-conflict.exception';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
@@ -63,18 +61,11 @@ export class UserController {
     description:
       "Register a profile for existed user in Supabase's auth database. (User only)",
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      'You are only allowed to create your own profile',
-    ),
-  })
-  @ApiConflictResponse({
-    description: 'Conflict',
-    example: new ConflictException('User already exists'),
+  @ApiForbiddenResponse()
+  @ApiUnprocessableEntityResponse({
+    description: 'User already exists, or constraint error',
   })
   @ApiCreatedResponse({
-    description: 'User profile created successfully',
     type: UserEntity,
   })
   @Post()
@@ -87,14 +78,7 @@ export class UserController {
         'You are only allowed to create your own profile',
       );
     }
-    try {
-      return await this.userService.createUser(createUserDto);
-    } catch (error) {
-      if (error instanceof UserConflictException) {
-        throw new ConflictException(error.message);
-      }
-      throw error;
-    }
+    return await this.userService.createUser(createUserDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -104,18 +88,9 @@ export class UserController {
     summary: 'Get profile',
     description: 'Get user profile by ID',
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      'You are only allowed to get your own profile',
-    ),
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found',
-    example: new NotFoundException('User not found'),
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   @ApiOkResponse({
-    description: 'Successful',
     type: UserEntity,
   })
   @Get(':id')
@@ -146,23 +121,10 @@ export class UserController {
     summary: 'Update profile',
     description: "Update user's profile, need to send all properties.",
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      "You are not allowed to update other user's profile",
-    ),
-  })
-  @ApiNotFoundResponse({
-    description: "User doesn't exist to be updated",
-    example: new NotFoundException("User doesn't exist to be updated"),
-  })
-  @ApiConflictResponse({
-    description: 'User cannot be update',
-    example: new ConflictException(),
-  })
-  @ApiNoContentResponse({
-    description: 'User profile updated successfully',
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  @ApiUnprocessableEntityResponse()
+  @ApiNoContentResponse()
   @Put(':id')
   async update(
     @Req() req: Request & { user: UniversalJwtRequest },
@@ -178,10 +140,7 @@ export class UserController {
       await this.userService.update(updateUserDto, userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException("User doesn't exist to be updated");
-      }
-      if (error instanceof UserConflictException) {
-        throw new ConflictException(error.message);
+        throw new NotFoundException('User not found to be updated');
       }
       throw error;
     }
@@ -195,18 +154,9 @@ export class UserController {
     description:
       "Update paritial user's profile. User ID is required for admin request",
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      "You are not allowed to paritially update other user's profile",
-    ),
-  })
-  @ApiConflictResponse({
-    description: 'User cannot be partial update',
-    example: new ConflictException(),
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   @ApiOkResponse({
-    description: 'User profile updated successfully',
     type: UserEntity,
   })
   @Patch(':id')
@@ -226,13 +176,14 @@ export class UserController {
         userId,
       );
     } catch (error) {
-      if (error instanceof UserConflictException) {
-        throw new ConflictException(error.message);
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found to be paritial updated');
       }
       throw error;
     }
   }
 
+  // NOTE: This require supabase client delete also
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
@@ -240,25 +191,14 @@ export class UserController {
     summary: 'Delete profile',
     description: 'Delete user profile with user id',
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      "You are not allowed to delete other user's profile",
-    ),
-  })
-  @ApiNotFoundResponse({
-    description: "User doesn't exist to be deleted",
-    example: new NotFoundException("User doesn't exist to be deleted"),
-  })
-  @ApiNoContentResponse({
-    description: 'User deleted successfully',
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  @ApiNoContentResponse()
   @Delete(':id')
   async delete(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
   ) {
-    // HACK: This delete is not clean. It doesn't delete the user in supabase auth.
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
         "You are not allowed to delete other user's profile",
@@ -270,6 +210,7 @@ export class UserController {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to be deleted");
       }
+      throw error;
     }
   }
 
@@ -280,18 +221,9 @@ export class UserController {
     summary: 'Get sources of user',
     description: 'Get all sources of user with user id',
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      "You are not allowed to get other user's sources",
-    ),
-  })
-  @ApiNotFoundResponse({
-    description: "User doesn't exist to have sources",
-    example: new NotFoundException("User doesn't exist to have sources"),
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   @ApiOkResponse({
-    description: 'Successful',
     type: [SourceEntity],
   })
   @Get(':id/sources')
@@ -310,6 +242,7 @@ export class UserController {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to have sources");
       }
+      throw error;
     }
   }
 
@@ -320,20 +253,9 @@ export class UserController {
     summary: 'Get tickets of user',
     description: 'Get all tickets of user with user id',
   })
-  @ApiForbiddenResponse({
-    description: 'Not allowed',
-    example: new ForbiddenException(
-      "You are not allowed to get other user's sources",
-    ),
-  })
-  @ApiNotFoundResponse({
-    description: "User doesn't exist to have sources to have tickets",
-    example: new NotFoundException(
-      "User doesn't exist to have sources to have tickets",
-    ),
-  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   @ApiOkResponse({
-    description: 'Successful',
     type: [TicketEntity],
   })
   @Get(':id/tickets')

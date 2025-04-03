@@ -5,7 +5,6 @@ import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { SourceAlreadyExistException } from 'src/source/exceptions/source-already-exist';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { UserService } from 'src/user/services/user.service';
 import { Repository } from 'typeorm';
 
@@ -64,7 +63,7 @@ export class SourceService {
       }
       return insertResult.generatedMaps[0] as SourceEntity;
     } catch {
-      throw new UserNotExistException();
+      // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps
     }
   }
 }
