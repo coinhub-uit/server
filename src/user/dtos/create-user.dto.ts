@@ -1,6 +1,6 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
+import { IsDate, IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
 import { stringToDate } from 'src/common/transformers/date.transformer';
 
 @ApiSchema()
@@ -20,12 +20,13 @@ export class CreateUserDto {
   fullname!: string;
 
   @ApiProperty({
-    description: 'I guess it follows ISO8601 aka ISO, not strictly check.',
+    description:
+      'Any string can be initialise by Date class of JS, can be ISO format also',
     example: '2005-9-27',
     examples: ['2005-9-27', new Date('2005-9-27').toISOString()],
   })
   @Transform(stringToDate)
-  // @IsDateString() // FIXME: This doesn't work. This is bruh, there's not ensured
+  @IsDate()
   birthDate!: Date;
 
   @ApiProperty({
