@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Request,
   UseGuards,
@@ -13,6 +11,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
@@ -32,11 +31,12 @@ export class AdminController {
     private readonly authService: AuthService,
   ) {}
 
-  // TODO: Just for test, comment this later
-  @ApiCreatedResponse({
-    description: 'Successfully logged in',
+  // TODO: Just for test, comment or guard this later
+  @ApiOperation({
+    description: 'Create account in database',
   })
-  @Post('create')
+  @ApiCreatedResponse()
+  @Post()
   async createAdmin(@Body() createAdminDto: CreateAdminDto) {
     await this.adminService.createAdmin(createAdminDto);
   }
@@ -56,7 +56,6 @@ export class AdminController {
     return this.adminService.find();
   }
 
-  @ApiBearerAuth('admin')
   @ApiBody({ type: LoginAdminDto }) // Explicitly declarethe request body
   @ApiOkResponse({
     description: 'Login the admin',
@@ -68,7 +67,6 @@ export class AdminController {
     } satisfies Awaited<ReturnType<AdminController['login']>>,
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
-  @HttpCode(HttpStatus.OK)
   @UseGuards(AdminLocalAuthGuard)
   @Post('login')
   login(@Request() req: Request & { user: AdminLocalRequest }) {
@@ -87,7 +85,7 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @UseGuards(AdminJwtAuthGuard)
-  @Post('refresh')
+  @Get('refresh')
   refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {
     return this.authService.generateTokens(req.user.username);
   }

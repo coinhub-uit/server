@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
+import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
-import { UserProcessException } from 'src/user/exceptions/user-process.exception';
 
 @Injectable()
 export class UserService {
@@ -42,17 +41,9 @@ export class UserService {
   }
 
   async createUser(userDetails: CreateUserDto) {
-    await this.checkUserExistAndFail(userDetails.id);
     const user = this.userRepository.create(userDetails as UserEntity);
-    try {
-      const savedUser = await this.userRepository.save(user);
-      return savedUser;
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new UserProcessException(error.message);
-      }
-      throw error;
-    }
+    const savedUser = await this.userRepository.save(user);
+    return savedUser;
   }
 
   async update(userDetails: UpdateUserDto, userId: string) {
@@ -68,7 +59,8 @@ export class UserService {
   async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
     const user = await this.getByIdOrFail(userId);
     const updatedUser = this.userRepository.merge(user, userDetails);
-    return await this.userRepository.save(updatedUser);
+    const newUser = await this.userRepository.save(updatedUser);
+    return newUser;
   }
 
   // TODO: If soft delete / remove, return nothing

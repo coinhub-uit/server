@@ -5,10 +5,11 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
+  UpdateEvent,
 } from 'typeorm';
 
 @EventSubscriber()
-export class UserSubscriber implements EntitySubscriberInterface<AdminEntity> {
+export class AdminSubscriber implements EntitySubscriberInterface<AdminEntity> {
   constructor(dataSource: DataSource) {
     dataSource.subscribers.push(this);
   }
@@ -19,6 +20,11 @@ export class UserSubscriber implements EntitySubscriberInterface<AdminEntity> {
 
   async beforeInsert(event: InsertEvent<AdminEntity>) {
     const admin = event.entity;
+    admin.password = await hash(admin.password);
+  }
+
+  async beforeUpdate(event: UpdateEvent<AdminEntity>) {
+    const admin = event.entity as AdminEntity;
     admin.password = await hash(admin.password);
   }
 }

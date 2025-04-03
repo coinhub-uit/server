@@ -6,14 +6,15 @@ import { AdminController } from './controllers/admin.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { UniversalJwtStrategy } from 'src/auth/strategies/universal.jwt.strategy';
+import { AdminSubscriber } from 'src/admin/subscribers/admin.subscriber';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AdminEntity]),
     forwardRef(() => AuthModule),
   ],
-  providers: [AdminService, JwtService, UniversalJwtStrategy],
+  providers: [AdminService, AdminSubscriber, JwtService, UniversalJwtStrategy],
   controllers: [AdminController],
-  exports: [AdminService, TypeOrmModule],
+  exports: [AdminService, AdminSubscriber, TypeOrmModule],
 })
 export class AdminModule {}
