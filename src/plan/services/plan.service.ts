@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreatePlanDto } from 'src/plan/dtos/create-plan.dto';
-import { UpdatePlanDto } from 'src/plan/dtos/update-user.dto';
+import { CreatePlanRequestDto } from 'src/plan/dtos/requests/create-plan.request.dto';
+import { UpdatePlanRequestDto } from 'src/plan/dtos/requests/update-plan.request.dto';
+import { CreatePlanResponseDto } from 'src/plan/dtos/responses/create-plan.response.dto';
+import { UpdatePlanResponseDto } from 'src/plan/dtos/responses/update-plan.response.dto';
 import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
@@ -30,7 +32,7 @@ export class PlanService {
     return insertResult.generatedMaps[0] as PlanHistoryEntity;
   }
 
-  async createPlan(createPlanDto: CreatePlanDto) {
+  async createPlan(createPlanDto: CreatePlanRequestDto) {
     const plan = this.planRepository.create({
       days: createPlanDto.days,
       isActive: true,
@@ -41,12 +43,12 @@ export class PlanService {
     }
     const planHistory = await this.updatePlanHistory(createPlanDto.rate, plan);
     return {
-      plan: insertResult.generatedMaps[0] as PlanEntity,
-      planHistory: planHistory,
-    };
+      days: (insertResult.generatedMaps[0] as PlanEntity).days,
+      rate: planHistory.rate,
+    } as CreatePlanResponseDto;
   }
 
-  async updatePlan(updatePlanDto: UpdatePlanDto, plan: PlanEntity) {
+  async updatePlan(updatePlanDto: UpdatePlanRequestDto, plan: PlanEntity) {
     const updatedPlan = (
       await this.planRepository.update(updatePlanDto.days, plan)
     ).generatedMaps[0] as PlanEntity;
@@ -55,9 +57,9 @@ export class PlanService {
       updatedPlan,
     );
     return {
-      updatedplan: updatedPlan,
-      planHistory: planHistory,
-    };
+      days: updatedPlan.days,
+      rate: planHistory.rate,
+    } as UpdatePlanResponseDto;
   }
 
   async findPlanByDays(days: number) {

@@ -16,10 +16,10 @@ import {
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
-import { CreatePlanDto } from 'src/plan/dtos/create-plan.dto';
-import { UpdatePlanDto } from 'src/plan/dtos/update-user.dto';
-import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
-import { PlanEntity } from 'src/plan/entities/plan.entity';
+import { CreatePlanRequestDto } from 'src/plan/dtos/requests/create-plan.request.dto';
+import { UpdatePlanRequestDto } from 'src/plan/dtos/requests/update-plan.request.dto';
+import { CreatePlanResponseDto } from 'src/plan/dtos/responses/create-plan.response.dto';
+import { UpdatePlanResponseDto } from 'src/plan/dtos/responses/update-plan.response.dto';
 import { PlanNotExist } from 'src/plan/exceptions/plan-not-exist';
 import { PlanService } from 'src/plan/services/plan.service';
 import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
@@ -38,7 +38,7 @@ export class PlanController {
   })
   @ApiOkResponse({
     description: 'Successfully',
-    example: { plan: PlanEntity, planHistory: PlanHistoryEntity },
+    type: CreatePlanResponseDto,
   })
   @ApiConflictResponse({
     description:
@@ -47,7 +47,7 @@ export class PlanController {
   })
   @UseGuards(AdminJwtAuthGuard)
   @Post()
-  async createPlan(createPlanDto: CreatePlanDto) {
+  async createPlan(createPlanDto: CreatePlanRequestDto) {
     try {
       return await this.planService.createPlan(createPlanDto);
     } catch (error) {
@@ -66,7 +66,7 @@ export class PlanController {
   })
   @ApiOkResponse({
     description: 'Successful',
-    example: { updatedPlan: PlanEntity, planHistory: PlanHistoryEntity },
+    type: UpdatePlanResponseDto,
   })
   @ApiNotFoundResponse({
     description: 'This plan is not exist, may you find another one?',
@@ -74,7 +74,7 @@ export class PlanController {
   })
   @UseGuards(AdminJwtAuthGuard)
   @Post('update')
-  async updatePlan(updatePlanDto: UpdatePlanDto) {
+  async updatePlan(updatePlanDto: UpdatePlanRequestDto) {
     try {
       const plan = await this.planService.findPlanByDays(updatePlanDto.days);
       return await this.planService.updatePlan(updatePlanDto, plan);
