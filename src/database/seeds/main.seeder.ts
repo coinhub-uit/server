@@ -1,5 +1,5 @@
 import { Seeder, SeederFactory, SeederFactoryManager } from 'typeorm-extension';
-import { DataSource } from 'typeorm';
+import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { MethodEntity } from 'src/method/entities/method.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -12,6 +12,13 @@ import {
   QueryDeepPartialEntity,
   QueryPartialEntity,
 } from 'typeorm/query-builder/QueryPartialEntity';
+import Decimal from 'decimal.js';
+
+type MethodEntitiesObject = {
+  nr: MethodEntity;
+  pir: MethodEntity;
+  pr: MethodEntity;
+};
 
 // function seedTicketsPrMethod(nrEntity: MethodEntity, ticketFactory: SeederFactory<TicketEntity>){
 //
@@ -22,16 +29,34 @@ const DATE_NOW_START_MONTH = Object.freeze(new Date());
 const DATE_PREVIOUS_YEAR = Object.freeze(new Date(new Date().setMonth(-12)));
 const MONTH_OF_DATE_NOW = DATE_NOW.getMonth();
 
-const METHODS: QueryPartialEntity<MethodEntity>[] = [
+function randomMoney() {
+  return Decimal(
+    faker.finance.amount({
+      min: 0,
+      max: 99999999,
+      dec: 0,
+    }),
+  );
+}
+
+const METHODS: DeepPartial<MethodEntity>[] = [
   { id: 'NR' },
   { id: 'PR' },
   { id: 'PIR' },
 ];
 
+const PLANS: DeepPartial<PlanEntity>[] = [
+  { days: -1 }, // For new Method that has no name
+  { days: 30 },
+  { days: 90 },
+  { days: 180 },
+];
+
 function getPlanHistoryEntities(
+  planHistoryRepository: Repository<PlanHistoryEntity>,
   planEntities: PlanEntity[],
-): QueryPartialEntity<PlanHistoryEntity>[] {
-  return [
+) {
+  return planHistoryRepository.create([
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
       plan: planEntities[0],
@@ -40,7 +65,7 @@ function getPlanHistoryEntities(
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
       plan: planEntities[1],
-      rate: 3,
+      rate: 1,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
@@ -48,93 +73,118 @@ function getPlanHistoryEntities(
       rate: 3,
     },
     {
+      definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
+      plan: planEntities[3],
+      rate: 3,
+    },
+    {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[0],
+      plan: planEntities[1],
       rate: 0.8,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[1],
+      plan: planEntities[2],
       rate: 3.2,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[2],
+      plan: planEntities[3],
       rate: 3.4,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(9)),
-      plan: planEntities[0],
+      plan: planEntities[1],
       rate: 1.2,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[0],
+      plan: planEntities[1],
       rate: 2,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[1],
+      plan: planEntities[2],
       rate: 5,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[2],
+      plan: planEntities[3],
       rate: 5.2,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[0],
+      plan: planEntities[1],
       rate: 1,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[1],
+      plan: planEntities[2],
       rate: 2.9,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[2],
+      plan: planEntities[3],
       rate: 2.8,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
-      plan: planEntities[0],
-      rate: 1.8,
-    },
-    {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
       plan: planEntities[1],
-      rate: 4,
+      rate: 1.8,
     },
     {
       definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
       plan: planEntities[2],
       rate: 4,
     },
-  ];
+    {
+      definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
+      plan: planEntities[3],
+      rate: 4,
+    },
+  ]);
 }
 
-type MethodEntitiesObject = {
-  nr: MethodEntity;
-  pir: MethodEntity;
-  pr: MethodEntity;
-};
+async function seedTicketAndTicketHistoryNr({
+  ticketRepository,
+  ticketHistoryRepository,
+  sourceEntities,
+  methodEntitiesObject,
+  planEntities,
+  planHistoryEntities,
+}: {
+  ticketRepository: Repository<TicketEntity>;
+  ticketHistoryRepository: Repository<TicketHistoryEntity>;
+  sourceEntities: SourceEntity[];
+  methodEntitiesObject: MethodEntitiesObject;
+  planEntities: PlanEntity[];
+  planHistoryEntities: PlanHistoryEntity[];
+}) {
+  const randomPlanEntity = faker.helpers.arrayElement(planEntities);
+  const randomStartDate = faker.date.past({ years: 1 });
 
-function seedTicketAndTicketHistory(
-  ticketFactory: SeederFactory<TicketEntity>,
-  sourceEntities: SourceEntity[],
-  methodEntitiesObject: MethodEntitiesObject,
-  planEntities: PlanEntity[],
-): void {
-  const ticketEntity: QueryDeepPartialEntity<TicketEntity> = {
+  const ticketEntity: TicketEntity = ticketRepository.create({
     source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
-    method: Promise.resolve(methodEntitiesObject.pr),
-    openedDate: new Date(),
-  };
+    method: Promise.resolve(methodEntitiesObject.nr),
+    openedDate: randomStartDate,
+    ticketHistories: [
+      // Promise.resolve([ //1
+      ticketHistoryRepository.create({
+        amount: randomMoney(),
+        issueDate: new Date(randomStartDate),
+        // planHistory: Promise.resolve( // Promise later
+        planHistory: planHistoryEntities.findLast((planHistoryEntity) => {
+          return (
+            planHistoryEntity.plan.id === randomPlanEntity.id &&
+            planHistoryEntity.definedDate <= randomStartDate
+          );
+        }),
+      }),
+      // ]), //1
+    ],
+  });
 
-  const ticketEntitiesWithTicketHistory: QueryDeepPartialEntity<TicketEntity>[] =
-    [{}];
+  await ticketRepository.save(ticketEntity);
 }
 
 export default class MethodSeeder implements Seeder {
@@ -143,22 +193,25 @@ export default class MethodSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ): Promise<void> {
     // method
-    const methodEntities = (
-      await dataSource.getRepository(MethodEntity).insert(METHODS)
-    ).generatedMaps as MethodEntity[];
-    const methodEntitiesObj = {
+    const methodRepository = dataSource.getRepository(MethodEntity);
+    const createdMethodEntities = methodRepository.create(METHODS);
+    const methodEntities = await dataSource
+      .getRepository(MethodEntity)
+      .save(createdMethodEntities);
+
+    const methodEntitiesObject: MethodEntitiesObject = {
       nr: methodEntities.find((methodEntity) => methodEntity.id === 'NR')!,
       pr: methodEntities.find((methodEntity) => methodEntity.id === 'PR')!,
       pir: methodEntities.find((methodEntity) => methodEntity.id === 'PIR')!,
     };
 
     // plan
-    const planEntities = (
-      await dataSource
-        .getRepository(PlanEntity)
-        .insert([{ days: 30 }, { days: 90 }, { days: 180 }])
-    ).generatedMaps as PlanEntity[];
-    planEntities.sort((a, b) => a.days - b.days);
+    const planRepository = dataSource.getRepository(PlanEntity);
+    const createdPlanEntities = planRepository.create(PLANS);
+    const planEntities = await dataSource
+      .getRepository(PlanEntity)
+      .save(createdPlanEntities);
+    // planEntities.sort((a, b) => a.days - b.days);
 
     // user
     const userFactory = factoryManager.get(UserEntity);
@@ -166,30 +219,13 @@ export default class MethodSeeder implements Seeder {
 
     // source
     const sourceFactory = factoryManager.get(SourceEntity);
-    const sourceEntities = await sourceFactory.saveMany(5, {
+    const sourceEntities = await sourceFactory.saveMany(80, {
       user: Promise.resolve(faker.helpers.arrayElement(userEntities)),
     });
 
-    // plan_history
-    // const planHistoryFactory = factoryManager.get(PlanHistoryEntity);
-    // const _planHistoryEntitiesMayDup = await planHistoryFactory.make({
-    //   plan: faker.helpers.arrayElement(planEntities),
-    // });
-    // const planHistoryEntities = (
-    //   await dataSource
-    //     .getRepository(PlanHistoryEntity)
-    //     .upsert(_planHistoryEntitiesMayDup, {
-    //       conflictPaths: {
-    //         definedDate: true,
-    //       },
-    //     })
-    // ).generatedMaps as PlanHistoryEntity[];
-    // planHistoryEntities.sort((a, b) =>
-    //   a.definedDate < b.definedDate ? -1 : 1,
-    // );
     const planHistoryRepository = dataSource.getRepository(PlanHistoryEntity);
-    const planHistoryEntities = await planHistoryRepository.insert(
-      getPlanHistoryEntities(planEntities),
+    const planHistoryEntities = await planHistoryRepository.save(
+      getPlanHistoryEntities(planHistoryRepository, planEntities),
     );
 
     // ticket_plan_history
@@ -198,6 +234,24 @@ export default class MethodSeeder implements Seeder {
 
     // ticket
     const ticketFactory = factoryManager.get(TicketEntity);
+
+    // ticket: NR
+
+    await Promise.all(
+      Array.from({ length: 20 }).map(() =>
+        seedTicketAndTicketHistoryNr({
+          ticketRepository: dataSource.getRepository(TicketEntity),
+          ticketHistoryRepository:
+            dataSource.getRepository(TicketHistoryEntity),
+          sourceEntities,
+          methodEntitiesObject,
+          planEntities,
+          planHistoryEntities:
+            planHistoryEntities.generatedMaps as PlanHistoryEntity[],
+        }),
+      ),
+    );
+
     // ticket: PR
     {
       const _prMethodEntity = methodEntities.find(
@@ -215,37 +269,6 @@ export default class MethodSeeder implements Seeder {
         endDate.setMonth(endDate.getMonth() + numberOfMonths);
         return endDate;
       };
-
-      // await Promise.all(
-      //   Array(10)
-      //     .fill(true)
-      //     .map(async () => {
-      //       const _randomSourceEntity =
-      //         faker.helpers.arrayElement(sourceEntities);
-      //       const _startDate = faker.date.past({ years: 2 });
-      //       const _numberOfMonths = faker.number.int({
-      //         min: 1,
-      //         max: MONTH_OF_DATE_NOW - _startDate.getMonth(),
-      //       });
-      //
-      //       const _ticketEntity = await ticketFactory.save({
-      //         method: _prMethodEntity,
-      //         source: _randomSourceEntity,
-      //         createdAt: _startDate,
-      //         closedDate: getClosedDate(_startDate, _numberOfMonths),
-      //       });
-      //
-      //       for (let _month = 0; _month < _numberOfMonths; ++_month) {
-      //         _startDate.setMonth(_startDate.getMonth() + 1);
-      //         const _endCurrentIterateDate = new Date(_startDate);
-      //         _endCurrentIterateDate.setd,
-      //           ticketPlanHistoryRepository.insert({
-      //             ticket: _ticketEntity,
-      //           });
-      //       }
-      //     }),
-      // );
     }
-    // ticket: PR
   }
 }
