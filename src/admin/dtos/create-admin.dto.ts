@@ -5,11 +5,11 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateAdminDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'admin' })
   username!: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'admin' })
   password!: string;
 }

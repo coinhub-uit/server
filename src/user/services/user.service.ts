@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
-import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
+import { CreateUserRequestDto } from 'src/user/dtos/requests/create-user.request.dto';
+import { UpdateParitialUserRequestDto } from 'src/user/dtos/requests/update-paritial-user.request.dto';
+import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request.dto';
+import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
+import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
+import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
 
 @Injectable()
 export class UserService {
@@ -32,16 +33,13 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async createUser(userDetails: CreateUserDto, userId: string) {
-    const user = this.userRepository.create({ ...userDetails, id: userId });
-    const insertResult = await this.userRepository.insert(user);
-    if (insertResult.identifiers.length === 0) {
-      throw new UserAlreadyExistException();
-    }
-    return insertResult.generatedMaps[0] as UserEntity;
+  async createUser(userDetails: CreateUserRequestDto) {
+    const user = this.userRepository.create(userDetails as UserEntity);
+    const savedUser = await this.userRepository.save(user);
+    return savedUser as CreateUserResponseDto;
   }
 
-  async update(userDetails: UpdateUserDto, userId: string) {
+  async update(userDetails: UpdateUserRequestDto, userId: string) {
     const updateResult = await this.userRepository.update(
       userId,
       userDetails as UserEntity,
@@ -51,10 +49,14 @@ export class UserService {
     }
   }
 
-  async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
+  async partialUpdate(
+    userDetails: UpdateParitialUserRequestDto,
+    userId: string,
+  ) {
     const user = await this.getByIdOrFail(userId);
     const updatedUser = this.userRepository.merge(user, userDetails);
-    return await this.userRepository.save(updatedUser);
+    const newUser = await this.userRepository.save(updatedUser);
+    return newUser as UpdateParitialUserResponseDto;
   }
 
   // TODO: If soft delete / remove, return nothing
