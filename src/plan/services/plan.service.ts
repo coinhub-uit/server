@@ -7,7 +7,6 @@ import { UpdatePlanResponseDto } from 'src/plan/dtos/responses/update-plan.respo
 import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { PlanAlreadyExist } from 'src/plan/exceptions/plan-already-exist';
 import { PlanNotExist } from 'src/plan/exceptions/plan-not-exist';
 import { Repository } from 'typeorm';
 
@@ -28,8 +27,9 @@ export class PlanService {
       definedDate: new Date(),
       plan: Promise.resolve(plan),
     });
-    const insertResult = await this.planHistoryRepository.insert(planHistory);
-    return insertResult.generatedMaps[0] as PlanHistoryEntity;
+    const planHistoryEntity =
+      await this.planHistoryRepository.save(planHistory);
+    return planHistoryEntity;
   }
 
   async createPlan(createPlanDto: CreatePlanRequestDto) {
@@ -37,13 +37,10 @@ export class PlanService {
       days: createPlanDto.days,
       isActive: true,
     });
-    const insertResult = await this.planRepository.insert(plan);
-    if (insertResult.identifiers.length === 0) {
-      throw new PlanAlreadyExist();
-    }
+    const planEntity = await this.planRepository.save(plan);
     const planHistory = await this.updatePlanHistory(createPlanDto.rate, plan);
     return {
-      days: (insertResult.generatedMaps[0] as PlanEntity).days,
+      days: planEntity.days,
       rate: planHistory.rate,
     } as CreatePlanResponseDto;
   }

@@ -104,7 +104,7 @@ export class PlanController {
   @Post('update')
   async updatePlan(updatePlanDto: UpdatePlanRequestDto) {
     try {
-      const plan = await this.planService.findPlanByDays(updatePlanDto.days);
+      const [plan] = await this.planService.findPlanByDays(updatePlanDto.days);
       return await this.planService.updatePlan(updatePlanDto, plan);
     } catch (error) {
       if (error instanceof PlanNotExist)
