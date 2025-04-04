@@ -63,11 +63,28 @@ export class PlanService {
   }
 
   async findPlanByDays(days: number) {
-    const plan = await this.planRepository.findOne({ where: { days: days } });
+    const plan = await this.planRepository.findOne({
+      where: { days: days, isActive: true },
+    });
+
     if (!plan) {
       throw new PlanNotExist();
     }
-    return plan;
+    return [plan];
+  }
+
+  async findPlansByDaysWithHistory(days: number) {
+    const plans = await this.planRepository.find({
+      where: { days: days },
+      relations: {
+        planHistories: true,
+      },
+    });
+
+    if (!plans) {
+      throw new PlanNotExist();
+    }
+    return plans;
   }
 
   getAvailablePlans() {
