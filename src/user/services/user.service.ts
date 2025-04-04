@@ -8,6 +8,7 @@ import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request
 import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
+import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,14 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
+
+  private async checkUserExistAndFail(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (user) {
+      throw new UserAlreadyExistException();
+    }
+    return user;
+  }
 
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });

@@ -8,12 +8,14 @@ import {
   Index,
   OneToMany,
   PrimaryColumn,
+  Unique,
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 @ApiSchema()
 @Entity('users')
+@Unique(['citizenId'])
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
   @PrimaryColumn({ type: 'uuid', nullable: false })
@@ -33,7 +35,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty()
   @Index({ unique: true })
-  @Column({ type: 'char', length: 12, nullable: false })
+  @Column({ name: 'citizenId', type: 'char', length: 12, nullable: false })
   citizenId!: string;
 
   @ApiProperty({ type: String, nullable: true })
