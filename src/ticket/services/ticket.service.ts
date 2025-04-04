@@ -26,10 +26,10 @@ export class TicketService {
     const method = await this.methodService.getMethodById(
       createTicketDto.methodId,
     );
-    const insertResult = await this.ticketRepository.insert({
+    const ticketEntity = await this.ticketRepository.save({
       source: Promise.resolve(source),
       method: Promise.resolve(method),
     });
-    return insertResult.generatedMaps[0] as TicketEntity;
+    return ticketEntity;
   }
 }
