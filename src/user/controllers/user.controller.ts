@@ -31,7 +31,6 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { CreateUserRequestDto } from 'src/user/dtos/requests/create-user.request.dto';
 import { UpdateParitialUserRequestDto } from 'src/user/dtos/requests/update-paritial-user.request.dto';
 import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request.dto';
-import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
@@ -68,7 +67,7 @@ export class UserController {
     description: 'User already exists, or constraint error',
   })
   @ApiCreatedResponse({
-    type: CreateUserResponseDto,
+    type: UserEntity,
   })
   @Post()
   async create(
@@ -194,8 +193,8 @@ export class UserController {
     description: 'Delete user profile with user id',
   })
   @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @ApiNoContentResponse()
+  @ApiUnprocessableEntityResponse()
+  @ApiNoContentResponse() // NOTE: Is it? no content response? in reality
   @Delete(':id')
   async delete(
     @Req() req: Request & { user: UniversalJwtRequest },
@@ -206,14 +205,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    try {
-      await this.userService.deleteById(userId);
-    } catch (error) {
-      if (error instanceof UserNotExistException) {
-        throw new NotFoundException("User doesn't exist to be deleted");
-      }
-      throw error;
-    }
+    await this.userService.deleteById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)

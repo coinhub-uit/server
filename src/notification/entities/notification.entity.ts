@@ -1,8 +1,15 @@
-import { UserEntity } from 'src/user/entities/user.entity';
-import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 @ApiSchema()
 @Entity('notification')
@@ -21,7 +28,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   content!: string;
 
   @ApiProperty()
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
   @ApiProperty()

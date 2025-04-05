@@ -2,24 +2,24 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema()
 export class CreateUserResponseDto {
-  @ApiProperty({})
+  @ApiProperty()
   id!: string;
 
-  @ApiProperty({})
+  @ApiProperty()
   address!: string;
 
-  @ApiProperty({})
+  @ApiProperty()
   avatar!: string;
 
-  @ApiProperty({})
+  @ApiProperty()
   fullname!: string;
 
-  @ApiProperty({})
+  @ApiProperty()
   createdAt!: Date;
 
-  @ApiProperty({})
+  @ApiProperty()
   birthDate!: Date;
 
-  @ApiProperty({})
+  @ApiProperty()
   citizenId!: string;
 }

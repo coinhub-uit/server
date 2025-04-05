@@ -8,7 +8,6 @@ import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request
 import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
-import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -17,14 +16,14 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  private async checkUserExistAndFail(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (user) {
-      throw new UserAlreadyExistException();
-    }
-    return user;
-  }
-
+  // private async checkUserExistAndFail(userId: string) {
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+  //   if (user) {
+  //     throw new UserAlreadyExistException();
+  //   }
+  //   return user;
+  // }
+  //
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
   }
@@ -70,8 +69,7 @@ export class UserService {
 
   // TODO: If soft delete / remove, return nothing
   async deleteById(userId: string) {
-    const user = await this.getByIdOrFail(userId);
-    return await this.userRepository.remove(user);
+    return await this.userRepository.softDelete({ id: userId });
   }
 
   async getSources(userId: string) {
