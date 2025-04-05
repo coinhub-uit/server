@@ -9,9 +9,6 @@ export class CreateUserResponseDto {
   address!: string;
 
   @ApiProperty({})
-  avatar!: string;
-
-  @ApiProperty({})
   fullname!: string;
 
   @ApiProperty({})
