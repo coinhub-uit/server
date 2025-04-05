@@ -8,7 +8,14 @@ import {
 } from 'src/common/transformers/decimal.transformer';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @ApiSchema()
 @Entity({ name: 'top_up' })
@@ -20,11 +27,6 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @ApiProperty({ enum: TopUpProviderEnum })
   @Column({ type: 'enum', enum: TopUpProviderEnum })
   provider!: TopUpProviderEnum;
-
-  // TODO: add relationship? need it?
-  @ApiProperty()
-  @Column({ type: 'varchar', length: 20 })
-  sourceDestinationId!: string;
 
   @ApiProperty({ type: String })
   @Column({
@@ -38,4 +40,8 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
 
   @Column({ enum: TopUpStatusEnum, default: TopUpStatusEnum.processing })
   status!: TopUpStatusEnum;
+
+  @ManyToOne(() => SourceEntity)
+  @JoinColumn()
+  sourceDestination: Promise<SourceEntity>;
 }

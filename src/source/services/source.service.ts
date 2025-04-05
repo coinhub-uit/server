@@ -13,7 +13,6 @@ export class SourceService {
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     private userService: UserService,
   ) {}
 
@@ -27,12 +26,18 @@ export class SourceService {
     return source;
   }
 
-  async changeBalanceSource(money: Decimal, sourceId: string) {
+  async changeSourceBalance(money: Decimal.Value, source: SourceEntity) {
+    source.balance.plus(money);
+    return await this.sourceRepository.save(source);
+  }
+
+  async changeSourceBalanceById(money: Decimal.Value, sourceId: string) {
     const source = await this.sourceRepository.findOne({
       where: {
         id: sourceId,
       },
     });
+    // TODO: Raise error ?
     if (!source) {
       return null;
     }
