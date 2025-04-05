@@ -38,7 +38,11 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount: Decimal;
 
-  @Column({ enum: TopUpStatusEnum, default: TopUpStatusEnum.processing })
+  @Column({
+    type: 'enum',
+    enum: TopUpStatusEnum,
+    default: TopUpStatusEnum.processing,
+  })
   status!: TopUpStatusEnum;
 
   @ManyToOne(() => SourceEntity)
