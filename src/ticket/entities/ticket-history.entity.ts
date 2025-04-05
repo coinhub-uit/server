@@ -32,12 +32,12 @@ export class TicketHistoryEntity {
 
   @Exclude()
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories)
-  ticket!: TicketEntity;
+  ticket!: Promise<TicketEntity>;
 
   @Exclude()
   @ManyToOne(
     () => PlanHistoryEntity,
     (planHistory) => planHistory.ticketHistories,
   )
-  planHistory!: PlanHistoryEntity;
+  planHistory!: Promise<PlanHistoryEntity>;
 }

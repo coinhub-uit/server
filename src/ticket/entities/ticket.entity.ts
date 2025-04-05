@@ -38,5 +38,5 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
-  ticketHistories!: TicketHistoryEntity[];
+  ticketHistories!: Promise<TicketHistoryEntity[]>;
 }

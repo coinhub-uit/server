@@ -25,7 +25,7 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketHistories!: TicketHistoryEntity[];
+  ticketHistories!: Promise<TicketHistoryEntity[]>;
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
   plan!: Promise<PlanEntity>;

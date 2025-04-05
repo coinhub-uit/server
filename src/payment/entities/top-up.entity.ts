@@ -7,6 +7,7 @@ import {
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
+import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @ApiSchema()
@@ -35,6 +36,6 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount: Decimal;
 
-  @Column({ type: 'boolean', default: false })
-  isPaid!: boolean;
+  @Column({ enum: TopUpStatusEnum, default: TopUpStatusEnum.processing })
+  status!: TopUpStatusEnum;
 }

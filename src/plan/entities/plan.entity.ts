@@ -17,6 +17,7 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ name: 'days', type: 'int', unique: true })
   days!: number;
 
+  // TODO: Check this!! What is the logic here
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
