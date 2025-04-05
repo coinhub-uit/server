@@ -25,6 +25,7 @@ export class AdminRefreshJwtStrategy extends PassportStrategy(
       ignoreExpiration: false,
     });
   }
+
   validate(payload: AuthRefreshJwtPayload) {
     return { id: payload.sub };
   }
