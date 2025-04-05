@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateUserRequestDto } from 'src/user/dtos/requests/create-user.request.dto';
 import { UpdateParitialUserRequestDto } from 'src/user/dtos/requests/update-paritial-user.request.dto';
 import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request.dto';
-import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
 
