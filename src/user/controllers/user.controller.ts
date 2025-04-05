@@ -11,7 +11,9 @@ import {
   Req,
   ForbiddenException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -22,9 +24,12 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
+import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -53,6 +58,36 @@ export class UserController {
   @Get()
   async getAll() {
     return await this.userService.getAll();
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiOperation({})
+  @ApiOkResponse({})
+  @ApiNotFoundResponse({})
+  @Post(':id/:avatar-url')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
+  async uploadAvatar(
+    @Param('id') id: string,
+    @Param('avatarUrl') avatarUrl: string,
+  ) {
+    try {
+      return await this.userService.partialUpdate(
+        {
+          avatar: avatarUrl,
+        } as UpdateParitialUserRequestDto,
+        id,
+      );
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found to be paritial updated');
+      }
+      throw error;
+    }
   }
 
   @UseGuards(UniversalJwtAuthGuard)
