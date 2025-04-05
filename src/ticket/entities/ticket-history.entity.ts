@@ -14,11 +14,11 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 export class TicketHistoryEntity {
   @ApiProperty()
   @PrimaryColumn({ type: 'date' })
-  issueDate!: Date;
+  issuedAt!: Date;
 
   @ApiProperty()
   @Column({ type: 'date' })
-  maturityDate!: Date;
+  maturedAt!: Date;
 
   @ApiProperty({ type: String })
   @Column({

@@ -16,6 +16,14 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
+  // private async checkUserExistAndFail(userId: string) {
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+  //   if (user) {
+  //     throw new UserAlreadyExistException();
+  //   }
+  //   return user;
+  // }
+  //
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
   }
@@ -61,8 +69,7 @@ export class UserService {
 
   // TODO: If soft delete / remove, return nothing
   async deleteById(userId: string) {
-    const user = await this.getByIdOrFail(userId);
-    return await this.userRepository.remove(user);
+    return await this.userRepository.softDelete({ id: userId });
   }
 
   async getSources(userId: string) {

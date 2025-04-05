@@ -6,7 +6,7 @@ import {
   decimalToString,
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
-import { TopUpEnum } from 'src/payment/types/top-up.enum';
+import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @ApiSchema()
@@ -16,14 +16,14 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ApiProperty()
-  @Column({ type: 'text' })
-  type!: TopUpEnum;
+  @ApiProperty({ enum: TopUpProviderEnum })
+  @Column({ type: 'enum', enum: TopUpProviderEnum })
+  provider!: TopUpProviderEnum;
 
   // TODO: add relationship? need it?
   @ApiProperty()
   @Column({ type: 'varchar', length: 20 })
-  sourceDestination!: string;
+  sourceDestinationId!: string;
 
   @ApiProperty({ type: String })
   @Column({

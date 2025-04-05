@@ -15,21 +15,13 @@ export class GlobalFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     let status: number;
 
-    switch (exception.constructor) {
-      case HttpException: {
-        status = (exception as HttpException).getStatus();
-        break;
-      }
-      case QueryFailedError: {
-        status = HttpStatus.UNPROCESSABLE_ENTITY;
-        break;
-      }
-      default: {
-        status = HttpStatus.INTERNAL_SERVER_ERROR;
-        break;
-      }
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+    } else if (exception instanceof QueryFailedError) {
+      status = HttpStatus.UNPROCESSABLE_ENTITY;
+    } else {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
-
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

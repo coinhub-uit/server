@@ -16,7 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { Repository } from 'typeorm';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
-import { TopUpEnum } from 'src/payment/types/top-up.enum';
+import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
 
 @Injectable()
@@ -51,7 +51,7 @@ export class TopUpService {
     }
     await this.sourceService.changeBalanceSource(
       topUp.amount,
-      topUp.sourceDestination,
+      topUp.sourceDestinationId,
     );
     topUp.isPaid = true;
     await this.topUpRepository.save(topUp);
@@ -69,9 +69,9 @@ export class TopUpService {
 
     const now = new Date();
     const topUpEntity = this.topUpRepository.create({
-      type: TopUpEnum.VNPAY,
+      provider: TopUpProviderEnum.vnpay,
       amount: new Decimal(paymentDetails.amount),
-      sourceDestination: paymentDetails.sourceDestination,
+      sourceDestinationId: paymentDetails.sourceDestination,
       isPaid: false,
     });
 

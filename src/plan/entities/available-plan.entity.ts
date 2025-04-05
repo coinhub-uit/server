@@ -9,20 +9,21 @@ import { ViewColumn, ViewEntity, DataSource } from 'typeorm';
       .createQueryBuilder()
       .distinctOn(['plan.days'])
       .select('plan_history.id', 'id')
-      .addSelect('plan_history.definedDate', 'definedDate')
+      .addSelect('plan_history.createdAt', 'createdAt')
       .addSelect('plan_history.rate', 'rate')
       .addSelect('plan.id', 'planId')
       .from(PlanHistoryEntity, 'plan_history')
       .innerJoin(PlanEntity, 'plan', 'plan.id = plan_history.id')
       .orderBy('plan.days')
-      .addOrderBy('plan_history.definedDate', 'DESC'),
+      .addOrderBy('plan_history.createdAt', 'DESC'),
 })
 export class AvailablePlanEntity {
   @ViewColumn()
   id!: string;
 
+  // NOTE: Do we need this
   @ViewColumn()
-  definedDate!: Date;
+  createdAt!: Date;
 
   @ViewColumn()
   rate!: number;

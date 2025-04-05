@@ -4,36 +4,43 @@ import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   OneToMany,
   PrimaryColumn,
+  Unique,
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 @ApiSchema()
 @Entity('users')
+@Unique(['citizenId'])
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'uuid', nullable: false })
+  @PrimaryColumn({ type: 'uuid' })
   id!: string;
 
   @ApiProperty()
-  @CreateDateColumn({ type: 'timestamp', nullable: false })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
+  @ApiProperty({ nullable: true, type: Date })
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt!: Date | null;
+
   @ApiProperty()
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'text' })
   fullname!: string;
 
   @ApiProperty()
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date' })
   birthDate!: Date;
 
   @ApiProperty()
   @Index({ unique: true })
-  @Column({ type: 'char', length: 12, nullable: false })
+  @Column({ name: 'citizenId', type: 'char', length: 12 })
   citizenId!: string;
 
   @ApiProperty({ type: String, nullable: true })

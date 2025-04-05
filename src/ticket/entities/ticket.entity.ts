@@ -5,7 +5,8 @@ import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import {
-  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -20,12 +21,12 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   id!: string;
 
   @ApiProperty()
-  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  openedDate!: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  openedAt!: Date;
 
-  @ApiProperty()
-  @Column({ type: 'date', nullable: true, default: null })
-  closedDate!: Date | null;
+  @ApiProperty({ nullable: true, type: Date })
+  @DeleteDateColumn({ type: 'timestamptz' })
+  closedAt!: Date | null;
 
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
