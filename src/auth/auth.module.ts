@@ -23,12 +23,12 @@ import { AdminModule } from 'src/admin/admin.module';
     AuthService,
     JwtService,
     UserJwtStrategy,
-    UniversalJwtStrategy,
     AdminLocalStrategy,
     AdminJwtStrategy,
     AdminRefreshJwtStrategy,
+    UniversalJwtStrategy,
   ],
   controllers: [],
-  exports: [AuthService],
+  exports: [AuthService, JwtService],
 })
 export class AuthModule {}

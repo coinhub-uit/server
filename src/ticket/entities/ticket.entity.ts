@@ -28,6 +28,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @DeleteDateColumn({ type: 'timestamptz' })
   closedAt!: Date | null;
 
+  // NOTE: Those excluded relationships may helpful for admin. So we should return empty list or so for user
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
   source!: Promise<SourceEntity>;
@@ -38,5 +39,5 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
-  ticketHistories!: TicketHistoryEntity[];
+  ticketHistories!: Promise<TicketHistoryEntity[]>;
 }

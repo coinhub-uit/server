@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -52,7 +53,7 @@ export class SourceController {
   })
   @UseGuards(UserJwtAuthGuard)
   @Post()
-  async createSource(createSourceDto: CreateSourceDto) {
+  async createSource(@Body() createSourceDto: CreateSourceDto) {
     const source = await this.sourceService.createSource(createSourceDto);
     return source;
   }

@@ -15,7 +15,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 @ApiSchema()
-@Entity('users')
+@Entity('user')
 @Unique(['citizenId'])
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
@@ -52,14 +52,10 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   address!: string | null;
 
   @Exclude()
-  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
-    cascade: true,
-  })
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: Promise<NotificationEntity[]>;
 
   @Exclude()
-  @OneToMany(() => SourceEntity, (source) => source.user, {
-    cascade: true,
-  })
+  @OneToMany(() => SourceEntity, (source) => source.user)
   sources: Promise<SourceEntity[]>;
 }

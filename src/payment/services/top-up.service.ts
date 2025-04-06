@@ -18,7 +18,9 @@ import { Repository } from 'typeorm';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
+import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
 
+// TODO: Cron? for checking topup status to overdue later
 @Injectable()
 export class TopUpService {
   constructor(
@@ -42,25 +44,32 @@ export class TopUpService {
     }
     const topUp = await this.topUpRepository.findOne({
       where: { id: verification.vnp_TxnRef },
+      relations: { sourceDestination: true },
     });
     if (!topUp) {
       return IpnOrderNotFound;
     }
     if (!topUp.amount.eq(verification.vnp_Amount)) {
+      topUp.status = TopUpStatusEnum.declined;
+      await this.topUpRepository.save(topUp);
       return IpnInvalidAmount;
     }
-    await this.sourceService.changeBalanceSource(
+
+    topUp.status = TopUpStatusEnum.success;
+
+    const sourceDestination = await topUp.sourceDestination;
+    await this.sourceService.changeSourceBalance(
       topUp.amount,
-      topUp.sourceDestinationId,
+      sourceDestination,
     );
-    topUp.isPaid = true;
+
     await this.topUpRepository.save(topUp);
     return IpnSuccess;
   }
 
   async createVNPayPayment(paymentDetails: CreateTopUpDto) {
     const source = await this.sourceService.getSourceByIdOrFail(
-      paymentDetails.sourceDestination,
+      paymentDetails.sourceDestinationId,
     ); // To check if exists, if not will raiase error
 
     if (!source) {
@@ -71,8 +80,9 @@ export class TopUpService {
     const topUpEntity = this.topUpRepository.create({
       provider: TopUpProviderEnum.vnpay,
       amount: new Decimal(paymentDetails.amount),
-      sourceDestinationId: paymentDetails.sourceDestination,
-      isPaid: false,
+      sourceDestination: Promise.resolve({
+        id: paymentDetails.sourceDestinationId,
+      }),
     });
 
     await this.topUpRepository.save(topUpEntity);
