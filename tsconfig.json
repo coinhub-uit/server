@@ -25,6 +25,7 @@
     "commitlint.config.ts",
     ".lintstagedrc.json",
     "eslint.config.mjs",
-    "database"
+    "database",
+    "lib"
   ]
 }
