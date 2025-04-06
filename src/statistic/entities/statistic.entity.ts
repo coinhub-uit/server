@@ -7,7 +7,7 @@ import {
 } from 'src/common/transformers/decimal.transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'statistic' })
 export class StatisticEntity extends AbstractEntity<StatisticEntity> {
   @PrimaryColumn({ type: 'uuid' })
   statId: string;
