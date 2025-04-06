@@ -30,10 +30,7 @@
     "typeorm:migration:run": "npm run build && typeorm-ts-node-esm migration:run --dataSource ./dist/database/datasource",
     "typeorm:migration:show": "npm run build && typeorm-ts-node-esm migration:show --dataSource ./dist/database/datasource",
     "db:reset": "npm run build && typeorm-ts-node-esm schema:drop --dataSource ./dist/database/datasource && typeorm-ts-node-esm schema:sync --dataSource ./dist/database/datasource && typeorm-ts-node-esm migration:run --dataSource ./dist/database/datasource",
-    "db:seed": "npm run build && node ./dist/src/database/seed-database.js",
-    "db:fresh-seed": "npm run build && node ./dist/src/database/fresh-seed-database.js",
-    "db:create": "npm run build && node ./dist/src/database/create-database.js",
-    "db:drop": "npm run build && node ./dist/src/database/drop-database.js"
+    "db:seed": "ts-node ./database/seed-database.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

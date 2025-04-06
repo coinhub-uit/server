@@ -18,9 +18,6 @@ type MethodEntitiesObject = {
 };
 
 const DATE_NOW = Object.freeze(new Date());
-const DATE_NOW_START_MONTH = Object.freeze(new Date());
-const DATE_PREVIOUS_YEAR = Object.freeze(new Date(new Date().setMonth(-12)));
-const MONTH_OF_DATE_NOW = DATE_NOW.getMonth();
 
 function randomMoney() {
   return Decimal(
@@ -163,10 +160,9 @@ async function findAsyncSequential<T>(
       return t;
     }
   }
-  return undefined;
 }
 
-// PERF: The planHistoryEntities is iterated awaiting to get the plan
+// PERF: The planHistoryEntities is iterated awaiting to get the plan. Maybe try closure
 async function seedTicketAndTicketHistoryNr({
   ticketRepository,
   ticketHistoryRepository,
@@ -184,8 +180,8 @@ async function seedTicketAndTicketHistoryNr({
 }) {
   const randomPlanEntity = faker.helpers.arrayElement(planEntities);
   const randomStartDate = faker.date.past({ years: 1 });
-  const endDateFromRandomStartDate = new Date(randomStartDate).setDate(
-    randomStartDate.getDate() + randomPlanEntity.days,
+  const endDateFromRandomStartDate = new Date(
+    new Date().setDate(randomStartDate.getDate() + randomPlanEntity.days),
   );
 
   const ticketEntity: TicketEntity = ticketRepository.create({
@@ -218,13 +214,14 @@ async function seedTicketAndTicketHistoryNr({
   await ticketHistoryRepository.save(ticketHistoryEntity);
 }
 
-async function seedTicketAndTicketHistoryPr({
+async function seedTicketAndTicketHistoryPrOrPir({
   ticketRepository,
   ticketHistoryRepository,
   sourceEntities,
   methodEntitiesObject,
   planEntities,
   reversedPlanHistoryEntities,
+  methodType,
 }: {
   ticketRepository: Repository<TicketEntity>;
   ticketHistoryRepository: Repository<TicketHistoryEntity>;
@@ -232,41 +229,67 @@ async function seedTicketAndTicketHistoryPr({
   methodEntitiesObject: MethodEntitiesObject;
   planEntities: PlanEntity[];
   reversedPlanHistoryEntities: PlanHistoryEntity[];
+  methodType: Exclude<MethodEnum, MethodEnum.NR>;
 }) {
   const randomPlanEntity = faker.helpers.arrayElement(planEntities);
-  const randomStartDate = faker.date.past({ years: 1 });
-  const endDateFromRandomStartDate = new Date(randomStartDate).setDate(
-    randomStartDate.getDate() + randomPlanEntity.days,
+  const iterateDate = faker.date.past({ years: 1 });
+  const numberOfMonths = faker.number.int({ min: 1, max: 20 });
+  const maturedDate: Date = new Date(
+    new Date().setDate(iterateDate.getDate() + randomPlanEntity.days + 1),
   );
+  const ticketHistoryEntities: TicketHistoryEntity[] = [];
+  let existingAmount = randomMoney();
 
   const ticketEntity: TicketEntity = ticketRepository.create({
     source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
     method: Promise.resolve(methodEntitiesObject.nr),
-    openedAt: randomStartDate,
-    closedAt: endDateFromRandomStartDate,
+    openedAt: new Date(iterateDate),
   });
 
-  const ticketHistoryEntity: TicketHistoryEntity =
-    ticketHistoryRepository.create({
-      amount: randomMoney(),
-      issuedAt: new Date(randomStartDate),
-      planHistory: Promise.resolve(
-        findAsyncSequential(
-          reversedPlanHistoryEntities,
-          async (planHistoryEntity) => {
-            return (
-              (await planHistoryEntity.plan).id === randomPlanEntity.id &&
-              planHistoryEntity.createdAt <= randomStartDate
-            );
-          },
-        ),
-      ),
-      maturedAt: endDateFromRandomStartDate,
+  for (let i = 1; i <= numberOfMonths; ++i) {
+    const existingPlanHistoryEntity = await findAsyncSequential(
+      reversedPlanHistoryEntities,
+      async (planHistoryEntity) => {
+        return (
+          (await planHistoryEntity.plan).id === randomPlanEntity.id &&
+          planHistoryEntity.createdAt <= iterateDate
+        );
+      },
+    );
+
+    if (existingPlanHistoryEntity === undefined) {
+      return;
+    }
+
+    const ticketHistoryEntity = ticketHistoryRepository.create({
+      amount: existingAmount,
+      issuedAt: new Date(iterateDate),
+      planHistory: Promise.resolve(existingPlanHistoryEntity),
+      maturedAt: new Date(maturedDate),
       ticket: Promise.resolve(ticketEntity),
     });
 
+    ticketHistoryEntities.push(ticketHistoryEntity);
+
+    if (maturedDate > DATE_NOW) {
+      ticketEntity.closedAt = new Date(maturedDate);
+      break;
+    }
+
+    if (methodType === MethodEnum.PIR) {
+      existingAmount = existingAmount.plus(
+        existingAmount.mul(
+          (existingPlanHistoryEntity.rate * randomPlanEntity.days) / 365, // PERF: refactor this to increase but nonsense
+        ),
+      );
+    }
+
+    iterateDate.setDate(maturedDate.getDate());
+    maturedDate.setDate(iterateDate.getDate() + randomPlanEntity.days + 1);
+  }
+
   await ticketRepository.save(ticketEntity);
-  await ticketHistoryRepository.save(ticketHistoryEntity);
+  await ticketHistoryRepository.save(ticketHistoryEntities);
 }
 
 export default class MainSeeder implements Seeder {
@@ -299,7 +322,14 @@ export default class MainSeeder implements Seeder {
     const planEntities = await dataSource
       .getRepository(PlanEntity)
       .save(createdPlanEntities);
-    // planEntities.sort((a, b) => a.days - b.days);
+    planEntities.sort((a, b) => a.days - b.days); // NOTE: Do we really need to sort? does typeorm ensure the order
+
+    // planHistory
+    const planHistoryRepository = dataSource.getRepository(PlanHistoryEntity);
+    const planHistoryEntities = await planHistoryRepository.save(
+      getPlanHistoryEntities(planHistoryRepository, planEntities),
+    );
+    const reversedPlanHistoryEntities = [...planHistoryEntities].reverse();
 
     // user
     const userFactory = factoryManager.get(UserEntity);
@@ -310,11 +340,6 @@ export default class MainSeeder implements Seeder {
     const sourceEntities = await sourceFactory.saveMany(80, {
       user: Promise.resolve(faker.helpers.arrayElement(userEntities)),
     });
-
-    const planHistoryRepository = dataSource.getRepository(PlanHistoryEntity);
-    const planHistoryEntities = await planHistoryRepository.save(
-      getPlanHistoryEntities(planHistoryRepository, planEntities),
-    );
 
     // ticket
     const ticketRepository = dataSource.getRepository(TicketEntity);
@@ -331,28 +356,37 @@ export default class MainSeeder implements Seeder {
           sourceEntities,
           methodEntitiesObject,
           planEntities,
-          planHistoryEntities,
+          reversedPlanHistoryEntities,
         }),
       ),
     );
 
-    // ticket: PR
-    {
-      const _prMethodEntity = methodEntities.find(
-        (methodEntity) => methodEntity.id === 'PR',
-      )!;
+    await Promise.all(
+      Array.from({ length: 20 }).map(() =>
+        seedTicketAndTicketHistoryPrOrPir({
+          ticketRepository,
+          ticketHistoryRepository,
+          sourceEntities,
+          methodEntitiesObject,
+          planEntities,
+          reversedPlanHistoryEntities,
+          methodType: MethodEnum.PR,
+        }),
+      ),
+    );
 
-      const getClosedDate = (
-        _startDate: Date,
-        numberOfMonths: number,
-      ): Date | undefined => {
-        if (_startDate.getMonth() + numberOfMonths !== MONTH_OF_DATE_NOW) {
-          return;
-        }
-        const endDate = new Date(_startDate);
-        endDate.setMonth(endDate.getMonth() + numberOfMonths);
-        return endDate;
-      };
-    }
+    await Promise.all(
+      Array.from({ length: 20 }).map(() =>
+        seedTicketAndTicketHistoryPrOrPir({
+          ticketRepository,
+          ticketHistoryRepository,
+          sourceEntities,
+          methodEntitiesObject,
+          planEntities,
+          reversedPlanHistoryEntities,
+          methodType: MethodEnum.PIR,
+        }),
+      ),
+    );
   }
 }

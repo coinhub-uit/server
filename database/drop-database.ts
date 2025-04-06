@@ -1,8 +1,8 @@
-import { dataSourceOptions } from 'src/common/database/options';
+import { getDataSourceOptions } from 'src/common/database/options';
 import { dropDatabase } from 'typeorm-extension';
 
 async function drop() {
-  await dropDatabase({ options: dataSourceOptions });
+  await dropDatabase({ options: getDataSourceOptions()() });
 }
 
 void drop();

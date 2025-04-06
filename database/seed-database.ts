@@ -1,18 +1,23 @@
-import { dataSourceOptions } from '../src/common/database/options';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { config } from 'dotenv';
+import { getDataSourceOptions } from '../src/common/database/options';
 import { resolve as pathResolve } from 'path';
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
 
-async function freshSeed() {
-  const dataSource = new DataSource(dataSourceOptions);
+config({
+  path: '../.env',
+});
+
+async function seed() {
+  console.log('cool' + process.env.DB_PORT);
+  const dataSource = new DataSource(getDataSourceOptions());
   await dataSource.initialize();
 
   await runSeeders(dataSource, {
-    seeds: [pathResolve(__dirname, '..') + '/**/seeds/*.seeder.{ts,js}'],
-    factories: [
-      pathResolve(__dirname, '..') + '/**/factories/*.factory.{ts,js}',
-    ],
+    seeds: [pathResolve(__dirname) + '/**/seeders/*.seeder.{ts,js}'],
+    factories: [pathResolve(__dirname) + '/**/factories/*.factory.{ts,js}'],
   });
 }
 
-void freshSeed();
+void seed();

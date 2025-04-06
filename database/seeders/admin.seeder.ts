@@ -1,7 +1,7 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
-import { hash } from 'src/common/utils/hashing';
+import { hash } from 'lib/hashing';
 
 export default class AdminSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
