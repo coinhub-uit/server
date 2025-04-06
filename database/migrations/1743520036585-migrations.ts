@@ -1,7 +1,7 @@
 // haiz dotenv cannot be loaded
 import { config } from 'dotenv';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
-import { hash } from 'src/common/utils/hashing';
+import { hash } from 'lib/hashing';
 config();
 
 import { MigrationInterface, QueryRunner } from 'typeorm';
