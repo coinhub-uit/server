@@ -1,4 +1,4 @@
-import { dataSourceOptions } from 'src/common/database/options';
+import { dataSourceOptions } from '../src/common/database/options';
 import { resolve as pathResolve } from 'path';
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
