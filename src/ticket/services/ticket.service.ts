@@ -15,10 +15,6 @@ export class TicketService {
     private methodService: MethodService,
   ) {}
 
-  async getTicketById(id: number) {
-    return await this.ticketRepository.findOneOrFail({ where: { id } });
-  }
-
   async createTicket(createTicketDto: CreateTicketDto) {
     const source = await this.sourceService.getSourceByIdOrFail(
       createTicketDto.sourceId,
