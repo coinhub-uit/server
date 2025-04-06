@@ -93,8 +93,8 @@ export class PlanService {
     });
   }
 
-  getPlanById(id: string) {
-    return this.planRepository.findOneOrFail({ where: { id: id } });
+  getPlanById(id: number) {
+    return this.planRepository.findOneOrFail({ where: { id } });
   }
 
   getAll(days: number, isActive: boolean) {

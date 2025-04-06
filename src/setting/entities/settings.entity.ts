@@ -6,12 +6,12 @@ import {
   decimalToString,
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @ApiSchema()
 @Entity({ name: 'settings' })
 export class SettingsEntity extends AbstractEntity<SettingsEntity> {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: string;
 
   @ApiProperty({ type: String })

@@ -12,7 +12,7 @@ import {
 @Unique(['days'])
 export class PlanEntity extends AbstractEntity<PlanEntity> {
   @PrimaryGeneratedColumn('increment')
-  id!: string;
+  id!: number;
 
   @Column({ name: 'days', type: 'int', unique: true })
   days!: number;
