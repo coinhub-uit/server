@@ -1,4 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { getDataSourceOptions } from 'src/common/database/options';
+import { dataSourceOptions } from 'src/common/database/options';
 
-export default registerAs('database_config', getDataSourceOptions());
+export default registerAs('database_config', () => dataSourceOptions);

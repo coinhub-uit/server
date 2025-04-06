@@ -1,8 +1,8 @@
-import { getDataSourceOptions } from 'src/common/database/options';
+import { dataSourceOptions } from 'src/common/database/options';
 import { createDatabase } from 'typeorm-extension';
 
 async function create() {
-  await createDatabase({ options: getDataSourceOptions()() });
+  await createDatabase({ options: dataSourceOptions });
 }
 
 void create();

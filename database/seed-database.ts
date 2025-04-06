@@ -1,17 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { config } from 'dotenv';
-import { getDataSourceOptions } from '../src/common/database/options';
+import { dataSourceOptions } from 'src/common/database/options';
 import { resolve as pathResolve } from 'path';
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
 
-config({
-  path: '../.env',
-});
+config();
 
 async function seed() {
-  console.log('cool' + process.env.DB_PORT);
-  const dataSource = new DataSource(getDataSourceOptions());
+  const dataSource = new DataSource(dataSourceOptions);
   await dataSource.initialize();
 
   await runSeeders(dataSource, {
