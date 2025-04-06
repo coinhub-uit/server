@@ -69,7 +69,7 @@ export class TopUpService {
 
   async createVNPayPayment(paymentDetails: CreateTopUpDto) {
     const source = await this.sourceService.getSourceByIdOrFail(
-      paymentDetails.sourceDestination,
+      paymentDetails.sourceDestinationId,
     ); // To check if exists, if not will raiase error
 
     if (!source) {
@@ -81,7 +81,7 @@ export class TopUpService {
       provider: TopUpProviderEnum.vnpay,
       amount: new Decimal(paymentDetails.amount),
       sourceDestination: Promise.resolve({
-        id: paymentDetails.sourceDestination,
+        id: paymentDetails.sourceDestinationId,
       }),
     });
 

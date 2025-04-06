@@ -56,12 +56,12 @@ export class SourceService {
 
   async createSource(sourceDetails: CreateSourceDto) {
     const { userId, ...newSourceDetails } = sourceDetails;
+    const source = this.sourceRepository.create({
+      ...newSourceDetails,
+      user: Promise.resolve({ id: userId }),
+    });
     try {
-      const user = await this.userService.getByIdOrFail(userId);
-      const sourceEntity = await this.sourceRepository.save({
-        ...newSourceDetails,
-        user: Promise.resolve(user),
-      });
+      const sourceEntity = await this.sourceRepository.save(source);
       return sourceEntity;
     } catch {
       // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps

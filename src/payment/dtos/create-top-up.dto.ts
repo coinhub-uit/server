@@ -29,7 +29,7 @@ export class CreateTopUpDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  sourceDestination!: string;
+  sourceDestinationId!: string;
 
   @ApiProperty()
   @IsNotEmpty()
