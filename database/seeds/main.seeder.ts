@@ -9,6 +9,7 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { faker } from '@faker-js/faker';
 import Decimal from 'decimal.js';
+import { MethodEnum } from 'src/method/types/method.enum';
 
 type MethodEntitiesObject = {
   nr: MethodEntity;
@@ -32,9 +33,9 @@ function randomMoney() {
 }
 
 const METHODS: DeepPartial<MethodEntity>[] = [
-  { id: 'NR' },
-  { id: 'PR' },
-  { id: 'PIR' },
+  { id: MethodEnum.NR },
+  { id: MethodEnum.PR },
+  { id: MethodEnum.PIR },
 ];
 
 const PLANS: DeepPartial<PlanEntity>[] = [
@@ -51,136 +52,224 @@ function getPlanHistoryEntities(
   // FIXME: This is not minus month. Maybe need another lib
   return planHistoryRepository.create([
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
-      plan: planEntities[0],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
+      ),
+      plan: Promise.resolve(planEntities[0]),
       rate: 1,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
-      plan: planEntities[1],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
+      ),
+      plan: Promise.resolve(planEntities[1]),
       rate: 1,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
-      plan: planEntities[2],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
+      ),
+      plan: Promise.resolve(planEntities[2]),
       rate: 3,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-12)),
-      plan: planEntities[3],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
+      ),
+      plan: Promise.resolve(planEntities[3]),
       rate: 3,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[1],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
+      ),
+      plan: Promise.resolve(planEntities[1]),
       rate: 0.8,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[2],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
+      ),
+      plan: Promise.resolve(planEntities[2]),
       rate: 3.2,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(-10)),
-      plan: planEntities[3],
+      createdAt: new Date(
+        new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
+      ),
+      plan: Promise.resolve(planEntities[3]),
       rate: 3.4,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(9)),
-      plan: planEntities[1],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 9)),
+      plan: Promise.resolve(planEntities[1]),
       rate: 1.2,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[1],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
+      plan: Promise.resolve(planEntities[1]),
       rate: 2,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[2],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
+      plan: Promise.resolve(planEntities[2]),
       rate: 5,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(7)),
-      plan: planEntities[3],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
+      plan: Promise.resolve(planEntities[3]),
       rate: 5.2,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[1],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
+      plan: Promise.resolve(planEntities[1]),
       rate: 1,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[2],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
+      plan: Promise.resolve(planEntities[2]),
       rate: 2.9,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(5)),
-      plan: planEntities[3],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
+      plan: Promise.resolve(planEntities[3]),
       rate: 2.8,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
-      plan: planEntities[1],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
+      plan: Promise.resolve(planEntities[1]),
       rate: 1.8,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
-      plan: planEntities[2],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
+      plan: Promise.resolve(planEntities[2]),
       rate: 4,
     },
     {
-      definedDate: new Date(new Date(DATE_NOW).setMonth(2)),
-      plan: planEntities[3],
+      createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
+      plan: Promise.resolve(planEntities[3]),
       rate: 4,
     },
   ]);
 }
 
+// https://stackoverflow.com/a/63795192/23173098
+async function findAsyncSequential<T>(
+  array: T[],
+  predicate: (t: T) => Promise<boolean>,
+): Promise<T | undefined> {
+  for (const t of array) {
+    if (await predicate(t)) {
+      return t;
+    }
+  }
+  return undefined;
+}
+
+// PERF: The planHistoryEntities is iterated awaiting to get the plan
 async function seedTicketAndTicketHistoryNr({
   ticketRepository,
   ticketHistoryRepository,
   sourceEntities,
   methodEntitiesObject,
   planEntities,
-  planHistoryEntities,
+  reversedPlanHistoryEntities,
 }: {
   ticketRepository: Repository<TicketEntity>;
   ticketHistoryRepository: Repository<TicketHistoryEntity>;
   sourceEntities: SourceEntity[];
   methodEntitiesObject: MethodEntitiesObject;
   planEntities: PlanEntity[];
-  planHistoryEntities: PlanHistoryEntity[];
+  reversedPlanHistoryEntities: PlanHistoryEntity[];
 }) {
   const randomPlanEntity = faker.helpers.arrayElement(planEntities);
   const randomStartDate = faker.date.past({ years: 1 });
+  const endDateFromRandomStartDate = new Date(randomStartDate).setDate(
+    randomStartDate.getDate() + randomPlanEntity.days,
+  );
 
   const ticketEntity: TicketEntity = ticketRepository.create({
     source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
     method: Promise.resolve(methodEntitiesObject.nr),
-    openedDate: randomStartDate,
-    ticketHistories: [
-      // Promise.resolve([ //1
-      ticketHistoryRepository.create({
-        amount: randomMoney(),
-        issueDate: new Date(randomStartDate),
-        // planHistory: Promise.resolve( // Promise later
-        planHistory: planHistoryEntities.findLast((planHistoryEntity) => {
-          return (
-            planHistoryEntity.plan.id === randomPlanEntity.id &&
-            planHistoryEntity.definedDate <= randomStartDate
-          );
-        }),
-      }),
-      // ]), //1
-    ],
+    openedAt: randomStartDate,
+    closedAt: endDateFromRandomStartDate,
   });
 
+  const ticketHistoryEntity: TicketHistoryEntity =
+    ticketHistoryRepository.create({
+      amount: randomMoney(),
+      issuedAt: new Date(randomStartDate),
+      planHistory: Promise.resolve(
+        findAsyncSequential(
+          reversedPlanHistoryEntities,
+          async (planHistoryEntity) => {
+            return (
+              (await planHistoryEntity.plan).id === randomPlanEntity.id &&
+              planHistoryEntity.createdAt <= randomStartDate
+            );
+          },
+        ),
+      ),
+      maturedAt: endDateFromRandomStartDate,
+      ticket: Promise.resolve(ticketEntity),
+    });
+
   await ticketRepository.save(ticketEntity);
+  await ticketHistoryRepository.save(ticketHistoryEntity);
 }
 
-export default class MethodSeeder implements Seeder {
+async function seedTicketAndTicketHistoryPr({
+  ticketRepository,
+  ticketHistoryRepository,
+  sourceEntities,
+  methodEntitiesObject,
+  planEntities,
+  reversedPlanHistoryEntities,
+}: {
+  ticketRepository: Repository<TicketEntity>;
+  ticketHistoryRepository: Repository<TicketHistoryEntity>;
+  sourceEntities: SourceEntity[];
+  methodEntitiesObject: MethodEntitiesObject;
+  planEntities: PlanEntity[];
+  reversedPlanHistoryEntities: PlanHistoryEntity[];
+}) {
+  const randomPlanEntity = faker.helpers.arrayElement(planEntities);
+  const randomStartDate = faker.date.past({ years: 1 });
+  const endDateFromRandomStartDate = new Date(randomStartDate).setDate(
+    randomStartDate.getDate() + randomPlanEntity.days,
+  );
+
+  const ticketEntity: TicketEntity = ticketRepository.create({
+    source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
+    method: Promise.resolve(methodEntitiesObject.nr),
+    openedAt: randomStartDate,
+    closedAt: endDateFromRandomStartDate,
+  });
+
+  const ticketHistoryEntity: TicketHistoryEntity =
+    ticketHistoryRepository.create({
+      amount: randomMoney(),
+      issuedAt: new Date(randomStartDate),
+      planHistory: Promise.resolve(
+        findAsyncSequential(
+          reversedPlanHistoryEntities,
+          async (planHistoryEntity) => {
+            return (
+              (await planHistoryEntity.plan).id === randomPlanEntity.id &&
+              planHistoryEntity.createdAt <= randomStartDate
+            );
+          },
+        ),
+      ),
+      maturedAt: endDateFromRandomStartDate,
+      ticket: Promise.resolve(ticketEntity),
+    });
+
+  await ticketRepository.save(ticketEntity);
+  await ticketHistoryRepository.save(ticketHistoryEntity);
+}
+
+export default class MainSeeder implements Seeder {
   public async run(
     dataSource: DataSource,
     factoryManager: SeederFactoryManager,
@@ -193,9 +282,15 @@ export default class MethodSeeder implements Seeder {
       .save(createdMethodEntities);
 
     const methodEntitiesObject: MethodEntitiesObject = {
-      nr: methodEntities.find((methodEntity) => methodEntity.id === 'NR')!,
-      pr: methodEntities.find((methodEntity) => methodEntity.id === 'PR')!,
-      pir: methodEntities.find((methodEntity) => methodEntity.id === 'PIR')!,
+      nr: methodEntities.find(
+        (methodEntity) => methodEntity.id === MethodEnum.NR,
+      )!,
+      pr: methodEntities.find(
+        (methodEntity) => methodEntity.id === MethodEnum.PR,
+      )!,
+      pir: methodEntities.find(
+        (methodEntity) => methodEntity.id === MethodEnum.PIR,
+      )!,
     };
 
     // plan
