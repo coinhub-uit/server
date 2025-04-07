@@ -3,6 +3,7 @@ import { dataSourceOptions } from 'src/common/database/options';
 import { resolve as pathResolve } from 'path';
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
+import MainSeeder from 'database/seeders/main.seeder';
 
 config();
 
@@ -11,8 +12,10 @@ async function seed() {
   await dataSource.initialize();
 
   await runSeeders(dataSource, {
-    seeds: [pathResolve(__dirname) + '/**/seeders/*.seeder.{ts,js}'],
-    factories: [pathResolve(__dirname) + '/**/factories/*.factory.{ts,js}'],
+    seeds: [MainSeeder],
+    factories: [
+      pathResolve(__dirname, '..') + '/**/factories/*.factory.{ts,js}',
+    ],
   });
 }
 

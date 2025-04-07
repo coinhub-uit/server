@@ -29,8 +29,8 @@
     "typeorm:migration:revert": "npm run build && typeorm-ts-node-esm migration:revert --dataSource ./dist/database/datasource",
     "typeorm:migration:run": "npm run build && typeorm-ts-node-esm migration:run --dataSource ./dist/database/datasource",
     "typeorm:migration:show": "npm run build && typeorm-ts-node-esm migration:show --dataSource ./dist/database/datasource",
-    "db:reset": "npm run build && typeorm-ts-node-esm schema:drop --dataSource ./dist/database/datasource && typeorm-ts-node-esm schema:sync --dataSource ./dist/database/datasource && node ./dist/database/seed-database",
-    "db:seed": "npm run build && node ./dist/database/seed-database"
+    "db:reset": "npm run build && typeorm-ts-node-esm schema:drop --dataSource ./dist/database/datasource && typeorm-ts-node-esm schema:sync --dataSource ./dist/database/datasource && node ./dist/database/typeorm-extension/seed-database",
+    "db:seed": "npm run build && node ./dist/database/typeorm-extension/seed-database.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.13",

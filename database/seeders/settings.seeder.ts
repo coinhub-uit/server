@@ -5,7 +5,7 @@ import { SettingsEntity } from 'src/setting/entities/settings.entity';
 export default class MoneySeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     const repository = dataSource.getRepository(SettingsEntity);
-    await repository.save({
+    await repository.insert({
       id: 'main',
       minAmountOpenTicket: 1000000,
     });

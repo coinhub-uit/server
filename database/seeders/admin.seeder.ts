@@ -4,9 +4,9 @@ import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { hash } from 'lib/hashing';
 
 export default class AdminSeeder implements Seeder {
-  public async run(dataSource: DataSource): Promise<void> {
+  public async run(dataSource: DataSource) {
     const repository = dataSource.getRepository(AdminEntity);
-    await repository.save({
+    await repository.insert({
       username: 'admin',
       password: await hash('password'),
     });
