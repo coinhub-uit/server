@@ -232,12 +232,14 @@ async function seedTicketAndTicketHistoryNr({
     new Date().setDate(randomStartDate.getDate() + randomPlanEntity.days),
   );
 
-  const ticketEntity: TicketEntity = ticketRepository.create({
-    source: faker.helpers.arrayElement(sourceEntities),
-    method: { id: MethodEnum.NR },
-    openedAt: randomStartDate,
-    closedAt: endDateFromRandomStartDate,
-  });
+  const ticketEntity = await ticketRepository.save(
+    ticketRepository.create({
+      source: faker.helpers.arrayElement(sourceEntities),
+      method: { id: MethodEnum.NR },
+      openedAt: randomStartDate,
+      closedAt: endDateFromRandomStartDate,
+    }),
+  );
 
   const ticketHistoryEntity: TicketHistoryEntity =
     ticketHistoryRepository.create({
@@ -253,7 +255,6 @@ async function seedTicketAndTicketHistoryNr({
       ticket: ticketEntity,
     });
 
-  await ticketRepository.save(ticketEntity);
   await ticketHistoryRepository.save(ticketHistoryEntity);
 }
 
@@ -281,11 +282,12 @@ async function seedTicketAndTicketHistoryPrOrPir({
   const ticketHistoryEntities: TicketHistoryEntity[] = [];
   let existingAmount = randomMoney();
 
-  const ticketEntity: TicketEntity = ticketRepository.create({
+  const firstTicketEntity: TicketEntity = ticketRepository.create({
     source: faker.helpers.arrayElement(sourceEntities),
     method: { id: methodType },
     openedAt: new Date(iterateDate),
   });
+  const secondTicketEntity = await ticketRepository.save(firstTicketEntity);
 
   for (let i = 1; i <= numberOfMonths; ++i) {
     const existingPlanHistoryEntity = reversedPlanHistoryEntities.find(
@@ -306,13 +308,13 @@ async function seedTicketAndTicketHistoryPrOrPir({
       issuedAt: new Date(iterateDate),
       planHistory: existingPlanHistoryEntity,
       maturedAt: new Date(maturedDate),
-      ticket: ticketEntity,
+      ticket: secondTicketEntity,
     });
 
     ticketHistoryEntities.push(ticketHistoryEntity);
 
     if (maturedDate > DATE_NOW) {
-      ticketEntity.closedAt = new Date(maturedDate);
+      secondTicketEntity.closedAt = new Date(maturedDate);
       break;
     }
 
@@ -328,7 +330,7 @@ async function seedTicketAndTicketHistoryPrOrPir({
     maturedDate.setDate(iterateDate.getDate() + randomPlanEntity.days + 1);
   }
 
-  await ticketRepository.save(ticketEntity);
+  await ticketRepository.save(secondTicketEntity);
   await ticketHistoryRepository.save(ticketHistoryEntities);
 }
 
@@ -378,17 +380,15 @@ export default class MainSeeder implements Seeder {
 
     // ticket: NR
 
-    await Promise.all(
-      Array.from({ length: 20 }).map(() =>
-        seedTicketAndTicketHistoryNr({
-          ticketRepository,
-          ticketHistoryRepository,
-          sourceEntities,
-          planEntities,
-          reversedPlanHistoryEntities,
-        }),
-      ),
-    );
+    for (let i = 0; i < 20; ++i) {
+      await seedTicketAndTicketHistoryNr({
+        ticketRepository,
+        ticketHistoryRepository,
+        sourceEntities,
+        planEntities,
+        reversedPlanHistoryEntities,
+      });
+    }
     console.log('Seeded tickets (NR)');
 
     await Promise.all(
