@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { DateTransformer } from 'src/common/transformers/date.transformer';
 import {
   decimalToString,
   DecimalTransformer,
@@ -12,7 +13,7 @@ export class StatisticEntity extends AbstractEntity<StatisticEntity> {
   @PrimaryColumn({ type: 'uuid' })
   statId: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', transformer: new DateTransformer() })
   date: Date;
 
   @Column({ type: 'int' })

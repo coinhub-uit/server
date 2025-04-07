@@ -2,6 +2,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { DateTransformer } from 'src/common/transformers/date.transformer';
 import {
   decimalToString,
   DecimalTransformer,
@@ -14,11 +15,11 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 @Entity('ticket_history')
 export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'date' })
+  @PrimaryColumn({ type: 'date', transformer: new DateTransformer() })
   issuedAt!: Date;
 
   @ApiProperty()
-  @Column({ type: 'date' })
+  @Column({ type: 'date', transformer: new DateTransformer() })
   maturedAt!: Date;
 
   @ApiProperty({ type: String })
@@ -31,12 +32,10 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount!: Decimal;
 
+  @PrimaryColumn()
+  ticketId: number;
+
   @Exclude()
-  @PrimaryColumn({
-    name: 'ticketId',
-    type: 'integer',
-    nullable: false,
-  })
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })

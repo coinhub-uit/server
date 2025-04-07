@@ -226,7 +226,9 @@ async function seedTicketAndTicketHistoryNr({
   planEntities: PlanEntity[];
   reversedPlanHistoryEntities: PlanHistoryEntity[];
 }) {
-  const randomPlanEntity = faker.helpers.arrayElement(planEntities);
+  const randomPlanEntity = faker.helpers.arrayElement(
+    planEntities.filter((planEntity) => planEntity.days !== -1),
+  );
   const randomStartDate = faker.date.past({ years: 1 });
   const endDateFromRandomStartDate = new Date(
     new Date().setDate(randomStartDate.getDate() + randomPlanEntity.days),
@@ -240,6 +242,18 @@ async function seedTicketAndTicketHistoryNr({
       closedAt: endDateFromRandomStartDate,
     }),
   );
+
+  const settlement = faker.number.int({ min: 1, max: 100 }) <= 20;
+  if (settlement) {
+    const randomSettlementDate = new Date(randomStartDate);
+    randomSettlementDate.setDate(
+      randomSettlementDate.getDate() +
+        faker.number.int({ min: 1, max: randomPlanEntity.days }),
+    );
+    ticketEntity.closedAt = randomSettlementDate;
+    await ticketRepository.save(ticketEntity);
+    return;
+  }
 
   const ticketHistoryEntity: TicketHistoryEntity =
     ticketHistoryRepository.create({
@@ -273,14 +287,18 @@ async function seedTicketAndTicketHistoryPrOrPir({
   reversedPlanHistoryEntities: PlanHistoryEntity[];
   methodType: Exclude<MethodEnum, MethodEnum.NR>;
 }) {
-  const randomPlanEntity = faker.helpers.arrayElement(planEntities);
-  const iterateDate = faker.date.past({ years: 1 });
+  const randomPlanEntity = faker.helpers.arrayElement(
+    planEntities.filter((planEntity) => planEntity.days !== -1),
+  );
+  let iterateDate = faker.date.past({ years: 1 });
   const numberOfMonths = faker.number.int({ min: 1, max: 20 });
   const maturedDate: Date = new Date(
-    new Date().setDate(iterateDate.getDate() + randomPlanEntity.days + 1),
+    new Date(iterateDate).setDate(
+      iterateDate.getDate() + randomPlanEntity.days + 1,
+    ),
   );
-  const ticketHistoryEntities: TicketHistoryEntity[] = [];
   let existingAmount = randomMoney();
+  const ticketHistoryEntities: TicketHistoryEntity[] = [];
 
   const firstTicketEntity: TicketEntity = ticketRepository.create({
     source: faker.helpers.arrayElement(sourceEntities),
@@ -290,16 +308,26 @@ async function seedTicketAndTicketHistoryPrOrPir({
   const secondTicketEntity = await ticketRepository.save(firstTicketEntity);
 
   for (let i = 1; i <= numberOfMonths; ++i) {
+    const settlement = faker.number.int({ min: 1, max: 100 }) <= 20;
+    if (settlement) {
+      const randomSettlementDate = new Date(iterateDate);
+      randomSettlementDate.setDate(
+        randomSettlementDate.getDate() +
+          faker.number.int({ min: 1, max: randomPlanEntity.days }),
+      );
+      secondTicketEntity.closedAt = randomSettlementDate;
+      await ticketRepository.save(secondTicketEntity);
+      return;
+    }
+
     const existingPlanHistoryEntity = reversedPlanHistoryEntities.find(
-      (planHistoryEntity) => {
-        return (
-          planHistoryEntity.plan.id === randomPlanEntity.id &&
-          planHistoryEntity.createdAt <= iterateDate
-        );
-      },
+      (planHistoryEntity) =>
+        planHistoryEntity.plan.id === randomPlanEntity.id &&
+        planHistoryEntity.createdAt <= iterateDate,
     );
 
     if (existingPlanHistoryEntity === undefined) {
+      console.log('Oops cannot find existing plan history'); // yeah never
       return;
     }
 
@@ -308,7 +336,7 @@ async function seedTicketAndTicketHistoryPrOrPir({
       issuedAt: new Date(iterateDate),
       planHistory: existingPlanHistoryEntity,
       maturedAt: new Date(maturedDate),
-      ticket: secondTicketEntity,
+      ticketId: secondTicketEntity.id,
     });
 
     ticketHistoryEntities.push(ticketHistoryEntity);
@@ -326,8 +354,8 @@ async function seedTicketAndTicketHistoryPrOrPir({
       );
     }
 
-    iterateDate.setDate(maturedDate.getDate());
-    maturedDate.setDate(iterateDate.getDate() + randomPlanEntity.days + 1);
+    iterateDate = new Date(maturedDate);
+    maturedDate.setDate(maturedDate.getDate() + randomPlanEntity.days + 1);
   }
 
   await ticketRepository.save(secondTicketEntity);
@@ -343,7 +371,6 @@ export default class MainSeeder implements Seeder {
     const methodRepository = dataSource.getRepository(MethodEntity);
     const createdMethodEntities = methodRepository.create(METHODS);
     await methodRepository.save(createdMethodEntities);
-
     console.log('Seeded methods');
 
     // plan
@@ -367,10 +394,14 @@ export default class MainSeeder implements Seeder {
 
     // source
     const sourceFactory = factoryManager.get(SourceEntity);
-    // FIXME: bruh use promise all here
-    const sourceEntities = await sourceFactory.saveMany(80, {
-      user: faker.helpers.arrayElement(userEntities),
-    });
+    await Promise.all(
+      Array.from({ length: 20 }).map(async () => {
+        await sourceFactory.save({
+          user: faker.helpers.arrayElement(userEntities),
+        });
+      }),
+    );
+    const sourceEntities = await dataSource.getRepository(SourceEntity).find();
     console.log('Seeded sources');
 
     // ticket
@@ -379,16 +410,17 @@ export default class MainSeeder implements Seeder {
       dataSource.getRepository(TicketHistoryEntity);
 
     // ticket: NR
-
-    for (let i = 0; i < 20; ++i) {
-      await seedTicketAndTicketHistoryNr({
-        ticketRepository,
-        ticketHistoryRepository,
-        sourceEntities,
-        planEntities,
-        reversedPlanHistoryEntities,
-      });
-    }
+    await Promise.all(
+      Array.from({ length: 20 }).map(() =>
+        seedTicketAndTicketHistoryNr({
+          ticketRepository,
+          ticketHistoryRepository,
+          sourceEntities,
+          planEntities,
+          reversedPlanHistoryEntities,
+        }),
+      ),
+    );
     console.log('Seeded tickets (NR)');
 
     await Promise.all(
