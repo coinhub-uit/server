@@ -47,5 +47,5 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
 
   @ManyToOne(() => SourceEntity)
   @JoinColumn()
-  sourceDestination: Promise<SourceEntity>;
+  sourceDestination: SourceEntity;
 }

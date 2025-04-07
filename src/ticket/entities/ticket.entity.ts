@@ -31,13 +31,13 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   // NOTE: Those excluded relationships may helpful for admin. So we should return empty list or so for user
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
-  source!: Promise<SourceEntity>;
+  source!: SourceEntity;
 
   @Exclude()
   @ManyToOne(() => MethodEntity, (method) => method.tickets)
-  method!: Promise<MethodEntity>;
+  method!: MethodEntity;
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
-  ticketHistories!: Promise<TicketHistoryEntity[]>;
+  ticketHistories!: TicketHistoryEntity[];
 }

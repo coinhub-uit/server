@@ -58,7 +58,7 @@ export class SourceService {
     const { userId, ...newSourceDetails } = sourceDetails;
     const source = this.sourceRepository.create({
       ...newSourceDetails,
-      user: Promise.resolve({ id: userId }),
+      user: { id: userId },
     });
     try {
       const sourceEntity = await this.sourceRepository.save(source);

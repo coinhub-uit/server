@@ -37,5 +37,5 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
 
   @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.notifications)
-  user: Promise<UserEntity>;
+  user: UserEntity;
 }
