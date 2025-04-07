@@ -8,20 +8,10 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { faker } from '@faker-js/faker';
-import Decimal from 'decimal.js';
 import { MethodEnum } from 'src/method/types/method.enum';
+import { randomMoney } from 'lib/random-money';
 
 const DATE_NOW = Object.freeze(new Date());
-
-function randomMoney() {
-  return Decimal(
-    faker.finance.amount({
-      min: 0,
-      max: 99999999,
-      dec: 0,
-    }),
-  );
-}
 
 const METHODS: DeepPartial<MethodEntity>[] = [
   { id: MethodEnum.NR },
@@ -44,194 +34,182 @@ async function seedPlanHistories(
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 18),
       ),
-      plan: Promise.resolve({ id: 1 }),
+      plan: { id: 1 },
       rate: 2,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 18),
       ),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 3,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 18),
       ),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 3.2,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 18),
       ),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 3.2,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 17),
       ),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 4,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 15),
       ),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 4,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 15),
       ),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 4,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 15),
       ),
-      plan: Promise.resolve({ id: 1 }),
+      plan: { id: 1 },
       rate: 1,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 14),
       ),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 2.3,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 13),
       ),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 2.4,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 13),
       ),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 2.4,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
       ),
-      plan: Promise.resolve({ id: 1 }),
+      plan: { id: 1 },
       rate: 1,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
       ),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 1,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
       ),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 3,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 12),
       ),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 3,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
       ),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 0.8,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
       ),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 3.2,
     },
     {
       createdAt: new Date(
         new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 10),
       ),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 3.4,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 9)),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 1.2,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 2,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 5,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 7)),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 5.2,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 1,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 2.9,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 5)),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 2.8,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
-      plan: Promise.resolve({ id: 2 }),
+      plan: { id: 2 },
       rate: 1.8,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
-      plan: Promise.resolve({ id: 3 }),
+      plan: { id: 3 },
       rate: 4,
     },
     {
       createdAt: new Date(new Date(DATE_NOW).setMonth(DATE_NOW.getMonth() - 2)),
-      plan: Promise.resolve({ id: 4 }),
+      plan: { id: 4 },
       rate: 4,
     },
   ]);
 
   const planHistoryEntities = await planHistoryRepository.save(planHistories);
   return planHistoryEntities;
-}
-
-// https://stackoverflow.com/a/63795192/23173098
-async function findAsyncSequential<T>(
-  array: T[],
-  predicate: (t: T) => Promise<boolean>,
-): Promise<T | undefined> {
-  for (const t of array) {
-    if (await predicate(t)) {
-      return t;
-    }
-  }
 }
 
 // PERF: The planHistoryEntities is iterated awaiting to get the plan. Maybe try closure
@@ -255,8 +233,8 @@ async function seedTicketAndTicketHistoryNr({
   );
 
   const ticketEntity: TicketEntity = ticketRepository.create({
-    source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
-    method: Promise.resolve({ id: MethodEnum.NR }),
+    source: faker.helpers.arrayElement(sourceEntities),
+    method: { id: MethodEnum.NR },
     openedAt: randomStartDate,
     closedAt: endDateFromRandomStartDate,
   });
@@ -265,19 +243,14 @@ async function seedTicketAndTicketHistoryNr({
     ticketHistoryRepository.create({
       amount: randomMoney(),
       issuedAt: new Date(randomStartDate),
-      planHistory: Promise.resolve(
-        findAsyncSequential(
-          reversedPlanHistoryEntities,
-          async (planHistoryEntity) => {
-            return (
-              (await planHistoryEntity.plan).id === randomPlanEntity.id &&
-              planHistoryEntity.createdAt <= randomStartDate
-            );
-          },
-        ),
-      ),
+      planHistory: reversedPlanHistoryEntities.find((planHistoryEntity) => {
+        return (
+          planHistoryEntity.plan.id === randomPlanEntity.id &&
+          planHistoryEntity.createdAt <= randomStartDate
+        );
+      }),
       maturedAt: endDateFromRandomStartDate,
-      ticket: Promise.resolve(ticketEntity),
+      ticket: ticketEntity,
     });
 
   await ticketRepository.save(ticketEntity);
@@ -309,17 +282,16 @@ async function seedTicketAndTicketHistoryPrOrPir({
   let existingAmount = randomMoney();
 
   const ticketEntity: TicketEntity = ticketRepository.create({
-    source: Promise.resolve(faker.helpers.arrayElement(sourceEntities)),
-    method: Promise.resolve(methodType),
+    source: faker.helpers.arrayElement(sourceEntities),
+    method: { id: methodType },
     openedAt: new Date(iterateDate),
   });
 
   for (let i = 1; i <= numberOfMonths; ++i) {
-    const existingPlanHistoryEntity = await findAsyncSequential(
-      reversedPlanHistoryEntities,
-      async (planHistoryEntity) => {
+    const existingPlanHistoryEntity = reversedPlanHistoryEntities.find(
+      (planHistoryEntity) => {
         return (
-          (await planHistoryEntity.plan).id === randomPlanEntity.id &&
+          planHistoryEntity.plan.id === randomPlanEntity.id &&
           planHistoryEntity.createdAt <= iterateDate
         );
       },
@@ -332,9 +304,9 @@ async function seedTicketAndTicketHistoryPrOrPir({
     const ticketHistoryEntity = ticketHistoryRepository.create({
       amount: existingAmount,
       issuedAt: new Date(iterateDate),
-      planHistory: Promise.resolve(existingPlanHistoryEntity),
+      planHistory: existingPlanHistoryEntity,
       maturedAt: new Date(maturedDate),
-      ticket: Promise.resolve(ticketEntity),
+      ticket: ticketEntity,
     });
 
     ticketHistoryEntities.push(ticketHistoryEntity);
@@ -393,8 +365,9 @@ export default class MainSeeder implements Seeder {
 
     // source
     const sourceFactory = factoryManager.get(SourceEntity);
+    // FIXME: bruh use promise all here
     const sourceEntities = await sourceFactory.saveMany(80, {
-      user: Promise.resolve(faker.helpers.arrayElement(userEntities)),
+      user: faker.helpers.arrayElement(userEntities),
     });
     console.log('Seeded sources');
 
