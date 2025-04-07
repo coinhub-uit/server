@@ -7,6 +7,7 @@ import { UpdatePlanResponseDto } from 'src/plan/dtos/responses/update-plan.respo
 import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
+import { PlanHistoryNotExist } from 'src/plan/exceptions/plan-history-not-exist';
 import { PlanNotExist } from 'src/plan/exceptions/plan-not-exist';
 import { Repository } from 'typeorm';
 
@@ -28,6 +29,16 @@ export class PlanService {
     });
     const planHistoryEntity =
       await this.planHistoryRepository.save(planHistory);
+    return planHistoryEntity;
+  }
+
+  async findPlanHistoryById(planHistoryId: string) {
+    const planHistoryEntity = await this.planHistoryRepository.findOne({
+      where: { id: planHistoryId },
+    });
+    if (!planHistoryEntity) {
+      throw new PlanHistoryNotExist();
+    }
     return planHistoryEntity;
   }
 

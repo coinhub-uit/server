@@ -7,7 +7,7 @@ export class TicketController {
   constructor(private ticketService: TicketService) {}
 
   @Post()
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return this.ticketService.createTicket(createTicketDto);
+  async create(@Body() createTicketDto: CreateTicketDto) {
+    return await this.ticketService.createTicket(createTicketDto);
   }
 }

@@ -7,6 +7,7 @@ import { TicketService } from './services/ticket.service';
 import { UserModule } from 'src/user/user.module';
 import { SourceModule } from 'src/source/source.module';
 import { MethodModule } from 'src/method/method.module';
+import { PlanModule } from 'src/plan/plan.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MethodModule } from 'src/method/method.module';
     UserModule,
     SourceModule,
     MethodModule,
+    PlanModule,
   ],
   controllers: [TicketController],
   providers: [TicketService],
