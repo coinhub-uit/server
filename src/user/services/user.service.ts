@@ -82,7 +82,7 @@ export class UserService {
     if (!user) {
       throw new UserNotExistException();
     }
-    return await user.sources;
+    return user.sources;
   }
 
   async getTickets(userId: string) {
@@ -99,10 +99,7 @@ export class UserService {
     if (!user) {
       throw new UserNotExistException();
     }
-    const sources = await user.sources;
-    const tickets = (
-      await Promise.all(sources.map(async (source) => await source.tickets))
-    ).flat();
-    return tickets;
+    const sources = user.sources;
+    return sources.flatMap((source) => source.tickets);
   }
 }

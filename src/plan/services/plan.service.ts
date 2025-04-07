@@ -24,7 +24,7 @@ export class PlanService {
   private async updatePlanHistory(rate: number, plan: PlanEntity) {
     const planHistory = this.planHistoryRepository.create({
       rate,
-      plan: Promise.resolve(plan),
+      plan,
     });
     const planHistoryEntity =
       await this.planHistoryRepository.save(planHistory);

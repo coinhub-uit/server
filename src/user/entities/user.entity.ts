@@ -53,9 +53,9 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @Exclude()
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
-  notifications: Promise<NotificationEntity[]>;
+  notifications: NotificationEntity[];
 
   @Exclude()
   @OneToMany(() => SourceEntity, (source) => source.user)
-  sources: Promise<SourceEntity[]>;
+  sources: SourceEntity[];
 }
