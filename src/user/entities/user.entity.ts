@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { DateTransformer } from 'src/common/transformers/date.transformer';
 
 @ApiSchema()
 @Entity('user')
@@ -35,7 +36,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   fullname!: string;
 
   @ApiProperty()
-  @Column({ type: 'date' })
+  @Column({ type: 'date', transformer: new DateTransformer() })
   birthDate!: Date;
 
   @ApiProperty()

@@ -15,7 +15,7 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
   id!: number;
 
-  @CreateDateColumn({ type: 'date' })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
   @Column({ type: 'decimal', precision: 4, scale: 2 })

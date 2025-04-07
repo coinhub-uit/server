@@ -2,7 +2,7 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "NODE_ENV=production npm i --omit=dev"
+    "buildCommand": "npm ci --production"
   },
   "deploy": {
     "startCommand": "npm run start",
