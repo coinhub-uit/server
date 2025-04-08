@@ -41,8 +41,8 @@ export class UserService {
 
   async createUser(userDetails: CreateUserDto) {
     const user = this.userRepository.create(userDetails as UserEntity);
-    const savedUser = await this.userRepository.save(user);
-    return savedUser;
+    await this.userRepository.insert(user);
+    return this.userRepository.findOne({ where: { id: userDetails.id } });
   }
 
   async update(userDetails: UpdateUserDto, userId: string) {
@@ -58,8 +58,7 @@ export class UserService {
   async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
     const user = await this.getByIdOrFail(userId);
     const updatedUser = this.userRepository.merge(user, userDetails);
-    const newUser = await this.userRepository.save(updatedUser);
-    return newUser;
+    return await this.userRepository.save(updatedUser);
   }
 
   // TODO: If soft delete / remove, return nothing

@@ -27,7 +27,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
-  @ApiProperty({ nullable: true, type: Date })
+  @ApiProperty({ nullable: true, type: Date, example: null })
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt!: Date | null;
 
