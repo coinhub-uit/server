@@ -5,12 +5,16 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { JsonWebTokenError } from '@nestjs/jwt';
 import { Response } from 'express';
 import { QueryFailedError } from 'typeorm';
 
-@Catch(HttpException, QueryFailedError)
+@Catch(HttpException, JsonWebTokenError, QueryFailedError)
 export class GlobalFilter implements ExceptionFilter {
-  catch(exception: HttpException | QueryFailedError, host: ArgumentsHost) {
+  catch(
+    exception: HttpException | QueryFailedError | JsonWebTokenError,
+    host: ArgumentsHost,
+  ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     let status: number;
@@ -19,6 +23,8 @@ export class GlobalFilter implements ExceptionFilter {
       status = exception.getStatus();
     } else if (exception instanceof QueryFailedError) {
       status = HttpStatus.UNPROCESSABLE_ENTITY;
+    } else if (exception instanceof JsonWebTokenError) {
+      status = HttpStatus.UNAUTHORIZED;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
