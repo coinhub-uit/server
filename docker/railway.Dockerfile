@@ -10,6 +10,7 @@ RUN npm clean-install --omit=dev --ignore-scripts
 
 FROM deps AS build
 COPY . /app/
+RUN npm i -g @nestjs/cli
 RUN npm run build
 
 FROM base AS production

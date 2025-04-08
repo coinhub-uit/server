@@ -6,7 +6,6 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "nest": "nest",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -34,7 +33,6 @@
     "db:seed": "npm run build && node ./dist/database/typeorm-extension/seed-database.js"
   },
   "dependencies": {
-    "@nestjs/cli": "^11.0.6",
     "@nestjs/common": "^11.0.13",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.13",
