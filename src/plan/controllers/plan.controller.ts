@@ -14,7 +14,6 @@ import {
   ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
@@ -35,8 +34,8 @@ import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exis
 export class PlanController {
   constructor(private planService: PlanService) {}
 
-  @ApiBearerAuth('universal')
-  @ApiOperation({})
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     type: [AvailablePlanEntity],
   })
@@ -46,12 +45,12 @@ export class PlanController {
     return this.planService.getAvailablePlans();
   }
 
-  @ApiBearerAuth('universal')
-  @ApiOperation({})
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
   @ApiOkResponse({
     type: [PlanEntity],
   })
-  @ApiNotFoundResponse({})
+  @ApiNotFoundResponse()
   @UseGuards(UniversalJwtAuthGuard)
   @Get(':days')
   async getPlan(
@@ -72,9 +71,8 @@ export class PlanController {
   }
 
   @ApiBearerAuth('admin')
-  @ApiOperation({})
-  @ApiConflictResponse({})
-  @ApiUnprocessableEntityResponse({})
+  @ApiConflictResponse()
+  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
     type: CreatePlanResponseDto,
   })
@@ -94,8 +92,7 @@ export class PlanController {
   }
 
   @ApiBearerAuth('admin')
-  @ApiOperation({})
-  @ApiNotFoundResponse({})
+  @ApiNotFoundResponse()
   @ApiUnprocessableEntityResponse({})
   @ApiOkResponse({
     type: UpdatePlanResponseDto,

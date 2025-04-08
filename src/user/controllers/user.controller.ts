@@ -28,10 +28,9 @@ import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { CreateUserRequestDto } from 'src/user/dtos/requests/create-user.request.dto';
-import { UpdateParitialUserRequestDto } from 'src/user/dtos/requests/update-paritial-user.request.dto';
-import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request.dto';
-import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
 
@@ -72,7 +71,7 @@ export class UserController {
   @Post()
   async create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    @Body() createUserDto: CreateUserRequestDto,
+    @Body() createUserDto: CreateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== createUserDto.id) {
       throw new ForbiddenException(
@@ -130,7 +129,7 @@ export class UserController {
   async update(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateUserDto: UpdateUserRequestDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -157,14 +156,12 @@ export class UserController {
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
-  @ApiOkResponse({
-    type: UpdateParitialUserResponseDto,
-  })
+  @ApiOkResponse({})
   @Patch(':id')
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateParitialUserDto: UpdateParitialUserRequestDto,
+    @Body() updateParitialUserDto: UpdateParitialUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
