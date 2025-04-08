@@ -22,5 +22,5 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   isActive!: boolean;
 
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
-  planHistories!: Promise<PlanHistoryEntity[]>;
+  planHistories!: PlanHistoryEntity[];
 }

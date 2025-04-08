@@ -57,7 +57,7 @@ export class TopUpService {
 
     topUp.status = TopUpStatusEnum.success;
 
-    const sourceDestination = await topUp.sourceDestination;
+    const sourceDestination = topUp.sourceDestination;
     await this.sourceService.changeSourceBalance(
       topUp.amount,
       sourceDestination,
@@ -80,9 +80,9 @@ export class TopUpService {
     const topUpEntity = this.topUpRepository.create({
       provider: TopUpProviderEnum.vnpay,
       amount: new Decimal(paymentDetails.amount),
-      sourceDestination: Promise.resolve({
+      sourceDestination: {
         id: paymentDetails.sourceDestinationId,
-      }),
+      },
     });
 
     await this.topUpRepository.save(topUpEntity);

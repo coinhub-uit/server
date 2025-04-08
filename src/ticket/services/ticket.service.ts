@@ -21,15 +21,9 @@ export class TicketService {
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    const source = await this.sourceService.getSourceByIdOrFail(
-      createTicketDto.sourceId,
-    );
-    const method = await this.methodService.getMethodById(
-      createTicketDto.methodId,
-    );
     const ticketEntity = await this.ticketRepository.save({
-      source: Promise.resolve(source),
-      method: Promise.resolve(method),
+      source: { id: createTicketDto.sourceId },
+      method: { id: createTicketDto.methodId },
     });
     let ticketHistoryEntity: TicketHistoryEntity;
     if ((createTicketDto.methodId as string) === 'NR') {

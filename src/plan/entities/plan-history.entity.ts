@@ -15,7 +15,7 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
   id!: string;
 
-  @CreateDateColumn({ type: 'date' })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
   @Column({ type: 'decimal', precision: 4, scale: 2 })
@@ -25,8 +25,8 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketHistories!: Promise<TicketHistoryEntity[]>;
+  ticketHistories!: TicketHistoryEntity[];
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
-  plan!: Promise<PlanEntity>;
+  plan!: PlanEntity;
 }

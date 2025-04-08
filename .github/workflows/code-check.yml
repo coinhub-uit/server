@@ -6,6 +6,17 @@ on:
       - '**'
     paths:
       - 'src/**'
+      - 'lib/**'
+      - 'test/**'
+      - 'scripts/**'
+      - 'database/**'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'lib/**'
+      - 'test/**'
+      - 'scripts/**'
+      - 'database/**'
 
 jobs:
   check:
