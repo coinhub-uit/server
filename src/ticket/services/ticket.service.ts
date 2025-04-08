@@ -21,7 +21,10 @@ export class TicketService {
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
+    const now = new Date();
     const ticketEntity = await this.ticketRepository.save({
+      openedAt: now,
+      closedAt: null,
       source: { id: createTicketDto.sourceId },
       method: { id: createTicketDto.methodId },
     });
@@ -45,12 +48,15 @@ export class TicketService {
     const planHistoryEntity = await this.planService.findPlanHistoryById(
       createTicketDto.planHistoryId,
     );
+
     const ticketHistory = await this.ticketHistoryRepository.save({
       amount: createTicketDto.amount,
-      issuedAt: new Date(),
-      maturedAt: new Date('9999-12-31'),
-      planHistory: Promise.resolve(planHistoryEntity),
-      ticket: Promise.resolve(ticketEntity),
+      issuedAt: ticketEntity.openedAt,
+      maturedAt: new Date().setDate(
+        ticketEntity.openedAt.getDate() + planHistoryEntity.plan.days,
+      ),
+      planHistory: planHistoryEntity,
+      ticket: ticketEntity,
     });
     return ticketHistory;
   }
