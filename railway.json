@@ -3,7 +3,13 @@
   "build": {
     "builder": "NIXPACKS",
     "nixpacksConfigPath": "nixpacks.toml",
-    "watchPatterns": ["src/**", "nest-cli.json", "lib/**", "railway.json"]
+    "watchPatterns": [
+      "src/**",
+      "nest-cli.json",
+      "lib/**",
+      "railway.json",
+      "nixpacks.toml"
+    ]
   },
   "deploy": {
     "startCommand": "npm run start",
