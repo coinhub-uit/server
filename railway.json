@@ -14,7 +14,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "npm run start",
+    "startCommand": "node ./dist/src/main",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300
   }
