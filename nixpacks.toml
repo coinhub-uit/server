@@ -5,7 +5,9 @@ nixPkgs = ['nest-cli']
 
 [phases.install]
 cmd = 'npm ci --omit=dev --no-scripts'
-cacheDirectories = ['node_modules/.cache']
+cacheDirectories = [
+  '.cache',
+] # default is node_modules/.cache but railway fukup on us
 
 [phases.build]
 cmd = 'npm run build'
