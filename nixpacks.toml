@@ -3,6 +3,9 @@ providers = ['node']
 [variables]
 NIXPACKS_NODE_VERSION = '23.9.0'
 
+# [phases.setup]
+# nixPkgs = ['nodejs']
+
 [phases.install]
 cmds = ['npm ci --omit=dev --no-scripts']
 # cacheDirectories = [
@@ -13,5 +16,5 @@ cmds = ['npm ci --omit=dev --no-scripts']
 cmds = ['npm run build']
 
 [start]
-runImage = 'node:23.9.0-alpine'
+# runImage = 'node:23.9.0-alpine'
 cmd = 'npm run start'
