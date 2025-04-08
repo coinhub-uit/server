@@ -1,10 +1,13 @@
-providers = ['Node']
+providers = ['node']
+
+[variables]
+NIXPACKS_NODE_VERSION = '23.9.0'
 
 [phases.install]
-cmds = ['npm i -g nest', 'npm ci --omit=dev --no-scripts']
-cacheDirectories = [
-  '.cache', # default is node_modules/.cache but railway fukup on us
-]
+cmds = ['npm ci --omit=dev --no-scripts']
+# cacheDirectories = [
+#   'node_modules', # default is node_modules/.cache but railway fukup on us
+# ]
 
 [phases.build]
 cmds = ['npm run build']

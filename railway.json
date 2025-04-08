@@ -8,7 +8,8 @@
       "nest-cli.json",
       "lib/**",
       "railway.json",
-      "nixpacks.toml"
+      "nixpacks.toml",
+      "package*.json"
     ]
   },
   "deploy": {
