@@ -33,7 +33,9 @@ export function configSwagger(app: INestApplication<any>) {
       'swagger',
       'swagger.json',
     );
-    writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8' });
+    if (process.env.NODE_ENV !== 'production') {
+      writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8' });
+    }
     return document;
   };
   SwaggerModule.setup('api', app, documentFactory, options);

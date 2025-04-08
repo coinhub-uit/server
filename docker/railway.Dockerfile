@@ -16,5 +16,6 @@ RUN npm run build
 FROM base AS production
 COPY --from=deps /app/node_modules/ /app/node_modules/
 COPY --from=build /app/dist/ /app/dist/
+ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]
