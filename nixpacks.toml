@@ -1,10 +1,10 @@
-# providers = ['node']
+providers = ['node']
 
 [variables]
-NIXPACKS_NODE_VERSION = '23.9.0'
+NIXPACKS_NODE_VERSION = '23'
 
-[phases.setup]
-nixPkgs = ['nodejs']
+# [phases.setup]
+# nixPkgs = ['nodejs']
 
 [phases.install]
 cmds = ['npm ci --omit=dev --no-scripts']

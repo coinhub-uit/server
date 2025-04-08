@@ -1,4 +1,4 @@
-import { hash as _hash, compare, genSalt } from 'bcrypt';
+import { hash as _hash, compare, genSalt } from 'bcryptjs';
 
 export async function hash(str: string): Promise<string> {
   const salt = await genSalt(5);

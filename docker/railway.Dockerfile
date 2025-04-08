@@ -3,19 +3,17 @@ ARG ALPINE_VERSION=""
 
 FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS base
 WORKDIR /app
-COPY --chown=app:app package.json package-lock.json /app/
-COPY --chown=app:app scripts /app/
+COPY package.json package-lock.json /app/
 
-FROM base AS deps-production
-ENV HUSKY=0
+FROM base AS deps
 RUN npm clean-install --omit=dev --ignore-scripts
 
-FROM deps-production AS build
-COPY --chown=app:app . /app/
+FROM deps AS build
+COPY . /app/
 RUN npm run build
 
 FROM base AS production
-COPY --from=deps-production --chown=app:app /app/node_modules/ /app/
-COPY --from=build --chown=app:app /app/dist/ /app/
+COPY --from=deps /app/node_modules/ /app/node_modules/
+COPY --from=build /app/dist/ /app/dist/
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]
