@@ -4,13 +4,13 @@ providers = ['node']
 nixPkgs = ['nest-cli']
 
 [phases.install]
-cmd = 'npm ci --omit=dev --no-scripts'
+cmds = ['npm ci --omit=dev --no-scripts']
 cacheDirectories = [
   '.cache',
 ] # default is node_modules/.cache but railway fukup on us
 
 [phases.build]
-cmd = 'npm run build'
+cmds = ['npm run build']
 
 [start]
 runImage = 'node:23.9.0-alpine'
