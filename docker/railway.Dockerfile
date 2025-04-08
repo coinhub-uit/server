@@ -8,7 +8,7 @@ COPY --chown=app:app scripts /app/
 
 FROM base AS deps-production
 ENV HUSKY=0
-RUN npm ci --omit=dev
+RUN npm clean-install --omit=dev --ignore-scripts
 
 FROM deps-production AS build
 COPY --chown=app:app . /app/
