@@ -6,15 +6,6 @@ WORKDIR /app
 COPY --chown=app:app package.json package-lock.json /app/
 COPY --chown=app:app scripts /app/
 
-FROM base AS deps-development
-ENV HUSKY=0
-# Mount project in docker compose
-RUN npm install
-
-FROM deps-development AS development
-EXPOSE 3000
-CMD ["npm", "run", "start:dev"]
-
 FROM base AS deps-production
 ENV HUSKY=0
 RUN npm ci --omit=dev
