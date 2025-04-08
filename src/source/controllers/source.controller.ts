@@ -13,7 +13,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
+import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { SourceService } from 'src/source/services/source.service';
@@ -22,7 +22,9 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 @Controller('sources')
 export class SourceController {
   constructor(private sourceService: SourceService) {}
+
   @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Get all tickets of source',
     description: 'Get all tickets of source with source id',
@@ -31,7 +33,7 @@ export class SourceController {
   @ApiOkResponse({
     type: [TicketEntity],
   })
-  @UseGuards(UserJwtAuthGuard)
+  @UseGuards(UniversalJwtAuthGuard)
   @Get(':id/tickets')
   getTickets(@Param() id: string) {
     try {
@@ -43,6 +45,7 @@ export class SourceController {
   }
 
   @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Create source in user',
     description: 'Create source for user with user id',
@@ -51,7 +54,7 @@ export class SourceController {
   @ApiOkResponse({
     type: SourceEntity,
   })
-  @UseGuards(UserJwtAuthGuard)
+  @UseGuards(UniversalJwtAuthGuard)
   @Post()
   async createSource(@Body() createSourceDto: CreateSourceDto) {
     const source = await this.sourceService.createSource(createSourceDto);
