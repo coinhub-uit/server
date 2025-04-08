@@ -1,0 +1,15 @@
+providers = ['node']
+
+[phases.setup]
+nixPkgs = ['nest-cli']
+
+[phases.install]
+cmd = 'npm ci --omit=dev --no-scripts'
+cacheDirectories = ['node_modules/.cache']
+
+[phases.build]
+cmd = 'npm run build'
+
+[start]
+runImage = 'node:23.9.0-alpine'
+cmd = 'npm run start'
