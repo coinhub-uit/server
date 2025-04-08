@@ -1,13 +1,10 @@
-providers = ['node']
-
-[phases.setup]
-nixPkgs = ['nest-cli']
+providers = ['Node']
 
 [phases.install]
-cmds = ['npm ci --omit=dev --no-scripts']
+cmds = ['npm i -g nest', 'npm ci --omit=dev --no-scripts']
 cacheDirectories = [
-  '.cache',
-] # default is node_modules/.cache but railway fukup on us
+  '.cache', # default is node_modules/.cache but railway fukup on us
+]
 
 [phases.build]
 cmds = ['npm run build']
