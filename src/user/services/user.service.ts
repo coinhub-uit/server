@@ -9,9 +9,14 @@ import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
 import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
 import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
+import { promisify } from 'util';
+import * as fs from 'fs';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 
 @Injectable()
 export class UserService {
+  private unlinkAsync = promisify(fs.unlink);
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -56,6 +61,16 @@ export class UserService {
     if (updateResult.affected === 0) {
       throw new UserNotExistException();
     }
+  }
+
+  async deleteAvatar(userId: string, filePath: string) {
+    const user = await this.getById(userId);
+    if (!user?.avatar) {
+      throw new AvatarNotSetException();
+    }
+    await this.unlinkAsync(filePath);
+    user.avatar = null;
+    return await this.userRepository.save(user);
   }
 
   async partialUpdate(

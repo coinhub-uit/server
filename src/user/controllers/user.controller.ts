@@ -25,6 +25,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
+import path from 'path';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
@@ -39,6 +40,7 @@ import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request
 import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
 import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
@@ -65,7 +67,28 @@ export class UserController {
   @ApiOperation({})
   @ApiOkResponse({})
   @ApiNotFoundResponse({})
-  @Post(':id/:avatar-url')
+  @Delete(':id/avatar')
+  async deleteAvatar(@Param('id') id: string) {
+    try {
+      const filePath = path.join(
+        process.env.AVATARS_UPLOAD_PATH as string,
+        `${id}-avatar`,
+      );
+      return this.userService.deleteAvatar(id, filePath);
+    } catch (error) {
+      if (error instanceof AvatarNotSetException) {
+        throw new NotFoundException('Avatar not set');
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiOperation({})
+  @ApiOkResponse({})
+  @ApiNotFoundResponse({})
+  @Post(':id/:avatarUrl')
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage(avatarStorageOptions),
