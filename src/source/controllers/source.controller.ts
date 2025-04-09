@@ -1,17 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
@@ -26,29 +19,8 @@ export class SourceController {
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
   @ApiOperation({
-    summary: 'Get all tickets of source',
-    description: 'Get all tickets of source with source id',
-  })
-  @ApiNotFoundResponse()
-  @ApiOkResponse({
-    type: [TicketEntity],
-  })
-  @UseGuards(UniversalJwtAuthGuard)
-  @Get(':id/tickets')
-  getTickets(@Param() id: string) {
-    try {
-      const tickets = this.sourceService.getTickets(id);
-      return tickets;
-    } catch (error) {
-      throw new NotFoundException(error);
-    }
-  }
-
-  @ApiBearerAuth('user')
-  @ApiBearerAuth('admin')
-  @ApiOperation({
-    summary: 'Create source in user',
-    description: 'Create source for user with user id',
+    summary: 'Create source',
+    description: 'Create source',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({
@@ -59,5 +31,26 @@ export class SourceController {
   async createSource(@Body() createSourceDto: CreateSourceDto) {
     const source = await this.sourceService.createSource(createSourceDto);
     return source;
+  }
+
+  // TODO: Add get source by id @NTGNguyen aslkfdj;lkasjdf;
+
+  // TODO: Add delete source later (NOT IMPORTANT) so later
+
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get all tickets of source',
+    description: 'Get all tickets of source with source ID',
+  })
+  @ApiUnprocessableEntityResponse()
+  @ApiOkResponse({
+    type: [TicketEntity],
+  })
+  @UseGuards(UniversalJwtAuthGuard)
+  @Get(':id/tickets')
+  async getTickets(@Param() id: string) {
+    const tickets = await this.sourceService.getTickets(id);
+    return tickets;
   }
 }
