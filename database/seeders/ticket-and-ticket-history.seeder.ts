@@ -5,7 +5,7 @@ import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { faker } from '@faker-js/faker';
 import { randomMoney } from 'lib/random-money';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
-import { MethodEnum } from 'src/method/types/method.enum';
+import { MethodEnum } from 'src/ticket/types/method.enum';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
@@ -37,7 +37,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     const ticketEntity = await ticketRepository.save(
       ticketRepository.create({
         source: faker.helpers.arrayElement(sourceEntities),
-        method: { id: MethodEnum.NR },
+        method: MethodEnum.NR,
         openedAt: randomStartDate,
         closedAt: endDateFromRandomStartDate,
       }),
@@ -102,7 +102,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
 
     const firstTicketEntity: TicketEntity = ticketRepository.create({
       source: faker.helpers.arrayElement(sourceEntities),
-      method: { id: methodType },
+      method: methodType,
       openedAt: new Date(iterateDate),
     });
     const secondTicketEntity = await ticketRepository.save(firstTicketEntity);
