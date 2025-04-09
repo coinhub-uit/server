@@ -61,9 +61,26 @@ export class UserService {
     return await this.userRepository.save(updatedUser);
   }
 
+  private async deleteSupabaseById(userId: string) {
+    await fetch(
+      `https://${process.env.SUPABASE_PROJECT_ID}.supabase.co/functions/v1/delete-user`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-service-role-key': process.env.SUPABASE_SERVICE_ROLE_KEY,
+        },
+        body: userId,
+      },
+    );
+  }
+
   // TODO: If soft delete / remove, return nothing
   async deleteById(userId: string) {
-    return await this.userRepository.softDelete({ id: userId });
+    await Promise.all([
+      this.userRepository.softDelete({ id: userId }),
+      this.deleteSupabaseById(userId),
+    ]);
   }
 
   async getSources(userId: string) {
