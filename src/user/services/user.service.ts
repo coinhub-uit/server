@@ -6,12 +6,16 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
+import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(DeviceEntity)
+    private readonly deviceRepository: Repository<DeviceEntity>,
   ) {}
 
   // private async checkUserExistAndFail(userId: string) {
@@ -68,7 +72,7 @@ export class UserService {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'x-service-role-key': process.env.SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
         body: userId,
       },
@@ -112,5 +116,20 @@ export class UserService {
     }
     const sources = user.sources;
     return sources.flatMap((source) => source.tickets);
+  }
+
+  async registerFcmToken({
+    userId,
+    registerFcmTokenDto,
+  }: {
+    userId: string;
+    registerFcmTokenDto: RegisterFcmTokenDto;
+  }) {
+    const device = this.deviceRepository.create({
+      userId,
+      fcmToken: registerFcmTokenDto.fcmToken,
+      deviceId: registerFcmTokenDto.deviceId,
+    });
+    await this.deviceRepository.save(device);
   }
 }

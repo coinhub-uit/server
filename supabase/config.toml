@@ -312,6 +312,12 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.delete-user]
 enabled = true
-verify_jwt = false
+verify_jwt = true
 import_map = "./functions/delete-user/deno.json"
 entrypoint = "./functions/delete-user/index.ts"
+
+[functions.push-notification]
+enabled = true
+verify_jwt = false
+import_map = "./functions/push-notification/deno.json"
+entrypoint = "./functions/push-notification/index.ts"
