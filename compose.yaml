@@ -7,12 +7,12 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-coinhub}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-luckycube}
-      PGDATA: /data/postgres
+      PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: ${DB_DATABASE:-coinhub}
     ports:
       - 5432:5432
     volumes:
-      - db:/data/postgres
+      - db:/var/lib/postgresql/data
 
 volumes:
   db:
