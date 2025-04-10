@@ -3,6 +3,7 @@ default: run-api-server-dev
 alias c := type-check
 alias db := run-docker-db
 alias dbr := reset-database
+alias tc := type-check
 
 restore:
   npm i

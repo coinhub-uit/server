@@ -14,6 +14,7 @@ import {
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 
 @ApiSchema()
 @Entity('user')
@@ -59,4 +60,8 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Exclude()
   @OneToMany(() => SourceEntity, (source) => source.user)
   sources: SourceEntity[];
+
+  @Exclude()
+  @OneToMany(() => DeviceEntity, (device) => device.user)
+  devices: DeviceEntity[];
 }

@@ -1,14 +1,11 @@
-import { config } from 'dotenv';
-import { dataSourceOptions } from 'src/common/database/options';
+import { getDataSourceOptions } from 'src/common/database/options';
 import { resolve as pathResolve } from 'path';
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
 import MainSeeder from 'database/seeders/main.seeder';
 
-config();
-
 async function seed() {
-  const dataSource = new DataSource(dataSourceOptions);
+  const dataSource = new DataSource(getDataSourceOptions());
   await dataSource.initialize();
 
   await runSeeders(dataSource, {
