@@ -24,7 +24,7 @@ jobs:
           version: latest
 
       - name: Get FCM service account
-        run: curl '${{ secrets.FCM_SERVICE_ACCOUNT }}' -o 'supabase/functions/service-account.json'
+        run: curl '${{ secrets.SUPABASE_FCM_SERVICE_ACCOUNT }}' -o 'supabase/functions/service-account.json'
 
       - name: Deploy function
         run: supabase functions deploy --project-ref "$PROJECT_ID"
