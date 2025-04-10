@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
       privateKey: serviceAccount.private_key,
     });
 
-    await Promise.all(
+    const results = await Promise.all(
       data.map(({ fcmToken }) =>
         sendToFcm({
           fcmToken,
@@ -49,9 +49,18 @@ Deno.serve(async (req) => {
         }),
       ),
     );
+
+    return new Response(JSON.stringify({ results }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: results.some(
+        (result) => result.status < 200 || 299 < result.status,
+      )
+        ? 400
+        : 200,
+    });
   }
 
-  return new Response('', { status: 200 });
+  return new Response('no user found', { status: 404 });
 });
 
 function getAccessToken({
@@ -86,7 +95,7 @@ async function sendToFcm({
   accessToken: string;
   notificationEntity: NotificationEntity;
 }) {
-  await fetch(
+  const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${serviceAccount.project_id}/messages:send`,
     {
       method: 'POST',
@@ -105,4 +114,5 @@ async function sendToFcm({
       }),
     },
   );
+  return await response.json();
 }
