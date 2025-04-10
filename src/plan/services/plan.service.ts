@@ -35,6 +35,9 @@ export class PlanService {
   async findPlanHistoryById(planHistoryId: string) {
     const planHistoryEntity = await this.planHistoryRepository.findOne({
       where: { id: planHistoryId },
+      relations: {
+        plan: true,
+      },
     });
     if (!planHistoryEntity) {
       throw new PlanHistoryNotExist();

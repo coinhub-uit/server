@@ -1,16 +1,31 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { SqlReader } from 'node-sql-reader';
-import * as path from 'path';
+// import { SqlReader } from 'node-sql-reader';
+// import * as path from 'path';
 
 export class TicketRenewalCronJob1744113884366 implements MigrationInterface {
   public async up(queryRunner: QueryRunner) {
-    const queries = SqlReader.readSqlFile(
-      path.join(__dirname, 'ticket-renewal-cron-job.sql'),
+    // const queries = SqlReader.readSqlFile(
+    //   path.join(
+    //     __dirname,
+    //     '../../../database/migrations/ticket-renewal-cron-job.sql',
+    //   ),
+    // );
+    //
+    // for (const query of queries) {
+    //   await queryRunner.query(query);
+    // }
+
+    await queryRunner.query(
+      `CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog; `,
     );
 
-    for (const query of queries) {
-      await queryRunner.query(query);
-    }
+    await queryRunner.query(
+      ` CREATE OR REPLACE PROCEDURE insert_ticket_history() LANGUAGE plpgsql AS $$ BEGIN INSERT INTO ticket_history ( ticketId, issuedAt, maturedAt, planHistoryId, amount) SELECT th.ticketId, th.maturedAt AS issuedAt, th.maturedAt + INTERVAL '1 day' * p.days AS maturedAt, ph.id AS planHistoryId, CASE WHEN m.id = 'PIR' THEN th.amount + (th.amount * ph.rate / 100) ELSE s.balance END AS amount FROM ticket t JOIN method m ON t.method = m.id JOIN ( SELECT DISTINCT ON (ticketId) * FROM ticket_history ORDER BY ticketId, createdAt DESC) th ON th.ticketId = t.id JOIN plan p ON th.planHistoryId = p.id JOIN plan_history ph ON ph.planId = p.id CROSS JOIN settings s WHERE t.closedAt IS NULL AND m.id IN ('PR', 'PIR') AND th.maturedAt <= CURRENT_DATE AND ( ( m.id = 'PR' AND s.balance >= s.minAmountOpenTicket) OR ( m.id = 'PIR' AND (th.amount + (th.amount * ph.rate / 100)) >= s.minAmountOpenTicket)); END; $$; `,
+    );
+
+    await queryRunner.query(
+      `SELECT cron.schedule( 'renew_PR_PIR_tickets', '0 1 * * *', 'CALL insert_ticket_history()'); `,
+    );
   }
 
   public async down() {}

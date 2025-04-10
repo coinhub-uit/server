@@ -4,8 +4,8 @@ import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Repository } from 'typeorm';
-import dataSource from 'database/datasource';
 import { PlanService } from 'src/plan/services/plan.service';
+import { SourceEntity } from 'src/source/entities/source.entity';
 
 @Injectable()
 export class TicketService {
@@ -14,6 +14,8 @@ export class TicketService {
     private readonly ticketRepository: Repository<TicketEntity>,
     @InjectRepository(TicketHistoryEntity)
     private readonly ticketHistoryRepository: Repository<TicketHistoryEntity>,
+    @InjectRepository(SourceEntity)
+    private readonly sourceRepository: Repository<SourceEntity>,
     private planService: PlanService,
   ) {}
 
@@ -49,8 +51,10 @@ export class TicketService {
     const ticketHistory = await this.ticketHistoryRepository.save({
       amount: createTicketDto.amount,
       issuedAt: ticketEntity.openedAt,
-      maturedAt: new Date().setDate(
-        ticketEntity.openedAt.getDate() + planHistoryEntity.plan.days,
+      maturedAt: new Date(
+        new Date().setDate(
+          ticketEntity.openedAt.getDate() + planHistoryEntity.plan.days,
+        ),
       ),
       planHistory: planHistoryEntity,
       ticket: ticketEntity,
@@ -58,21 +62,24 @@ export class TicketService {
     return ticketHistory;
   }
 
-  async closeTicket(ticketEntity: TicketEntity) {
-    const now = new Date();
-    ticketEntity.closedAt = now;
-    const latestTicketHistory = await dataSource
-      .getRepository(TicketHistoryEntity)
-      .createQueryBuilder('history')
-      .where('history.ticketId = :ticketId', { ticketId: ticketEntity.id })
-      .orderBy('history.issuedAt', 'DESC')
-      .getOne();
-    latestTicketHistory!.maturedAt = now;
-    return {
-      ticket: await this.ticketRepository.save(ticketEntity),
-      ticketHistory: await this.ticketHistoryRepository.save(
-        latestTicketHistory!,
-      ),
-    };
+  async settlementTicket(ticketId: number) {
+    const ticketEntity = await this.ticketRepository.findOne({
+      where: { id: ticketId },
+      relations: {
+        source: true,
+      },
+    });
+
+    // TODO: check null
+    if (!ticketEntity) {
+      console.log('Bruh not found');
+      return;
+    }
+
+    ticketEntity.source.balance = ticketEntity.source.balance.plus(12390487);
+
+    await this.sourceRepository.save(ticketEntity.source);
+
+    await this.ticketRepository.softRemove(ticketEntity);
   }
 }
