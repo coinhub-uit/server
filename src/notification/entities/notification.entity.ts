@@ -25,7 +25,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
 
   @ApiProperty()
   @Column({ type: 'text' })
-  content!: string;
+  body!: string;
 
   @ApiProperty()
   @CreateDateColumn({ type: 'timestamptz' })
@@ -33,7 +33,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
 
   @ApiProperty()
   @Column({ type: 'boolean' })
-  isSeen!: boolean;
+  isRead!: boolean;
 
   @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.notifications)

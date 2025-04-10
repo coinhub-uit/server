@@ -23,5 +23,8 @@ jobs:
         with:
           version: latest
 
+      - name: Get FCM service account
+        run: echo '${{ secrets.FCM_SERVICE_ACCOUNT }}' > 'supabase/functions/service-account.json'
+
       - name: Deploy function
         run: supabase functions deploy --project-ref "$PROJECT_ID"

@@ -33,6 +33,7 @@ import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
+import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
 
 @Controller('users')
 export class UserController {
@@ -269,5 +270,28 @@ export class UserController {
       }
       throw error;
     }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Register FCM token',
+    description: 'Register FCM token for a device of a user',
+  })
+  @ApiForbiddenResponse()
+  @ApiOkResponse()
+  @Post(':id/fcm-token')
+  async registerFcmToken(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Param('id') userId: string,
+    @Body() registerFcmTokenDto: RegisterFcmTokenDto,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        "You are not allowed to register other user's FCM token slot",
+      );
+    }
+    await this.userService.registerFcmToken({ userId, registerFcmTokenDto });
   }
 }
