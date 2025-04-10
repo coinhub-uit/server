@@ -41,7 +41,7 @@
     "@nestjs/platform-express": "^11.0.13",
     "@nestjs/swagger": "^11.1.1",
     "@nestjs/typeorm": "^11.0.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "decimal.js": "^10.5.0",
@@ -61,12 +61,10 @@
     "@commitlint/config-conventional": "^19.8.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.18.0",
-    "@nestjs/cli": "^11.0.6",
     "@nestjs/schematics": "^11.0.3",
     "@nestjs/testing": "^11.0.13",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.11.18",
-    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.14.0",
@@ -93,6 +91,9 @@
   },
   "peerDependencies": {
     "@faker-js/faker": "^8.4.1"
+  },
+  "engines": {
+    "node": ">=23.9.0"
   },
   "jest": {
     "moduleFileExtensions": [

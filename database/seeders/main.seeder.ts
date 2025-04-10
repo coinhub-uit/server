@@ -5,16 +5,16 @@ import PlanHistorySeeder from 'database/seeders/plan-history.seeder';
 import UserSeeder from 'database/seeders/user.seeder';
 import SourceSeeder from 'database/seeders/source.seeder';
 import TicketAndTicketHistorySeeder from 'database/seeders/ticket-and-ticket-history.seeder';
-import MethodSeeder from 'database/seeders/method.seeder';
+import AdminSeeder from 'database/seeders/admin.seeder';
 
 export default class MainSeeder implements Seeder {
   public async run(
     dataSource: DataSource,
     factoryManager: SeederFactoryManager,
   ): Promise<void> {
-    // method
-    await new MethodSeeder().run(dataSource);
-    console.log('Seeded methods');
+    // admin
+    await new AdminSeeder().run(dataSource);
+    console.log('Seeded admin(s)');
 
     // plan
     await new PlanSeeder().run(dataSource);

@@ -1,10 +1,11 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
+import { MethodEnum } from 'src/ticket/types/method.enum';
 import {
+  Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
@@ -28,14 +29,16 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @DeleteDateColumn({ type: 'timestamptz' })
   closedAt!: Date | null;
 
+  @Column({
+    type: 'enum',
+    enum: MethodEnum,
+  })
+  method!: MethodEnum;
+
   // NOTE: Those excluded relationships may helpful for admin. So we should return empty list or so for user
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
   source!: SourceEntity;
-
-  @Exclude()
-  @ManyToOne(() => MethodEntity, (method) => method.tickets)
-  method!: MethodEntity;
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)

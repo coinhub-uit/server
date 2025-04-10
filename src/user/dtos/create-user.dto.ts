@@ -59,13 +59,4 @@ export class CreateUserDto {
   })
   @IsString()
   address?: string;
-
-  @ApiProperty({
-    required: false,
-    description: 'Phone number with 10 digits',
-    example: '0945678910' satisfies CreateUserDto['phoneNumber'],
-  })
-  @IsString()
-  @Length(10, 10)
-  phoneNumber?: string;
 }

@@ -27,5 +27,6 @@
     "eslint.config.mjs",
     "database",
     "lib"
-  ]
+  ],
+  "exclude": ["supabase"]
 }

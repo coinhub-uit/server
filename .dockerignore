@@ -12,3 +12,7 @@ commitlint.config.ts
 dist
 docker
 node_modules
+scripts
+
+# exclude for production
+database

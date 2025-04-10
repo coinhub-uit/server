@@ -46,12 +46,8 @@ export class SourceService {
   }
 
   async getTickets(id: string) {
-    try {
-      const source = await this.getSourceByIdOrFail(id);
-      return source.tickets;
-    } catch (error) {
-      throw new NotFoundException(error);
-    }
+    const source = await this.getSourceByIdOrFail(id);
+    return source.tickets;
   }
 
   async createSource(sourceDetails: CreateSourceDto) {

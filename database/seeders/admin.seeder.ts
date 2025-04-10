@@ -8,7 +8,7 @@ export default class AdminSeeder implements Seeder {
     const repository = dataSource.getRepository(AdminEntity);
     await repository.insert({
       username: 'admin',
-      password: await hash('password'),
+      password: await hash('admin'),
     });
   }
 }

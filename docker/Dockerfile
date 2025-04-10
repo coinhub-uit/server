@@ -17,7 +17,7 @@ CMD ["npm", "run", "start:dev"]
 
 FROM base AS deps-production
 ENV HUSKY=0
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 FROM deps-production AS build
 COPY --chown=app:app . /app/

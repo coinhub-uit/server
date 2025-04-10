@@ -1,23 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MethodService } from 'src/method/services/method.service';
-import { PlanService } from 'src/plan/services/plan.service';
-import { SourceService } from 'src/source/services/source.service';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Repository } from 'typeorm';
 import dataSource from 'database/datasource';
+import { PlanService } from 'src/plan/services/plan.service';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectRepository(TicketEntity)
     private readonly ticketRepository: Repository<TicketEntity>,
+    @InjectRepository(TicketHistoryEntity)
     private readonly ticketHistoryRepository: Repository<TicketHistoryEntity>,
     private planService: PlanService,
-    private sourceService: SourceService,
-    private methodService: MethodService,
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
@@ -26,10 +23,10 @@ export class TicketService {
       openedAt: now,
       closedAt: null,
       source: { id: createTicketDto.sourceId },
-      method: { id: createTicketDto.methodId },
+      method: createTicketDto.method,
     });
     let ticketHistoryEntity: TicketHistoryEntity;
-    if ((createTicketDto.methodId as string) === 'NR') {
+    if ((createTicketDto.method as string) === 'NR') {
       ticketHistoryEntity = await this.handleNRTicket(
         ticketEntity,
         createTicketDto,
