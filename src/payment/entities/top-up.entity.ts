@@ -6,8 +6,16 @@ import {
   decimalToString,
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
-import { TopUpEnum } from 'src/payment/types/top-up.enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
+import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @ApiSchema()
 @Entity({ name: 'top_up' })
@@ -16,14 +24,9 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ApiProperty()
-  @Column({ type: 'text' })
-  type!: TopUpEnum;
-
-  // TODO: add relationship? need it?
-  @ApiProperty()
-  @Column({ type: 'varchar', length: 20 })
-  sourceDestination!: string;
+  @ApiProperty({ enum: TopUpProviderEnum })
+  @Column({ type: 'enum', enum: TopUpProviderEnum })
+  provider!: TopUpProviderEnum;
 
   @ApiProperty({ type: String })
   @Column({
@@ -35,6 +38,14 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount: Decimal;
 
-  @Column({ type: 'boolean', default: false })
-  isPaid!: boolean;
+  @Column({
+    type: 'enum',
+    enum: TopUpStatusEnum,
+    default: TopUpStatusEnum.processing,
+  })
+  status!: TopUpStatusEnum;
+
+  @ManyToOne(() => SourceEntity)
+  @JoinColumn()
+  sourceDestination: SourceEntity;
 }

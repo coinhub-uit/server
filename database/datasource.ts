@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
-config();
-
-import { dataSourceOptions } from 'src/common/database/options';
+import { getDataSourceOptions } from 'src/common/database/options';
 import { DataSource } from 'typeorm';
 
-const dataSource: DataSource = new DataSource(dataSourceOptions);
+config();
+
+const dataSource: DataSource = new DataSource(getDataSourceOptions());
 export default dataSource;

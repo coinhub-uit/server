@@ -8,7 +8,6 @@ import { NotificationModule } from './notification/notification.module';
 import { PaymentModule } from './payment/payment.module';
 import { PlanModule } from './plan/plan.module';
 import { TicketModule } from './ticket/ticket.module';
-import { MethodModule } from './method/method.module';
 import { AdminModule } from './admin/admin.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { SettingModule } from './setting/settings.module';
@@ -21,7 +20,7 @@ import { configModuleOptions } from 'src/config/nestjs-config.config';
 export class RootController {
   @Get()
   root(): string {
-    return 'Made by NTGNguyen and KevinNitro';
+    return 'CoinHub :P' + '\n' + `NTGNguyen & KevinNitro`;
   }
 }
 
@@ -34,7 +33,6 @@ export class RootController {
     PaymentModule,
     PlanModule,
     TicketModule,
-    MethodModule,
     AdminModule,
     StatisticModule,
     SettingModule,

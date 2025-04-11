@@ -23,9 +23,8 @@ export class PlanService {
 
   private async updatePlanHistory(rate: number, plan: PlanEntity) {
     const planHistory = this.planHistoryRepository.create({
-      rate: rate,
-      definedDate: new Date(),
-      plan: Promise.resolve(plan),
+      rate,
+      plan,
     });
     const planHistoryEntity =
       await this.planHistoryRepository.save(planHistory);
@@ -94,8 +93,8 @@ export class PlanService {
     });
   }
 
-  getPlanById(id: string) {
-    return this.planRepository.findOneOrFail({ where: { id: id } });
+  getPlanById(id: number) {
+    return this.planRepository.findOneOrFail({ where: { id } });
   }
 
   getAll(days: number, isActive: boolean) {

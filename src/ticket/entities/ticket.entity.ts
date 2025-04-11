@@ -1,11 +1,13 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { MethodEntity } from 'src/method/entities/method.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
+import { MethodEnum } from 'src/ticket/types/method.enum';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -17,23 +19,26 @@ import {
 export class TicketEntity extends AbstractEntity<TicketEntity> {
   @ApiProperty()
   @PrimaryGeneratedColumn('increment')
-  id!: string;
+  id!: number;
 
   @ApiProperty()
-  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  openedDate!: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  openedAt!: Date;
 
-  @ApiProperty()
-  @Column({ type: 'date', nullable: true, default: null })
-  closedDate!: Date | null;
+  @ApiProperty({ nullable: true, type: Date })
+  @DeleteDateColumn({ type: 'timestamptz' })
+  closedAt!: Date | null;
 
+  @Column({
+    type: 'enum',
+    enum: MethodEnum,
+  })
+  method!: MethodEnum;
+
+  // NOTE: Those excluded relationships may helpful for admin. So we should return empty list or so for user
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets)
-  source!: Promise<SourceEntity>;
-
-  @Exclude()
-  @ManyToOne(() => MethodEntity, (method) => method.tickets)
-  method!: Promise<MethodEntity>;
+  source!: SourceEntity;
 
   @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)

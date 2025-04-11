@@ -3,6 +3,7 @@ import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -14,10 +15,10 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
   id!: number;
 
-  @Column({ type: 'date' })
-  definedDate!: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt!: Date;
 
-  @Column({ type: 'decimal', precision: 3, scale: 1 })
+  @Column({ type: 'decimal', precision: 4, scale: 2 })
   rate!: number;
 
   @OneToMany(
@@ -27,5 +28,5 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   ticketHistories!: TicketHistoryEntity[];
 
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
-  plan!: Promise<PlanEntity>;
+  plan!: PlanEntity;
 }

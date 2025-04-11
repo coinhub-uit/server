@@ -13,7 +13,6 @@ export class SourceService {
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     private userService: UserService,
   ) {}
 
@@ -27,12 +26,18 @@ export class SourceService {
     return source;
   }
 
-  async changeBalanceSource(money: Decimal, sourceId: string) {
+  async changeSourceBalance(money: Decimal.Value, source: SourceEntity) {
+    source.balance.plus(money);
+    return await this.sourceRepository.save(source);
+  }
+
+  async changeSourceBalanceById(money: Decimal.Value, sourceId: string) {
     const source = await this.sourceRepository.findOne({
       where: {
         id: sourceId,
       },
     });
+    // TODO: Raise error ?
     if (!source) {
       return null;
     }
@@ -41,22 +46,18 @@ export class SourceService {
   }
 
   async getTickets(id: string) {
-    try {
-      const source = await this.getSourceByIdOrFail(id);
-      return source.tickets;
-    } catch (error) {
-      throw new NotFoundException(error);
-    }
+    const source = await this.getSourceByIdOrFail(id);
+    return source.tickets;
   }
 
   async createSource(sourceDetails: CreateSourceDto) {
     const { userId, ...newSourceDetails } = sourceDetails;
+    const source = this.sourceRepository.create({
+      ...newSourceDetails,
+      user: { id: userId },
+    });
     try {
-      const user = await this.userService.getByIdOrFail(userId);
-      const sourceEntity = await this.sourceRepository.save({
-        ...newSourceDetails,
-        user: Promise.resolve(user),
-      });
+      const sourceEntity = await this.sourceRepository.save(source);
       return sourceEntity;
     } catch {
       // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps

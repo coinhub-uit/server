@@ -1,0 +1,11 @@
+# FCM
+functions/service-account.json
+
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local

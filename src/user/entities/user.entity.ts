@@ -4,6 +4,7 @@ import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   OneToMany,
@@ -12,33 +13,39 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { DateTransformer } from 'src/common/transformers/date.transformer';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 
 @ApiSchema()
-@Entity('users')
+@Entity('user')
 @Unique(['citizenId'])
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'uuid', nullable: false })
+  @PrimaryColumn({ type: 'uuid' })
   id!: string;
 
   @ApiProperty()
-  @CreateDateColumn({ type: 'timestamp', nullable: false })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
+  @ApiProperty({ nullable: true, type: Date, example: null })
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt!: Date | null;
+
   @ApiProperty()
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'text' })
   fullname!: string;
 
   @ApiProperty()
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'date', transformer: new DateTransformer() })
   birthDate!: Date;
 
   @ApiProperty()
   @Index({ unique: true })
-  @Column({ name: 'citizenId', type: 'char', length: 12, nullable: false })
+  @Column({ name: 'citizenId', type: 'char', length: 12 })
   citizenId!: string;
 
-  @ApiProperty({ type: String, nullable: true })
+  @ApiProperty({ type: String, nullable: true, description: 'Avatar URL' })
   @Column({ type: 'text', nullable: true })
   avatar!: string | null;
 
@@ -47,14 +54,14 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   address!: string | null;
 
   @Exclude()
-  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
-    cascade: true,
-  })
-  notifications: Promise<NotificationEntity[]>;
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 
   @Exclude()
-  @OneToMany(() => SourceEntity, (source) => source.user, {
-    cascade: true,
-  })
-  sources: Promise<SourceEntity[]>;
+  @OneToMany(() => SourceEntity, (source) => source.user)
+  sources: SourceEntity[];
+
+  @Exclude()
+  @OneToMany(() => DeviceEntity, (device) => device.user)
+  devices: DeviceEntity[];
 }

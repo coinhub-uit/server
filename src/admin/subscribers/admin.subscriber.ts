@@ -1,5 +1,5 @@
 import { AdminEntity } from 'src/admin/entities/admin.entity';
-import { hash } from 'src/common/utils/hashing';
+import { hash } from 'lib/hashing';
 import {
   DataSource,
   EntitySubscriberInterface,

@@ -31,17 +31,16 @@ import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard'
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
-import { UserNotExistException } from 'src/exceptions/user-not-exist.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { CreateUserRequestDto } from 'src/user/dtos/requests/create-user.request.dto';
-import { UpdateParitialUserRequestDto } from 'src/user/dtos/requests/update-paritial-user.request.dto';
-import { UpdateUserRequestDto } from 'src/user/dtos/requests/update-user.request.dto';
-import { CreateUserResponseDto } from 'src/user/dtos/responses/create-user.response.dto';
-import { UpdateParitialUserResponseDto } from 'src/user/dtos/responses/update-paritial-user.response.dto';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserService } from 'src/user/services/user.service';
+import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
 
 @Controller('users')
 export class UserController {
@@ -85,7 +84,8 @@ export class UserController {
 
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
-  @ApiOperation({})
+  // TODO: Add desc
+  @ApiOperation({ summary: 'Upload avatar', description: '' })
   @ApiOkResponse({})
   @ApiNotFoundResponse({})
   @Post(':id/:avatarUrl')
@@ -99,12 +99,7 @@ export class UserController {
     @Param('avatarUrl') avatarUrl: string,
   ) {
     try {
-      return await this.userService.partialUpdate(
-        {
-          avatar: avatarUrl,
-        } as UpdateParitialUserRequestDto,
-        id,
-      );
+      return await this.userService.partialUpdate({ avatar: avatarUrl }, id);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be paritial updated');
@@ -126,12 +121,12 @@ export class UserController {
     description: 'User already exists, or constraint error',
   })
   @ApiCreatedResponse({
-    type: CreateUserResponseDto,
+    type: UserEntity,
   })
   @Post()
   async create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    @Body() createUserDto: CreateUserRequestDto,
+    @Body() createUserDto: CreateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== createUserDto.id) {
       throw new ForbiddenException(
@@ -189,7 +184,7 @@ export class UserController {
   async update(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateUserDto: UpdateUserRequestDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -216,14 +211,12 @@ export class UserController {
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
-  @ApiOkResponse({
-    type: UpdateParitialUserResponseDto,
-  })
+  @ApiOkResponse({})
   @Patch(':id')
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateParitialUserDto: UpdateParitialUserRequestDto,
+    @Body() updateParitialUserDto: UpdateParitialUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -252,8 +245,8 @@ export class UserController {
     description: 'Delete user profile with user id',
   })
   @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @ApiNoContentResponse()
+  @ApiUnprocessableEntityResponse()
+  @ApiNoContentResponse() // NOTE: Is it? no content response? in reality
   @Delete(':id')
   async delete(
     @Req() req: Request & { user: UniversalJwtRequest },
@@ -264,14 +257,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    try {
-      await this.userService.deleteById(userId);
-    } catch (error) {
-      if (error instanceof UserNotExistException) {
-        throw new NotFoundException("User doesn't exist to be deleted");
-      }
-      throw error;
-    }
+    await this.userService.deleteById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -338,5 +324,28 @@ export class UserController {
       }
       throw error;
     }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Register FCM token',
+    description: 'Register FCM token for a device of a user',
+  })
+  @ApiForbiddenResponse()
+  @ApiOkResponse()
+  @Post(':id/fcm-token')
+  async registerFcmToken(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Param('id') userId: string,
+    @Body() registerFcmTokenDto: RegisterFcmTokenDto,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        "You are not allowed to register other user's FCM token slot",
+      );
+    }
+    await this.userService.registerFcmToken({ userId, registerFcmTokenDto });
   }
 }

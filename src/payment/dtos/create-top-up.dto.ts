@@ -1,15 +1,15 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { TopUpEnum } from 'src/payment/types/top-up.enum';
+import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 
 @ApiSchema()
 export class CreateTopUpDto {
   @ApiProperty({
-    enum: TopUpEnum,
+    enum: TopUpProviderEnum,
   })
   @IsNotEmpty()
-  @IsEnum(TopUpEnum)
-  type!: TopUpEnum;
+  @IsEnum(TopUpProviderEnum)
+  provider!: TopUpProviderEnum;
 
   @ApiProperty({
     description: 'Return URL to client app',
@@ -29,7 +29,7 @@ export class CreateTopUpDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  sourceDestination!: string;
+  sourceDestinationId!: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -12,7 +12,7 @@ import { AdminJwtRequest } from 'src/auth/types/admin.jwt-request';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { UserJwtPayload } from 'src/auth/types/user.jwt-payload';
 import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
-import { verify } from 'src/common/utils/hashing';
+import { verify } from 'lib/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
 import userJwtConfig from 'src/config/user.jwt.config';

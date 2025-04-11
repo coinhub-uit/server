@@ -1,6 +1,6 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { MethodEnum } from 'src/method/types/method.enum';
+import { MethodEnum } from 'src/ticket/types/method.enum';
 
 @ApiSchema()
 export class CreateTicketDto {
@@ -12,5 +12,5 @@ export class CreateTicketDto {
   @ApiProperty({ enum: MethodEnum })
   @IsString()
   @IsNotEmpty()
-  methodId: MethodEnum;
+  method: MethodEnum;
 }

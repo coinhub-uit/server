@@ -1,11 +1,20 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "RAILPACK",
-    "buildCommand": "NODE_ENV=production npm i --omit=dev"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "./docker/railway.Dockerfile",
+    "watchPatterns": [
+      "src/**",
+      "nest-cli.json",
+      "lib/**",
+      "railway.json",
+      "nixpacks.toml",
+      "package*.json",
+      "docker/railway.Dockerfile"
+    ]
   },
   "deploy": {
-    "startCommand": "npm run start",
+    "startCommand": "node ./dist/src/main",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300
   }

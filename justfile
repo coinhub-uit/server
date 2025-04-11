@@ -2,6 +2,8 @@ default: run-api-server-dev
 
 alias c := type-check
 alias db := run-docker-db
+alias dbr := reset-database
+alias tc := type-check
 
 restore:
   npm i
@@ -13,6 +15,10 @@ run-api-server-prod:
 [doc('run nestjs dev')]
 run-api-server-dev:
   npm run start:dev
+
+[doc('reset db')]
+reset-database:
+  npm run db:reset
 
 [doc('run docker compose local postgres')]
 run-docker-db:
