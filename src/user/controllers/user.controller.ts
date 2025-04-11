@@ -12,6 +12,9 @@ import {
   ForbiddenException,
   UseGuards,
   UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -85,7 +88,10 @@ export class UserController {
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
   // TODO: Add desc
-  @ApiOperation({ summary: 'Upload avatar', description: '' })
+  @ApiOperation({
+    summary: 'Upload avatar',
+    description: 'upload avatar and save it to storage',
+  })
   @ApiOkResponse({})
   @ApiNotFoundResponse({})
   @Post(':id/:avatarUrl')
@@ -95,11 +101,21 @@ export class UserController {
     }),
   )
   async uploadAvatar(
-    @Param('id') id: string,
-    @Param('avatarUrl') avatarUrl: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    file: Express.Multer.File,
+    @Param('id')
+    id: string,
+    @Param('avatarUrl') avatarUrl?: string,
   ) {
     try {
-      return await this.userService.partialUpdate({ avatar: avatarUrl }, id);
+      return await this.userService.partialUpdate(
+        { avatar: avatarUrl ? avatarUrl : file.filename },
+        id,
+      );
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be paritial updated');
