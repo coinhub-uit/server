@@ -7,6 +7,12 @@ import { Repository } from 'typeorm';
 import { PlanService } from 'src/plan/services/plan.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
 
+type calculateInterest = {
+  rate: number;
+  startDate: Date;
+  endDate: Date;
+};
+
 @Injectable()
 export class TicketService {
   constructor(
@@ -29,7 +35,7 @@ export class TicketService {
     });
     let ticketHistoryEntity: TicketHistoryEntity;
     if ((createTicketDto.method as string) === 'NR') {
-      ticketHistoryEntity = await this.handleNRTicket(
+      ticketHistoryEntity = await this.handleTicket(
         ticketEntity,
         createTicketDto,
       );
@@ -40,7 +46,7 @@ export class TicketService {
     return { ticket: ticketEntity, ticketHistory: ticketHistoryEntity };
   }
 
-  private async handleNRTicket(
+  private async handleTicket(
     ticketEntity: TicketEntity,
     createTicketDto: CreateTicketDto,
   ) {
@@ -62,11 +68,23 @@ export class TicketService {
     return ticketHistory;
   }
 
+  private calculateInterest({ rate, startDate, endDate }: calculateInterest) {
+    const diff = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+    return (rate * diffDays) / 360;
+  }
+
   async settlementTicket(ticketId: number) {
     const ticketEntity = await this.ticketRepository.findOne({
       where: { id: ticketId },
       relations: {
         source: true,
+      },
+    });
+    const ticketHistory = await this.ticketHistoryRepository.findOne({
+      where: { ticketId: ticketId },
+      relations: {
+        planHistory: true,
       },
     });
 
@@ -76,7 +94,13 @@ export class TicketService {
       return;
     }
 
-    ticketEntity.source.balance = ticketEntity.source.balance.plus(12390487);
+    ticketEntity.source.balance = ticketEntity.source.balance.plus(
+      this.calculateInterest({
+        rate: ticketHistory?.planHistory.rate as number,
+        startDate: ticketEntity.openedAt,
+        endDate: new Date(),
+      }),
+    );
 
     await this.sourceRepository.save(ticketEntity.source);
 
