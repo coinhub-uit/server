@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { DeviceEntity } from 'src/user/entities/device.entity';
@@ -10,12 +9,12 @@ import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { promisify } from 'util';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
+import { createReadStream } from 'fs';
 
 @Injectable()
 export class UserService {
-  private unlinkAsync = promisify(fs.unlink);
-
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -43,6 +42,25 @@ export class UserService {
     return user;
   }
 
+  private async deleteAvatar(avatarFilename: string) {
+    try {
+      await unlink(avatarFilename);
+    } catch {
+      throw new AvatarNotSetException();
+    }
+  }
+
+  async getAvatar(userId: string) {
+    const user = await this.getByIdOrFail(userId);
+    if (!user.avatar) {
+      throw new AvatarNotSetException();
+    }
+    const file = createReadStream(
+      join(process.cwd(), `assets/uploads/avatars/${user.avatar}`),
+    );
+    return { file, filename: user.avatar };
+  }
+
   // TODO: Maybe paginate this
   async getAll() {
     return await this.userRepository.find();
@@ -64,18 +82,15 @@ export class UserService {
     }
   }
 
-  async deleteAvatar(userId: string, filePath: string) {
-    const user = await this.getByIdOrFail(userId);
-    if (!user.avatar) {
-      throw new AvatarNotSetException();
-    }
-    await this.unlinkAsync(filePath);
-    user.avatar = null;
-    return await this.userRepository.save(user);
-  }
-
   async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
     const user = await this.getByIdOrFail(userId);
+    if (!userDetails.avatar && user.avatar) {
+      try {
+        await this.deleteAvatar(user.avatar);
+      } catch {
+        // TODO: nothing
+      }
+    }
     const updatedUser = this.userRepository.merge(user, userDetails);
     return await this.userRepository.save(updatedUser);
   }

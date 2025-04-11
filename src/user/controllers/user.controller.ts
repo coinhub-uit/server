@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import {
   Body,
   Controller,
@@ -13,12 +14,14 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  ParseFilePipe,
-  FileTypeValidator,
+  StreamableFile,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -28,10 +31,8 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
-import path from 'path';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
-import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
@@ -41,9 +42,10 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserService } from 'src/user/services/user.service';
 import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 
 @Controller('users')
 export class UserController {
@@ -64,19 +66,37 @@ export class UserController {
     return await this.userService.getAll();
   }
 
-  @UseGuards(UserJwtAuthGuard)
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
-  @ApiOperation({})
-  @ApiOkResponse({})
-  @ApiNotFoundResponse({})
-  @Delete(':id/avatar')
-  async deleteAvatar(@Param('id') id: string) {
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get avatar',
+    description: 'Get avatar',
+  })
+  @ApiOkResponse()
+  @ApiUnprocessableEntityResponse()
+  @ApiNotFoundResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
+  @Get(':id/avatar')
+  async getAvatar(
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException('You are only allowed to get your avatar');
+    }
     try {
-      const filePath = path.join(
-        process.env.AVATARS_UPLOAD_PATH as string,
-        `${id}-avatar`,
-      );
-      return this.userService.deleteAvatar(id, filePath);
+      const { file, filename } = await this.userService.getAvatar(userId);
+      res.set({
+        'Content-Type': 'image/*',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      });
+      return new StreamableFile(file);
     } catch (error) {
       if (error instanceof AvatarNotSetException) {
         throw new NotFoundException('Avatar not set');
@@ -85,40 +105,53 @@ export class UserController {
     }
   }
 
-  @UseGuards(UserJwtAuthGuard)
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
-  // TODO: Add desc
+  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Upload avatar',
     description: 'upload avatar and save it to storage',
   })
-  @ApiOkResponse({})
-  @ApiNotFoundResponse({})
-  @Post(':id/:avatarUrl')
+  @ApiBody({
+    description: 'Avatar file',
+    type: AvatarUploadDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse()
+  @ApiNotFoundResponse()
   @UseInterceptors(
-    FileInterceptor('avatar', {
+    FileInterceptor('file', {
       storage: diskStorage(avatarStorageOptions),
     }),
   )
+  @Post(':id/avatar')
   async uploadAvatar(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
-      }),
-    )
+    // @UploadedFile(
+    //   new ParseFilePipe({
+    //     validators: [
+    //       new FileTypeValidator({ fileType: /image\/(jpeg|jpg|png)?/ }),
+    //     ],
+    //   }),
+    // )
+    @UploadedFile()
     file: Express.Multer.File,
-    @Param('id')
-    id: string,
-    @Param('avatarUrl') avatarUrl?: string,
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
   ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        'You are only allowed to upload your avatar',
+      );
+    }
     try {
       return await this.userService.partialUpdate(
-        { avatar: avatarUrl ? avatarUrl : file.filename },
-        id,
+        { avatar: file.filename },
+        userId,
       );
     } catch (error) {
+      // TODO: Delete file
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found to be paritial updated');
+        throw new NotFoundException('User not found to upload avatar for');
       }
       throw error;
     }
