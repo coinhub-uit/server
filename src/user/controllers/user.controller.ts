@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import {
   Body,
   Controller,
@@ -11,9 +12,16 @@ import {
   Req,
   ForbiddenException,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  StreamableFile,
+  Res,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -22,9 +30,11 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -34,6 +44,8 @@ import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
 import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 
 @Controller('users')
 export class UserController {
@@ -52,6 +64,97 @@ export class UserController {
   @Get()
   async getAll() {
     return await this.userService.getAll();
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get avatar',
+    description: 'Get avatar',
+  })
+  @ApiOkResponse()
+  @ApiUnprocessableEntityResponse()
+  @ApiNotFoundResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
+  @Get(':id/avatar')
+  async getAvatar(
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException('You are only allowed to get your avatar');
+    }
+    try {
+      const { file, filename } = await this.userService.getAvatar(userId);
+      res.set({
+        'Content-Type': 'image/*',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      });
+      return new StreamableFile(file);
+    } catch (error) {
+      if (error instanceof AvatarNotSetException) {
+        throw new NotFoundException('Avatar not set');
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Upload avatar',
+    description: 'upload avatar and save it to storage',
+  })
+  @ApiBody({
+    description: 'Avatar file',
+    type: AvatarUploadDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse()
+  @ApiNotFoundResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
+  @Post(':id/avatar')
+  async uploadAvatar(
+    // @UploadedFile(
+    //   new ParseFilePipe({
+    //     validators: [
+    //       new FileTypeValidator({ fileType: /image\/(jpeg|jpg|png)?/ }),
+    //     ],
+    //   }),
+    // )
+    @UploadedFile()
+    file: Express.Multer.File,
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        'You are only allowed to upload your avatar',
+      );
+    }
+    try {
+      return await this.userService.partialUpdate(
+        { avatar: file.filename },
+        userId,
+      );
+    } catch (error) {
+      // TODO: Delete file
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found to upload avatar for');
+      }
+      throw error;
+    }
   }
 
   @UseGuards(UniversalJwtAuthGuard)
