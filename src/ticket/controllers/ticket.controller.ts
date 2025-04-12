@@ -48,7 +48,14 @@ export class TicketController {
         "You are not allowed to create ticket in other user's profile",
       );
     }
-    return await this.ticketService.createTicket(createTicketDto);
+    const ticket = await this.ticketService.createTicket(createTicketDto);
+    return {
+      ticket: await this.ticketService.createTicket(createTicketDto),
+      firstTicketHistory: await this.ticketService.createTicketHistory(
+        ticket,
+        createTicketDto,
+      ),
+    };
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -56,12 +63,12 @@ export class TicketController {
   @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'settlement ticket',
-    description: 'settlement ticket of user account',
+    description: 'settlement ticket of source in user account',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse()
   @Get(':id/settlement')
-  async settlementSettlement(@Param('id', ParseIntPipe) ticketId: number) {
+  async settlementTicket(@Param('id', ParseIntPipe) ticketId: number) {
     await this.ticketService.settlementTicket(ticketId);
   }
 }

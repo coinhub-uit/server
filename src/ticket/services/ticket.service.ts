@@ -8,10 +8,16 @@ import { PlanService } from 'src/plan/services/plan.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 
-type calculateInterest = {
+type CalculateInterest = {
   rate: number;
   startDate: Date;
   endDate: Date;
+};
+
+type FindTicketOptions = {
+  id: number;
+  ticketHistories?: boolean;
+  source?: boolean;
 };
 
 @Injectable()
@@ -27,27 +33,17 @@ export class TicketService {
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    const now = new Date();
-    const ticketEntity = await this.ticketRepository.save({
-      openedAt: now,
+    const ticket = await this.ticketRepository.save({
+      openedAt: new Date(),
       closedAt: null,
       source: { id: createTicketDto.sourceId },
       method: createTicketDto.method,
     });
-    let ticketHistoryEntity: TicketHistoryEntity;
-    if ((createTicketDto.method as string) === 'NR') {
-      ticketHistoryEntity = await this.handleTicket(
-        ticketEntity,
-        createTicketDto,
-      );
-    } else {
-      //TODO: Handle two remains case
-      ticketHistoryEntity = new TicketHistoryEntity();
-    }
-    return { ticket: ticketEntity, ticketHistory: ticketHistoryEntity };
+
+    return ticket;
   }
 
-  private async handleTicket(
+  async createTicketHistory(
     ticketEntity: TicketEntity,
     createTicketDto: CreateTicketDto,
   ) {
@@ -69,18 +65,30 @@ export class TicketService {
     return ticketHistory;
   }
 
-  private calculateInterest({ rate, startDate, endDate }: calculateInterest) {
+  private calculateInterest({ rate, startDate, endDate }: CalculateInterest) {
     const diff = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
     return (rate * diffDays) / 360;
   }
 
+  private async findTicketWithTheirRelations(
+    findTicketOptions: FindTicketOptions,
+  ) {
+    const { id, ...relations } = findTicketOptions;
+    const ticket = await this.ticketRepository.findOne({
+      where: { id: id },
+      relations: relations,
+    });
+    if (!ticket) {
+      throw new TicketNotExistException();
+    }
+    return ticket;
+  }
+
   async settlementTicket(ticketId: number) {
-    const ticketEntity = await this.ticketRepository.findOne({
-      where: { id: ticketId },
-      relations: {
-        source: true,
-      },
+    const ticket = await this.findTicketWithTheirRelations({
+      id: ticketId,
+      source: true,
     });
     const ticketHistory = await this.ticketHistoryRepository.findOne({
       where: { ticketId: ticketId },
@@ -89,20 +97,16 @@ export class TicketService {
       },
     });
 
-    if (!ticketEntity) {
-      throw new TicketNotExistException();
-    }
-
-    ticketEntity.source.balance = ticketEntity.source.balance.plus(
+    ticket.source.balance = ticket.source.balance.plus(
       this.calculateInterest({
         rate: ticketHistory?.planHistory.rate as number,
-        startDate: ticketEntity.openedAt,
+        startDate: ticket.openedAt,
         endDate: new Date(),
       }),
     );
 
-    await this.sourceRepository.save(ticketEntity.source);
+    await this.sourceRepository.save(ticket.source);
 
-    await this.ticketRepository.softRemove(ticketEntity);
+    return await this.ticketRepository.softRemove(ticket);
   }
 }
