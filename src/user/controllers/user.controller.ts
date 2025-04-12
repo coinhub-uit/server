@@ -16,8 +16,6 @@ import {
   UploadedFile,
   StreamableFile,
   Res,
-  ParseFilePipe,
-  FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -128,16 +126,13 @@ export class UserController {
   )
   @Post(':id/avatar')
   async uploadAvatar(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })],
-      }),
-    )
+    @UploadedFile()
     file: Express.Multer.File,
     @Param('id') userId: string,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
+      await this.userService.deleteAvatar(file.filename);
       throw new ForbiddenException(
         'You are only allowed to upload your avatar',
       );
@@ -149,6 +144,7 @@ export class UserController {
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
+        await this.userService.deleteAvatar(file.filename);
         throw new NotFoundException('User not found to upload avatar for');
       }
       throw error;
