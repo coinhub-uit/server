@@ -304,9 +304,8 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Update paritial profile, delete avatar also',
-    description:
-      "Update paritial user's profile. This is used for deleting avatar also",
+    summary: 'Update paritial profile',
+    description: "Update paritial user's profile",
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
