@@ -6,6 +6,7 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Repository } from 'typeorm';
 import { PlanService } from 'src/plan/services/plan.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 
 type calculateInterest = {
   rate: number;
@@ -88,10 +89,8 @@ export class TicketService {
       },
     });
 
-    // TODO: check null
     if (!ticketEntity) {
-      console.log('Bruh not found');
-      return;
+      throw new TicketNotExistException();
     }
 
     ticketEntity.source.balance = ticketEntity.source.balance.plus(

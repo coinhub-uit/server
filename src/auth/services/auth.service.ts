@@ -16,12 +16,15 @@ import { verify } from 'lib/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
 import userJwtConfig from 'src/config/user.jwt.config';
+import { UserService } from 'src/user/services/user.service';
+import { SourceEntity } from 'src/source/entities/source.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private adminService: AdminService,
     private jwtService: JwtService,
+    private userService: UserService,
     @Inject(adminRefreshJwtConfig.KEY)
     private _adminRefreshJwtConfig: ConfigType<typeof adminRefreshJwtConfig>,
     @Inject(adminJwtConfig.KEY)
@@ -30,14 +33,17 @@ export class AuthService {
     private _userJwtConfig: ConfigType<typeof userJwtConfig>,
   ) {}
 
-  verifyUserToken(token: string): UserJwtRequest | null {
+  async verifyUserToken(token: string): Promise<UserJwtRequest | null> {
     try {
       const payload: UserJwtPayload = this.jwtService.verify(
         token,
         this._userJwtConfig,
       );
       const { email, sub } = payload;
-      return { userId: sub, email, isAdmin: false };
+      const sourceIdList = (await this.userService.getSources(sub)).map(
+        (source: SourceEntity) => source.id,
+      );
+      return { userId: sub, email, isAdmin: false, sourceIdList: sourceIdList };
     } catch {
       return null;
     }
