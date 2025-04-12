@@ -16,9 +16,11 @@ import {
   UploadedFile,
   StreamableFile,
   Res,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
@@ -43,12 +45,18 @@ import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
-import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 
 @Controller('users')
 export class UserController {
+  private static readonly AVATAR_MIMETYPE_REGEX_PATTERN =
+    /image\/(png|jpg|jpeg)/;
+
+  private static readonly AVATAR_MAX_FILE_SIZE = 1024 * 1024 * 10; // 10MB
+
   constructor(private userService: UserService) {}
 
   @UseGuards(AdminJwtAuthGuard)
@@ -91,9 +99,10 @@ export class UserController {
       throw new ForbiddenException('You are only allowed to get your avatar');
     }
     try {
-      const { file, filename } = await this.userService.getAvatar(userId);
+      const { file, filename, fileExtension } =
+        await this.userService.getAvatar(userId);
       res.set({
-        'Content-Type': 'image/*',
+        'Content-Type': `image/${fileExtension}`,
         'Content-Disposition': `attachment; filename="${filename}"`,
       });
       return new StreamableFile(file);
@@ -110,7 +119,7 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Upload avatar',
-    description: 'upload avatar and save it to storage',
+    description: 'Upload avatar and save it to storage',
   })
   @ApiBody({
     description: 'Avatar file',
@@ -119,20 +128,35 @@ export class UserController {
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse()
   @ApiNotFoundResponse()
+  @ApiBadRequestResponse({ description: 'File may be unsupported' })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage(avatarStorageOptions),
+      fileFilter: (_, file, callback) => {
+        if (!UserController.AVATAR_MIMETYPE_REGEX_PATTERN.test(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Only image files (png, jpg, jpeg) are allowed!',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: UserController.AVATAR_MAX_FILE_SIZE,
+      },
     }),
   )
   @Post(':id/avatar')
   async uploadAvatar(
     @UploadedFile()
-    file: Express.Multer.File,
+    file: Express.Multer.File, // Do we need to validate file size, mimetype here? already done by multer above
     @Param('id') userId: string,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
-      await this.userService.deleteAvatar(file.filename);
+      await this.userService.deleteAvatarByUserId(userId);
       throw new ForbiddenException(
         'You are only allowed to upload your avatar',
       );
@@ -143,9 +167,31 @@ export class UserController {
         userId,
       );
     } catch (error) {
+      await this.userService.deleteAvatarByUserId(userId);
       if (error instanceof UserNotExistException) {
-        await this.userService.deleteAvatar(file.filename);
         throw new NotFoundException('User not found to upload avatar for');
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Delete avatar',
+    description:
+      'Delete avatar for a user, clean in storage if stored in storage',
+  })
+  @ApiOkResponse()
+  @ApiNotFoundResponse()
+  @Delete(':id/avatar')
+  async deleteAvatar(@Param('id') userId: string) {
+    try {
+      await this.userService.deleteAvatarByUserId(userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found');
       }
       throw error;
     }
@@ -248,13 +294,13 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Update paritial profile',
+    summary: 'Update paritial profile, delete avatar also',
     description:
-      "Update paritial user's profile. User ID is required for admin request",
+      "Update paritial user's profile. This is used for deleting avatar also",
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
-  @ApiOkResponse({})
+  @ApiOkResponse()
   @Patch(':id')
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
@@ -373,22 +419,25 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Register FCM token',
-    description: 'Register FCM token for a device of a user',
+    summary: 'Register user devices (FCM)',
+    description: 'Register user devices. Currently for FCM - push notification',
   })
   @ApiForbiddenResponse()
-  @ApiOkResponse()
-  @Post(':id/fcm-token')
+  @ApiCreatedResponse({ type: DeviceEntity })
+  @Post(':id/devices')
   async registerFcmToken(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() registerFcmTokenDto: RegisterFcmTokenDto,
+    @Body() registerFcmTokenDto: RegisterDeviceDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
-        "You are not allowed to register other user's FCM token slot",
+        "You are not allowed to register other user's devices",
       );
     }
-    await this.userService.registerFcmToken({ userId, registerFcmTokenDto });
+    return await this.userService.registerDevice({
+      userId,
+      registerDeviceDto: registerFcmTokenDto,
+    });
   }
 }

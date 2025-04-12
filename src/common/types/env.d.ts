@@ -1,7 +1,8 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: 'production' | 'development' | '';
-    AVATARS_UPLOAD_PATH: string;
+    API_SERVER_URL: string;
+    UPLOAD_PATH: string;
     DB_HOST: string;
     DB_USERNAME: string;
     DB_PASSWORD: string;

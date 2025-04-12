@@ -3,15 +3,16 @@ import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { Repository } from 'typeorm';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { unlink } from 'fs/promises';
-import path, { join } from 'path';
+import { readdir, unlink } from 'fs/promises';
+import { extname, join as joinPath } from 'path';
 import { createReadStream } from 'fs';
+import { URL_PATTERN } from 'lib/regex';
 
 @Injectable()
 export class UserService {
@@ -22,14 +23,6 @@ export class UserService {
     private readonly deviceRepository: Repository<DeviceEntity>,
   ) {}
 
-  // private async checkUserExistAndFail(userId: string) {
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
-  //   if (user) {
-  //     throw new UserAlreadyExistException();
-  //   }
-  //   return user;
-  // }
-  //
   private async getById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
   }
@@ -42,14 +35,22 @@ export class UserService {
     return user;
   }
 
-  async deleteAvatar(avatarFilename: string) {
-    try {
-      await unlink(
-        path.join(process.cwd(), `assets/uploads/avatars/${avatarFilename}`),
-      );
-    } catch {
-      throw new AvatarNotSetException();
+  static async deleteAvatarInStorage(userId: string) {
+    if (URL_PATTERN.test(userId)) {
+      return;
     }
+    const dir = joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars`);
+
+    const files = await readdir(dir);
+    const matchedFiles = files.filter((file) => file.startsWith(userId));
+    await Promise.all(matchedFiles.map((file) => unlink(joinPath(dir, file))));
+  }
+
+  async deleteAvatarByUserId(userId: string) {
+    const user = await this.getByIdOrFail(userId);
+    await UserService.deleteAvatarInStorage(userId);
+    user.avatar = null;
+    await this.userRepository.save(user);
   }
 
   async getAvatar(userId: string) {
@@ -57,10 +58,12 @@ export class UserService {
     if (!user.avatar) {
       throw new AvatarNotSetException();
     }
+    const filename = user.avatar;
     const file = createReadStream(
-      join(process.cwd(), `${process.env.AVATARS_UPLOAD_PATH}/${user.avatar}`),
+      joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars/${filename}`),
     );
-    return { file, filename: user.avatar };
+    const fileExtension = extname(filename);
+    return { file, filename, fileExtension };
   }
 
   // TODO: Maybe paginate this
@@ -79,6 +82,9 @@ export class UserService {
       userId,
       userDetails as UserEntity,
     );
+    if (!userDetails.avatar) {
+      await UserService.deleteAvatarInStorage(userId);
+    }
     if (updateResult.affected === 0) {
       throw new UserNotExistException();
     }
@@ -88,9 +94,9 @@ export class UserService {
     const user = await this.getByIdOrFail(userId);
     if (!userDetails.avatar && user.avatar) {
       try {
-        await this.deleteAvatar(user.avatar);
+        await UserService.deleteAvatarInStorage(userId);
       } catch {
-        // TODO: nothing
+        // NOTE: not need to handle this. Or maybe ...
       }
     }
     const updatedUser = this.userRepository.merge(user, userDetails);
@@ -116,6 +122,7 @@ export class UserService {
     await Promise.all([
       this.userRepository.softDelete({ id: userId }),
       this.deleteSupabaseById(userId),
+      UserService.deleteAvatarInStorage(userId),
     ]);
   }
 
@@ -150,18 +157,18 @@ export class UserService {
     return sources.flatMap((source) => source.tickets);
   }
 
-  async registerFcmToken({
+  async registerDevice({
     userId,
-    registerFcmTokenDto,
+    registerDeviceDto: registerFcmTokenDto,
   }: {
     userId: string;
-    registerFcmTokenDto: RegisterFcmTokenDto;
+    registerDeviceDto: RegisterDeviceDto;
   }) {
     const device = this.deviceRepository.create({
       userId,
       fcmToken: registerFcmTokenDto.fcmToken,
       deviceId: registerFcmTokenDto.deviceId,
     });
-    await this.deviceRepository.save(device);
+    return await this.deviceRepository.save(device);
   }
 }
