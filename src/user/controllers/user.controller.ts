@@ -16,6 +16,8 @@ import {
   UploadedFile,
   StreamableFile,
   Res,
+  ParseFilePipe,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -126,14 +128,11 @@ export class UserController {
   )
   @Post(':id/avatar')
   async uploadAvatar(
-    // @UploadedFile(
-    //   new ParseFilePipe({
-    //     validators: [
-    //       new FileTypeValidator({ fileType: /image\/(jpeg|jpg|png)?/ }),
-    //     ],
-    //   }),
-    // )
-    @UploadedFile()
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })],
+      }),
+    )
     file: Express.Multer.File,
     @Param('id') userId: string,
     @Req() req: Request & { user: UniversalJwtRequest },
