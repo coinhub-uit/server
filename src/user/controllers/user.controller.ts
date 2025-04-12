@@ -50,6 +50,7 @@ import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { unlink } from 'fs/promises';
+import { Express } from 'express';
 
 @Controller('users')
 export class UserController {
