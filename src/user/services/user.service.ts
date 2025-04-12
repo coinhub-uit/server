@@ -10,8 +10,9 @@ import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { unlink } from 'fs/promises';
-import path, { join } from 'path';
+import { extname, join as joinPath } from 'path';
 import { createReadStream } from 'fs';
+import { writeFile } from 'fs/promises';
 
 @Injectable()
 export class UserService {
@@ -42,10 +43,21 @@ export class UserService {
     return user;
   }
 
+  generateAvatarFilename(userId: string, avatarFile: Express.Multer.File) {
+    const fileExtension = extname(avatarFile.originalname);
+    const avatarFilename = `${userId}${fileExtension}`;
+    return avatarFilename;
+  }
+
+  async saveAvatar(avatarFile: Express.Multer.File, avatarFilename: string) {
+    const filePath = joinPath(process.env.AVATARS_UPLOAD_PATH, avatarFilename);
+    await writeFile(filePath, avatarFile.buffer);
+  }
+
   async deleteAvatar(avatarFilename: string) {
     try {
       await unlink(
-        path.join(process.cwd(), `assets/uploads/avatars/${avatarFilename}`),
+        joinPath(process.cwd(), `assets/uploads/avatars/${avatarFilename}`),
       );
     } catch {
       throw new AvatarNotSetException();
@@ -57,10 +69,12 @@ export class UserService {
     if (!user.avatar) {
       throw new AvatarNotSetException();
     }
+    const filename = user.avatar;
     const file = createReadStream(
-      join(process.cwd(), `${process.env.AVATARS_UPLOAD_PATH}/${user.avatar}`),
+      joinPath(process.cwd(), `${process.env.AVATARS_UPLOAD_PATH}/${filename}`),
     );
-    return { file, filename: user.avatar };
+    const fileExtension = extname(filename);
+    return { file, filename, fileExtension };
   }
 
   // TODO: Maybe paginate this
