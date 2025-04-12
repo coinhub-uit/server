@@ -97,7 +97,7 @@ export class UserService {
 
   async partialUpdateUser(userDetails: UpdateParitialUserDto, userId: string) {
     const user = await this.findByUserIdOrFail(userId);
-    if (!userDetails.avatar && user.avatar) {
+    if (!userDetails.avatar) {
       try {
         await UserService.deleteAvatarInStorageByUserId(userId);
       } catch {
@@ -110,7 +110,7 @@ export class UserService {
 
   private async deleteUserInSupabaseByUserId(userId: string) {
     await fetch(
-      `https://${process.env.SUPABASE_PROJECT_ID}.supabase.co/functions/v1/delete-user`,
+      `${process.env.SUPABASE_PROJECT_API_URL}/functions/v1/delete-user`,
       {
         method: 'DELETE',
         headers: {

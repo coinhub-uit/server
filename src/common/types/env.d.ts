@@ -9,7 +9,7 @@ declare namespace NodeJS {
     DB_DATABASE: string;
     DB_PORT: string;
     AI_API_KEY: string;
-    SUPABASE_PROJECT_ID: string;
+    SUPABASE_PROJECT_API_URL: string;
     SUPABASE_SERVICE_ROLE_KEY: string;
     SUPABASE_JWT_SECRET: string;
     ADMIN_JWT_SECRET: string;
