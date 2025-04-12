@@ -49,6 +49,7 @@ import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { DeviceEntity } from 'src/user/entities/device.entity';
+import { unlink } from 'fs/promises';
 
 @Controller('users')
 export class UserController {
@@ -66,12 +67,11 @@ export class UserController {
     description: "Get all users' profile",
   })
   @ApiOkResponse({
-    description: 'Successful',
     type: [UserEntity],
   })
   @Get()
   async getAll() {
-    return await this.userService.getAll();
+    return await this.userService.findAllUsers();
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -81,9 +81,9 @@ export class UserController {
     summary: 'Get avatar',
     description: 'Get avatar',
   })
-  @ApiOkResponse()
   @ApiUnprocessableEntityResponse()
   @ApiNotFoundResponse()
+  @ApiOkResponse()
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage(avatarStorageOptions),
@@ -100,7 +100,7 @@ export class UserController {
     }
     try {
       const { file, filename, fileExtension } =
-        await this.userService.getAvatar(userId);
+        await this.userService.getAvatarByUserId(userId);
       res.set({
         'Content-Type': `image/${fileExtension}`,
         'Content-Disposition': `attachment; filename="${filename}"`,
@@ -126,9 +126,9 @@ export class UserController {
     type: AvatarUploadDto,
   })
   @ApiConsumes('multipart/form-data')
-  @ApiCreatedResponse()
   @ApiNotFoundResponse()
   @ApiBadRequestResponse({ description: 'File may be unsupported' })
+  @ApiCreatedResponse()
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage(avatarStorageOptions),
@@ -156,18 +156,18 @@ export class UserController {
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
-      await this.userService.deleteAvatarByUserId(userId);
+      await unlink(file.path);
       throw new ForbiddenException(
         'You are only allowed to upload your avatar',
       );
     }
     try {
-      return await this.userService.partialUpdate(
+      return await this.userService.partialUpdateUser(
         { avatar: file.filename },
         userId,
       );
     } catch (error) {
-      await this.userService.deleteAvatarByUserId(userId);
+      await unlink(file.path);
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to upload avatar for');
       }
@@ -183,10 +183,19 @@ export class UserController {
     description:
       'Delete avatar for a user, clean in storage if stored in storage',
   })
-  @ApiOkResponse()
+  @ApiForbiddenResponse()
   @ApiNotFoundResponse()
+  @ApiOkResponse()
   @Delete(':id/avatar')
-  async deleteAvatar(@Param('id') userId: string) {
+  async deleteAvatar(
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        'You are only allowed to delete your avatar',
+      );
+    }
     try {
       await this.userService.deleteAvatarByUserId(userId);
     } catch (error) {
@@ -248,7 +257,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.getByIdOrFail(id);
+      const user = await this.userService.findByUserIdOrFail(id);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -281,7 +290,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.update(updateUserDto, userId);
+      await this.userService.updateUser(updateUserDto, userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be updated');
@@ -313,7 +322,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdate(
+      return await this.userService.partialUpdateUser(
         updateParitialUserDto,
         userId,
       );
@@ -346,7 +355,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    await this.userService.deleteById(userId);
+    await this.userService.deleteUserById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -372,7 +381,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getSources(userId);
+      return await this.userService.getSourcesByUserId(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to have sources");
@@ -404,7 +413,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getTickets(userId);
+      return await this.userService.getTicketsByUserId(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException(
@@ -425,10 +434,10 @@ export class UserController {
   @ApiForbiddenResponse()
   @ApiCreatedResponse({ type: DeviceEntity })
   @Post(':id/devices')
-  async registerFcmToken(
+  async registerDevice(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() registerFcmTokenDto: RegisterDeviceDto,
+    @Body() registerDeviceDto: RegisterDeviceDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -437,7 +446,7 @@ export class UserController {
     }
     return await this.userService.registerDevice({
       userId,
-      registerDeviceDto: registerFcmTokenDto,
+      registerDeviceDto,
     });
   }
 }

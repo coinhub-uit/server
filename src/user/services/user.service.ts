@@ -23,38 +23,43 @@ export class UserService {
     private readonly deviceRepository: Repository<DeviceEntity>,
   ) {}
 
-  private async getById(userId: string) {
+  private async FindUserById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
   }
 
-  async getByIdOrFail(userId: string) {
-    const user = await this.getById(userId);
+  async findByUserIdOrFail(userId: string) {
+    const user = await this.FindUserById(userId);
     if (!user) {
       throw new UserNotExistException();
     }
     return user;
   }
 
-  static async deleteAvatarInStorage(userId: string) {
+  static async deleteAvatarInStorageByUserId(userId: string) {
     if (URL_PATTERN.test(userId)) {
       return;
     }
-    const dir = joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars`);
-
-    const files = await readdir(dir);
-    const matchedFiles = files.filter((file) => file.startsWith(userId));
-    await Promise.all(matchedFiles.map((file) => unlink(joinPath(dir, file))));
+    try {
+      const dir = joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars`);
+      const files = await readdir(dir);
+      const matchedFiles = files.filter((file) => file.startsWith(userId));
+      await Promise.all(
+        matchedFiles.map((file) => unlink(joinPath(dir, file))),
+      );
+    } catch (error) {
+      console.error(`Failed to delete avatar files for user ${userId}:`, error);
+    }
   }
 
   async deleteAvatarByUserId(userId: string) {
-    const user = await this.getByIdOrFail(userId);
-    await UserService.deleteAvatarInStorage(userId);
+    const user = await this.findByUserIdOrFail(userId);
+    await UserService.deleteAvatarInStorageByUserId(userId);
     user.avatar = null;
     await this.userRepository.save(user);
   }
 
-  async getAvatar(userId: string) {
-    const user = await this.getByIdOrFail(userId);
+  async getAvatarByUserId(userId: string) {
+    const user = await this.findByUserIdOrFail(userId);
     if (!user.avatar) {
       throw new AvatarNotSetException();
     }
@@ -67,7 +72,7 @@ export class UserService {
   }
 
   // TODO: Maybe paginate this
-  async getAll() {
+  async findAllUsers() {
     return await this.userRepository.find();
   }
 
@@ -77,24 +82,24 @@ export class UserService {
     return this.userRepository.findOne({ where: { id: userDetails.id } });
   }
 
-  async update(userDetails: UpdateUserDto, userId: string) {
+  async updateUser(userDetails: UpdateUserDto, userId: string) {
     const updateResult = await this.userRepository.update(
       userId,
       userDetails as UserEntity,
     );
     if (!userDetails.avatar) {
-      await UserService.deleteAvatarInStorage(userId);
+      await UserService.deleteAvatarInStorageByUserId(userId);
     }
     if (updateResult.affected === 0) {
       throw new UserNotExistException();
     }
   }
 
-  async partialUpdate(userDetails: UpdateParitialUserDto, userId: string) {
-    const user = await this.getByIdOrFail(userId);
+  async partialUpdateUser(userDetails: UpdateParitialUserDto, userId: string) {
+    const user = await this.findByUserIdOrFail(userId);
     if (!userDetails.avatar && user.avatar) {
       try {
-        await UserService.deleteAvatarInStorage(userId);
+        await UserService.deleteAvatarInStorageByUserId(userId);
       } catch {
         // NOTE: not need to handle this. Or maybe ...
       }
@@ -103,7 +108,7 @@ export class UserService {
     return await this.userRepository.save(updatedUser);
   }
 
-  private async deleteSupabaseById(userId: string) {
+  private async deleteUserInSupabaseByUserId(userId: string) {
     await fetch(
       `https://${process.env.SUPABASE_PROJECT_ID}.supabase.co/functions/v1/delete-user`,
       {
@@ -118,15 +123,15 @@ export class UserService {
   }
 
   // TODO: If soft delete / remove, return nothing
-  async deleteById(userId: string) {
+  async deleteUserById(userId: string) {
     await Promise.all([
       this.userRepository.softDelete({ id: userId }),
-      this.deleteSupabaseById(userId),
-      UserService.deleteAvatarInStorage(userId),
+      this.deleteUserInSupabaseByUserId(userId),
+      UserService.deleteAvatarInStorageByUserId(userId),
     ]);
   }
 
-  async getSources(userId: string) {
+  async getSourcesByUserId(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: {
@@ -139,7 +144,7 @@ export class UserService {
     return user.sources;
   }
 
-  async getTickets(userId: string) {
+  async getTicketsByUserId(userId: string) {
     const user = await this.userRepository.findOne({
       where: {
         id: userId,
@@ -159,15 +164,15 @@ export class UserService {
 
   async registerDevice({
     userId,
-    registerDeviceDto: registerFcmTokenDto,
+    registerDeviceDto,
   }: {
     userId: string;
     registerDeviceDto: RegisterDeviceDto;
   }) {
     const device = this.deviceRepository.create({
       userId,
-      fcmToken: registerFcmTokenDto.fcmToken,
-      deviceId: registerFcmTokenDto.deviceId,
+      fcmToken: registerDeviceDto.fcmToken,
+      deviceId: registerDeviceDto.deviceId,
     });
     return await this.deviceRepository.save(device);
   }
