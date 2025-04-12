@@ -3,7 +3,7 @@ import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { ViewColumn, ViewEntity, DataSource } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
-@ApiSchema({})
+@ApiSchema()
 @ViewEntity({
   name: 'available_plan',
   expression: (dataSource: DataSource) =>
@@ -20,20 +20,20 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
       .addOrderBy('plan_history.createdAt', 'DESC'),
 })
 export class AvailablePlanEntity {
-  @ApiProperty({})
+  @ApiProperty()
   @ViewColumn()
   id!: string;
 
   // NOTE: Do we need this
-  @ApiProperty({})
+  @ApiProperty()
   @ViewColumn()
   createdAt!: Date;
 
-  @ApiProperty({})
+  @ApiProperty()
   @ViewColumn()
   rate!: number;
 
-  @ApiProperty({})
+  @ApiProperty()
   @ViewColumn()
   planId!: string;
 }
