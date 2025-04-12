@@ -16,11 +16,6 @@ import {
   UploadedFile,
   StreamableFile,
   Res,
-  ParseFilePipe,
-  HttpStatus,
-  FileTypeValidator,
-  MaxFileSizeValidator,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -35,9 +30,11 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -49,15 +46,9 @@ import { UserService } from 'src/user/services/user.service';
 import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
 import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
-import { memoryStorage } from 'multer';
 
 @Controller('users')
 export class UserController {
-  private static readonly AVATAR_MIMETYPE_REGEX_PATTERN =
-    /image\/(png|jpg|jpeg)/;
-
-  private static readonly AVATAR_MAX_FILE_SIZE = 1024 * 1024 * 10; // 10MB
-
   constructor(private userService: UserService) {}
 
   @UseGuards(AdminJwtAuthGuard)
@@ -85,6 +76,11 @@ export class UserController {
   @ApiOkResponse()
   @ApiUnprocessableEntityResponse()
   @ApiNotFoundResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
   @Get(':id/avatar')
   async getAvatar(
     @Param('id') userId: string,
@@ -95,10 +91,9 @@ export class UserController {
       throw new ForbiddenException('You are only allowed to get your avatar');
     }
     try {
-      const { file, filename, fileExtension } =
-        await this.userService.getAvatar(userId);
+      const { file, filename } = await this.userService.getAvatar(userId);
       res.set({
-        'Content-Type': `image/${fileExtension}`,
+        'Content-Type': 'image/*',
         'Content-Disposition': `attachment; filename="${filename}"`,
       });
       return new StreamableFile(file);
@@ -121,28 +116,12 @@ export class UserController {
     description: 'Avatar file',
     type: AvatarUploadDto,
   })
-  @ApiConsumes('image/png', 'image/jpg', 'image/jpeg')
+  @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse()
-  @ApiUnprocessableEntityResponse()
   @ApiNotFoundResponse()
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: memoryStorage(),
-      fileFilter: (_, file, callback) => {
-        console.log(file.mimetype);
-        if (!UserController.AVATAR_MIMETYPE_REGEX_PATTERN.test(file.mimetype)) {
-          return callback(
-            new BadRequestException(
-              'Only image files (png, jpg, jpeg) are allowed!',
-            ),
-            false,
-          );
-        }
-        callback(null, true);
-      },
-      limits: {
-        fileSize: UserController.AVATAR_MAX_FILE_SIZE,
-      },
+      storage: diskStorage(avatarStorageOptions),
     }),
   )
   @Post(':id/avatar')
@@ -153,23 +132,19 @@ export class UserController {
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
+      await this.userService.deleteAvatar(file.filename);
       throw new ForbiddenException(
         'You are only allowed to upload your avatar',
       );
     }
     try {
-      const avatarFilename = this.userService.generateAvatarFilename(
-        userId,
-        file,
-      );
-      const user = await this.userService.partialUpdate(
-        { avatar: avatarFilename },
+      return await this.userService.partialUpdate(
+        { avatar: file.filename },
         userId,
       );
-      await this.userService.saveAvatar(file, avatarFilename);
-      return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
+        await this.userService.deleteAvatar(file.filename);
         throw new NotFoundException('User not found to upload avatar for');
       }
       throw error;
