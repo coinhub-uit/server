@@ -148,7 +148,6 @@ export class UserController {
         userId,
       );
     } catch (error) {
-      // TODO: Delete file
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to upload avatar for');
       }

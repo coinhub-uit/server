@@ -10,7 +10,7 @@ import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { unlink } from 'fs/promises';
-import { join } from 'path';
+import path, { join } from 'path';
 import { createReadStream } from 'fs';
 
 @Injectable()
@@ -42,9 +42,11 @@ export class UserService {
     return user;
   }
 
-  private async deleteAvatar(avatarFilename: string) {
+  async deleteAvatar(avatarFilename: string) {
     try {
-      await unlink(avatarFilename);
+      await unlink(
+        path.join(process.cwd(), `assets/uploads/avatars/${avatarFilename}`),
+      );
     } catch {
       throw new AvatarNotSetException();
     }
@@ -56,7 +58,7 @@ export class UserService {
       throw new AvatarNotSetException();
     }
     const file = createReadStream(
-      join(process.cwd(), `assets/uploads/avatars/${user.avatar}`),
+      join(process.cwd(), `${process.env.AVATARS_UPLOAD_PATH}/${user.avatar}`),
     );
     return { file, filename: user.avatar };
   }
