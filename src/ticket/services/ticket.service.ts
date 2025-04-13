@@ -3,18 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PlanService } from 'src/plan/services/plan.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 
-type CalculateInterest = {
-  rate: number;
-  startDate: Date;
-  endDate: Date;
+type SettlementTicketParams = {
+  endDate?: Date;
+  ticketId: number;
+  money: number;
 };
 
-type FindTicketOptions = {
+type FindTicketParams = {
   id: number;
   ticketHistories?: boolean;
   source?: boolean;
@@ -30,6 +30,7 @@ export class TicketService {
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
     private planService: PlanService,
+    private dataSource: DataSource,
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
@@ -65,14 +66,25 @@ export class TicketService {
     return ticketHistory;
   }
 
-  private calculateInterest({ rate, startDate, endDate }: CalculateInterest) {
-    const diff = Math.abs(endDate.getTime() - startDate.getTime());
+  private async calculateInterest(ticketId: number) {
+    const ticket = await this.findTicketWithTheirRelations({
+      id: ticketId,
+      source: true,
+    });
+    const ticketHistory = await this.ticketHistoryRepository.findOne({
+      where: { ticketId: ticketId },
+      relations: {
+        planHistory: true,
+      },
+    });
+
+    const diff = Math.abs(new Date().getTime() - ticket.openedAt.getTime());
     const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    return (rate * diffDays) / 360;
+    return ((ticketHistory?.planHistory.rate as number) * diffDays) / 360;
   }
 
   private async findTicketWithTheirRelations(
-    findTicketOptions: FindTicketOptions,
+    findTicketOptions: FindTicketParams,
   ) {
     const { id, ...relations } = findTicketOptions;
     const ticket = await this.ticketRepository.findOne({
@@ -85,28 +97,36 @@ export class TicketService {
     return ticket;
   }
 
+  private async callProcedureSettlementTicket({
+    ticketId,
+    endDate,
+    money,
+  }: SettlementTicketParams) {
+    try {
+      await this.dataSource.query(`CALL process_ticket_closure($1, $2, $3)`, [
+        endDate ? endDate : new Date(),
+        ticketId,
+        money,
+      ]);
+    } catch {
+      throw new TicketNotExistException();
+    }
+  }
+
+  async simulateSettlementTicket(ticketId: number, endDate: Date) {
+    const interest_money = await this.calculateInterest(ticketId);
+    await this.callProcedureSettlementTicket({
+      ticketId: ticketId,
+      money: interest_money,
+      endDate: endDate,
+    });
+  }
+
   async settlementTicket(ticketId: number) {
-    const ticket = await this.findTicketWithTheirRelations({
-      id: ticketId,
-      source: true,
+    const interest_money = await this.calculateInterest(ticketId);
+    await this.callProcedureSettlementTicket({
+      ticketId: ticketId,
+      money: interest_money,
     });
-    const ticketHistory = await this.ticketHistoryRepository.findOne({
-      where: { ticketId: ticketId },
-      relations: {
-        planHistory: true,
-      },
-    });
-
-    ticket.source.balance = ticket.source.balance.plus(
-      this.calculateInterest({
-        rate: ticketHistory?.planHistory.rate as number,
-        startDate: ticket.openedAt,
-        endDate: new Date(),
-      }),
-    );
-
-    await this.sourceRepository.save(ticket.source);
-
-    return await this.ticketRepository.softRemove(ticket);
   }
 }
