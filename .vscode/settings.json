@@ -25,5 +25,7 @@
   "typescript.format.enable": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.surveys.enabled": false,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single"
 }
