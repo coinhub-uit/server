@@ -36,7 +36,7 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
     transformer: new DecimalTransformer(),
   })
   @Transform(decimalToString, { toPlainOnly: true })
-  amount: Decimal;
+  amount!: Decimal;
 
   @Column({
     type: 'enum',
