@@ -1,6 +1,6 @@
 CREATE EXTENSION pg_cron
 WITH
-  schemA PG_CATALOG;
+  SCHEMA PG_CATALOG;
 
 GRANT USAGE ON SCHEMA cron TO postgres;
 
