@@ -19,7 +19,7 @@ services:
       - ${DB_PORT:-5432}:${DB_PORT:-5432}
     volumes:
       - db:/var/lib/postgresql/data
-      - ./docker/supabase/uuid-ossp.sql:/docker-entrypoint-initdb.d/init-scripts/10-uuid-ossp.sql
+      - ./docker/supabase/uuid-ossp.sql:/docker-entrypoint-initdb.d/init-scripts/10-uuid_ossp.sql
       - ./docker/supabase/pg_cron.sql:/docker-entrypoint-initdb.d/init-scripts/20-pg_cron.sql
       - ./docker/supabase/webhook.sql:/docker-entrypoint-initdb.d/init-scripts/21-webhook.sql
     healthcheck:

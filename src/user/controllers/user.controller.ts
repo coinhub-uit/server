@@ -1,8 +1,9 @@
-import type { Response } from 'express';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -10,13 +11,11 @@ import {
   Post,
   Put,
   Req,
-  ForbiddenException,
+  Res,
+  StreamableFile,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  StreamableFile,
-  Res,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -32,25 +31,25 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
+import { unlink } from 'fs/promises';
 import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
-import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
-import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
-import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { DeviceEntity } from 'src/user/entities/device.entity';
-import { unlink } from 'fs/promises';
-import { Express } from 'express';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
+import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
 export class UserController {
@@ -163,9 +162,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdateById(userId, {
-        avatar: file.filename,
-      });
+      return await this.userService.createAvatar(userId, file);
     } catch (error) {
       await unlink(file.path);
       if (error instanceof UserNotExistException) {

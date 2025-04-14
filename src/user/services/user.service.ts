@@ -1,18 +1,18 @@
-import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { DeviceEntity } from 'src/user/entities/device.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { createReadStream } from 'fs';
+import { readdir, rename, unlink } from 'fs/promises';
+import { URL_PATTERN } from 'lib/regex';
+import { extname, join as joinPath } from 'path';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
-import { Repository } from 'typeorm';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { readdir, unlink } from 'fs/promises';
-import { extname, join as joinPath } from 'path';
-import { createReadStream } from 'fs';
-import { URL_PATTERN } from 'lib/regex';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -22,6 +22,8 @@ export class UserService {
     @InjectRepository(DeviceEntity)
     private readonly deviceRepository: Repository<DeviceEntity>,
   ) {}
+
+  private static readonly AVATAR_FILENAME_FIRST_HEX_PATTERN = /^[^-]+-/;
 
   private async FindById(userId: string) {
     return await this.userRepository.findOne({ where: { id: userId } });
@@ -50,6 +52,19 @@ export class UserService {
     } catch (error) {
       console.error(`Failed to delete avatar files for user ${userId}:`, error);
     }
+  }
+
+  async createAvatar(userId: string, file: Express.Multer.File) {
+    await UserService.deleteAvatarInStorageById(userId);
+    const sanitizedFilename = file.filename.replace(
+      UserService.AVATAR_FILENAME_FIRST_HEX_PATTERN,
+      '',
+    );
+    await rename(file.filename, sanitizedFilename);
+    return await this.userRepository.save({
+      id: userId,
+      avatar: sanitizedFilename,
+    });
   }
 
   async deleteAvatarById(userId: string) {
