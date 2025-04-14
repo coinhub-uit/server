@@ -9,7 +9,7 @@ import {
 } from 'src/common/transformers/decimal.transformer';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @ApiSchema()
 @Entity('ticket_history')
@@ -33,19 +33,19 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   amount!: Decimal;
 
   @PrimaryColumn()
-  ticketId: number;
+  ticketId!: number;
 
   @Exclude()
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })
-  @JoinColumn()
   ticket!: TicketEntity;
 
   @Exclude()
   @ManyToOne(
     () => PlanHistoryEntity,
     (planHistory) => planHistory.ticketHistories,
+    { nullable: false },
   )
   planHistory!: PlanHistoryEntity;
 }

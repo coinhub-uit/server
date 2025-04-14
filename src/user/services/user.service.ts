@@ -100,8 +100,11 @@ export class UserService {
     if (!userDetails.avatar) {
       try {
         await UserService.deleteAvatarInStorageByUserId(userId);
-      } catch {
-        // NOTE: not need to handle this. Or maybe ...
+      } catch (error) {
+        console.error(
+          `Failed to delete avatar files for user ${userId} during partial update.`,
+          error,
+        );
       }
     }
     const updatedUser = this.userRepository.merge(user, userDetails);

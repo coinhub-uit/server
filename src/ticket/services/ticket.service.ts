@@ -16,10 +16,11 @@ export class TicketService {
   }
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    const ticketEntity = await this.ticketRepository.save({
+    const ticket = this.ticketRepository.create({
       source: { id: createTicketDto.sourceId },
       method: createTicketDto.method,
     });
+    const ticketEntity = await this.ticketRepository.save(ticket);
     return ticketEntity;
   }
 }

@@ -40,6 +40,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         method: MethodEnum.NR,
         openedAt: randomStartDate,
         closedAt: endDateFromRandomStartDate,
+        plan: randomPlanEntity,
       }),
     );
 
@@ -104,6 +105,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
       source: faker.helpers.arrayElement(sourceEntities),
       method: methodType,
       openedAt: new Date(iterateDate),
+      plan: randomPlanEntity,
     });
     const secondTicketEntity = await ticketRepository.save(firstTicketEntity);
 
