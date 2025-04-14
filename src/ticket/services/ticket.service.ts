@@ -7,9 +7,17 @@ import { DataSource, Repository } from 'typeorm';
 import { PlanService } from 'src/plan/services/plan.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
+import Decimal from 'decimal.js';
+
+type FindTicketHistoryParams = {
+  id: number;
+  issuedAt: Date;
+  ticketEntity?: boolean;
+  planHistory?: boolean;
+};
 
 type SettlementTicketParams = {
-  endDate?: Date;
+  endDate: Date;
   ticketId: number;
   money: number;
 };
@@ -65,27 +73,53 @@ export class TicketService {
     return ticketHistory;
   }
 
-  private async calculateInterest(ticketId: number) {
+  private async findTicketHistoryWithTheirRelations({
+    id,
+    issuedAt,
+    ...relations
+  }: FindTicketHistoryParams) {
+    const ticket = await this.ticketHistoryRepository.findOne({
+      where: { ticketId: id, issuedAt: issuedAt },
+      relations: relations,
+    });
+    if (!ticket) {
+      throw new TicketNotExistException();
+    }
+    return ticket;
+  }
+
+  private async calculateInterest(ticketId: number, endDate: Date) {
     const ticket = await this.findTicketWithTheirRelations({
       id: ticketId,
       source: true,
     });
-    const ticketHistory = await this.ticketHistoryRepository.findOne({
-      where: { ticketId: ticketId },
-      relations: {
-        planHistory: true,
-      },
+    const ticketHistory = await this.findTicketHistoryWithTheirRelations({
+      id: ticketId,
+      issuedAt: ticket.openedAt,
+      planHistory: true,
     });
-
-    const diff = Math.abs(new Date().getTime() - ticket.openedAt.getTime());
-    const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    return ((ticketHistory?.planHistory.rate as number) * diffDays) / 360;
+    const planHistory = await this.planService.findPlanHistoryById(
+      ticketHistory.planHistory.id,
+    );
+    const diff = Math.abs(
+      new Date(endDate).getTime() - new Date(ticket.openedAt).getTime(),
+    );
+    const diffDays = Math.floor(diff / (1000 * 3600 * 24));
+    return ticketHistory.amount
+      .mul(
+        new Decimal(
+          ((ticketHistory.planHistory.rate / 100) * diffDays) /
+            planHistory.plan.days,
+        ),
+      )
+      .round()
+      .toNumber();
   }
 
-  private async findTicketWithTheirRelations(
-    findTicketOptions: FindTicketParams,
-  ) {
-    const { id, ...relations } = findTicketOptions;
+  private async findTicketWithTheirRelations({
+    id,
+    ...relations
+  }: FindTicketParams) {
     const ticket = await this.ticketRepository.findOne({
       where: { id: id },
       relations: relations,
@@ -102,14 +136,15 @@ export class TicketService {
     money,
   }: SettlementTicketParams) {
     await this.dataSource.query(`CALL settlement_ticket($1, $2, $3)`, [
-      endDate ? endDate : new Date(),
+      endDate,
       ticketId,
       money,
     ]);
   }
 
   async simulateSettlementTicket(ticketId: number, endDate: Date) {
-    const interest_money = await this.calculateInterest(ticketId);
+    const interest_money = await this.calculateInterest(ticketId, endDate);
+    console.log(interest_money);
     await this.callProcedureSettlementTicket({
       ticketId: ticketId,
       money: interest_money,
@@ -118,10 +153,12 @@ export class TicketService {
   }
 
   async settlementTicket(ticketId: number) {
-    const interest_money = await this.calculateInterest(ticketId);
+    const now = new Date();
+    const interest_money = await this.calculateInterest(ticketId, now);
     await this.callProcedureSettlementTicket({
       ticketId: ticketId,
       money: interest_money,
+      endDate: now,
     });
   }
 }
