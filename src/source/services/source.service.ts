@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,8 +10,6 @@ export class SourceService {
   constructor(
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
-    @InjectRepository(UserEntity)
-    private userService: UserService,
   ) {}
 
   async getSourceByIdOrFail(sourceId: string) {

@@ -8,7 +8,7 @@ export const avatarStorageOptions: DiskStorageOptions = {
     const fileExtension = extname(file.originalname);
     const userId = req.params.id;
     const randomString = randomBytes(16).toString('hex');
-    const fileName = `${userId}-${randomString}${fileExtension}`;
+    const fileName = `${randomString}-${userId}${fileExtension}`;
     callback(null, fileName);
   },
 };

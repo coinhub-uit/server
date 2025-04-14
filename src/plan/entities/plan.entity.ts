@@ -20,14 +20,8 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   id!: number;
 
   @ApiProperty()
-  @Column({ name: 'days', type: 'int', unique: true })
+  @Column({ type: 'int', unique: true })
   days!: number;
-
-  // TODO: Check this!! What is the logic here
-  // WARNING: This may be not needed and removed in the future
-  @ApiProperty()
-  @Column({ type: 'boolean', default: true })
-  isActive!: boolean;
 
   @ApiProperty()
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)

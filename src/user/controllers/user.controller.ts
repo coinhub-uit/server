@@ -72,7 +72,7 @@ export class UserController {
   })
   @Get()
   async getAll() {
-    return await this.userService.findAllUsers();
+    return await this.userService.findAll();
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -101,7 +101,7 @@ export class UserController {
     }
     try {
       const { file, filename, fileExtension } =
-        await this.userService.getAvatarByUserId(userId);
+        await this.userService.getAvatarById(userId);
       res.set({
         'Content-Type': `image/${fileExtension}`,
         'Content-Disposition': `attachment; filename="${filename}"`,
@@ -163,10 +163,9 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdateUser(
-        { avatar: file.filename },
-        userId,
-      );
+      return await this.userService.partialUpdateById(userId, {
+        avatar: file.filename,
+      });
     } catch (error) {
       await unlink(file.path);
       if (error instanceof UserNotExistException) {
@@ -198,7 +197,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.deleteAvatarByUserId(userId);
+      await this.userService.deleteAvatarById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found');
@@ -232,7 +231,7 @@ export class UserController {
         'You are only allowed to create your own profile',
       );
     }
-    return await this.userService.createUser(createUserDto);
+    return await this.userService.create(createUserDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -258,7 +257,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.findByUserIdOrFail(id);
+      const user = await this.userService.findByIdOrFail(id);
       console.log(user);
       return user;
     } catch (error) {
@@ -292,7 +291,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.updateUser(updateUserDto, userId);
+      await this.userService.updateById(userId, updateUserDto);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be updated');
@@ -323,9 +322,9 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdateUser(
-        updateParitialUserDto,
+      return await this.userService.partialUpdateById(
         userId,
+        updateParitialUserDto,
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -356,7 +355,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    await this.userService.deleteUserById(userId);
+    await this.userService.deleteById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -382,7 +381,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getSourcesByUserId(userId);
+      return await this.userService.findSourcesById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to have sources");
@@ -414,7 +413,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getTicketsByUserId(userId);
+      return await this.userService.findTicketsById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException(
@@ -445,9 +444,6 @@ export class UserController {
         "You are not allowed to register other user's devices",
       );
     }
-    return await this.userService.registerDevice({
-      userId,
-      registerDeviceDto,
-    });
+    return await this.userService.createDevice(userId, registerDeviceDto);
   }
 }

@@ -5,10 +5,12 @@ services:
     image: supabase/postgres:17.4.1.014
     restart: unless-stopped
     environment:
-      POSTGRES_HOST: /var/run/postgresql
+      # POSTGRES_HOST: /var/run/postgresql
       PGDATA: /var/lib/postgresql/data
       PGPORT: ${DB_PORT:-5432}
       POSTGRES_PORT: ${DB_PORT:-5432}
+      # POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_USER: postgres # This cannot be changed becauase idk what have supabase done
       PGPASSWORD: ${DB_PASSWORD:-luckycube}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-luckycube}
       PGDATABASE: ${DB_DATABASE:-coinhub}
@@ -17,8 +19,14 @@ services:
       - ${DB_PORT:-5432}:${DB_PORT:-5432}
     volumes:
       - db:/var/lib/postgresql/data
-      - ./docker/supabase/pg_cron.sql:/docker-entrypoint-initdb.d/init-scripts/1-pg_cron.sql
-      - ./docker/supabase/webhook.sql:/docker-entrypoint-initdb.d/init-scripts/2-webhook.sql
+      - ./docker/supabase/uuid-ossp.sql:/docker-entrypoint-initdb.d/init-scripts/10-uuid-ossp.sql
+      - ./docker/supabase/pg_cron.sql:/docker-entrypoint-initdb.d/init-scripts/20-pg_cron.sql
+      - ./docker/supabase/webhook.sql:/docker-entrypoint-initdb.d/init-scripts/21-webhook.sql
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres', '-h', 'localhost']
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db:

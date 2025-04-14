@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -16,32 +17,39 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 export class SourceController {
   constructor(private sourceService: SourceService) {}
 
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Create source',
-    description: 'Create source',
   })
   @ApiNotFoundResponse()
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     type: SourceEntity,
   })
-  @UseGuards(UniversalJwtAuthGuard)
   @Post()
   async createSource(@Body() createSourceDto: CreateSourceDto) {
-    const source = await this.sourceService.createSource(createSourceDto);
-    return source;
+    return await this.sourceService.createSource(createSourceDto);
   }
 
   // TODO: Add get source by id @NTGNguyen aslkfdj;lkasjdf;
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get source',
+  })
+  @ApiNotFoundResponse()
+  @ApiOkResponse({ type: [SourceEntity] })
+  @Get()
+  async getById() {}
 
   // TODO: Add delete source later (NOT IMPORTANT) so later
 
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
   @ApiOperation({
-    summary: 'Get all tickets of source',
-    description: 'Get all tickets of source with source ID',
+    summary: "Get all source's tickets",
   })
   @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
@@ -50,7 +58,6 @@ export class SourceController {
   @UseGuards(UniversalJwtAuthGuard)
   @Get(':id/tickets')
   async getTickets(@Param() id: string) {
-    const tickets = await this.sourceService.getTickets(id);
-    return tickets;
+    return await this.sourceService.getTickets(id);
   }
 }

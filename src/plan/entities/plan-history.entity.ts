@@ -9,24 +9,32 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
+@ApiSchema()
 @Entity('plan_history')
 export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
+  @ApiProperty()
   @PrimaryGeneratedColumn('increment')
   id!: number;
 
+  @ApiProperty()
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
+  @ApiProperty()
   @Column({ type: 'decimal', precision: 4, scale: 2 })
   rate!: number;
 
+  @Exclude()
   @OneToMany(
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
   ticketHistories!: TicketHistoryEntity[];
 
+  @Exclude()
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
   plan!: PlanEntity;
 }
