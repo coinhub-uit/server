@@ -17,11 +17,11 @@ export class UniversalJwtStrategy extends PassportStrategy(
     super();
   }
 
-  validate(req: Request): UniversalJwtRequest {
+  async validate(req: Request): Promise<UniversalJwtRequest> {
     const token: string | null = UniversalJwtStrategy.jwtFromRequest(req);
     if (!token) {
       throw new ForbiddenException('Missing Token');
     }
-    return this.authService.verifyUniversalToken(token);
+    return await this.authService.verifyUniversalToken(token);
   }
 }

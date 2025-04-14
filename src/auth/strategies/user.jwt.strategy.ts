@@ -12,7 +12,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     super();
   }
 
-  validate(req: Request): UserJwtRequest {
+  async validate(req: Request): Promise<UserJwtRequest> {
     let token: string | null;
     try {
       token = UserJwtStrategy.extractJwt(req);
@@ -23,7 +23,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
       throw new ForbiddenException();
     }
     const userJwtRequest: UserJwtRequest | null =
-      this.authService.verifyUserToken(token);
+      await this.authService.verifyUserToken(token);
     if (!userJwtRequest) {
       throw new ForbiddenException();
     }

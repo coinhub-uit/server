@@ -49,16 +49,20 @@ export class AuthService {
     }
   }
 
-  verifyUniversalToken(token: string): UniversalJwtRequest {
+  async verifyUniversalToken(token: string): Promise<UniversalJwtRequest> {
     try {
       const payload: UserJwtPayload = this.jwtService.verify(
         token,
         this._userJwtConfig,
       );
+      const sourceIdList = (await this.userService.getSources(payload.sub)).map(
+        (source: SourceEntity) => source.id,
+      );
       const userJwtRequest: UserJwtRequest = {
         isAdmin: false,
         email: payload.email,
         userId: payload.sub,
+        sourceIdList: sourceIdList,
       };
       return userJwtRequest;
     } catch {

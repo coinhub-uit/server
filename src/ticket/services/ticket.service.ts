@@ -34,14 +34,13 @@ export class TicketService {
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    const ticket = await this.ticketRepository.save({
+    const ticket = this.ticketRepository.create({
       openedAt: new Date(),
       closedAt: null,
       source: { id: createTicketDto.sourceId },
       method: createTicketDto.method,
     });
-
-    return ticket;
+    return await this.ticketRepository.save(ticket);
   }
 
   async createTicketHistory(
@@ -102,15 +101,11 @@ export class TicketService {
     endDate,
     money,
   }: SettlementTicketParams) {
-    try {
-      await this.dataSource.query(`CALL process_ticket_closure($1, $2, $3)`, [
-        endDate ? endDate : new Date(),
-        ticketId,
-        money,
-      ]);
-    } catch {
-      throw new TicketNotExistException();
-    }
+    await this.dataSource.query(`CALL settlement_ticket($1, $2, $3)`, [
+      endDate ? endDate : new Date(),
+      ticketId,
+      money,
+    ]);
   }
 
   async simulateSettlementTicket(ticketId: number, endDate: Date) {

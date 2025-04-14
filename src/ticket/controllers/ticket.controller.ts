@@ -51,7 +51,7 @@ export class TicketController {
     }
     const ticket = await this.ticketService.createTicket(createTicketDto);
     return {
-      ticket: await this.ticketService.createTicket(createTicketDto),
+      ticket: ticket,
       firstTicketHistory: await this.ticketService.createTicketHistory(
         ticket,
         createTicketDto,
