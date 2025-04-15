@@ -19,7 +19,7 @@ type FindTicketHistoryParams = {
 type SettlementTicketParams = {
   endDate: Date;
   ticketId: number;
-  money: number;
+  money: Decimal;
 };
 
 type FindTicketParams = {
@@ -107,13 +107,11 @@ export class TicketService {
     const diffDays = Math.floor(diff / (1000 * 3600 * 24));
     return ticketHistory.amount
       .mul(
-        new Decimal(
-          ((ticketHistory.planHistory.rate / 100) * diffDays) /
-            planHistory.plan.days,
-        ),
+        ((ticketHistory.planHistory.rate / 100) * diffDays) /
+          planHistory.plan.days,
       )
       .round()
-      .toNumber();
+      .plus(ticketHistory.amount);
   }
 
   private async findTicketWithTheirRelations({

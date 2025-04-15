@@ -26,7 +26,13 @@ export class SourceService {
     return source;
   }
 
-  async changeSourceBalance(money: Decimal.Value, source: SourceEntity) {
+  async changeSourceBalance(
+    money: Decimal.Value,
+    source: SourceEntity | string,
+  ) {
+    if (typeof source === 'string') {
+      source = await this.getSourceByIdOrFail(source);
+    }
     source.balance.plus(money);
     return await this.sourceRepository.save(source);
   }
