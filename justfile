@@ -1,11 +1,12 @@
 default: run-api-server-dev
 
+alias b := bootstrap
 alias c := type-check
 alias db := run-docker-db
 alias dbr := reset-database
 alias tc := type-check
 
-restore:
+bootstrap:
   npm i
 
 [doc('run nestjs prod')]
@@ -26,7 +27,7 @@ run-docker-db:
 
 [doc('typescript type checking')]
 type-check:
-  tsc --noEmit
+  npm run tsc --noEmit
 
 [doc('run with docker compose (local postgres, nestjs dev)')]
 run-dev-local:
