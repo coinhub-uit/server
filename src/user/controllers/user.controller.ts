@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import {
   Body,
   Controller,
@@ -11,9 +12,18 @@ import {
   Req,
   ForbiddenException,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  StreamableFile,
+  Res,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -22,9 +32,11 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -33,10 +45,20 @@ import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
-import { RegisterFcmTokenDto } from 'src/user/dtos/register-fcm-token.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
+import { DeviceEntity } from 'src/user/entities/device.entity';
+import { unlink } from 'fs/promises';
+import { Express } from 'express';
 
 @Controller('users')
 export class UserController {
+  private static readonly AVATAR_MIMETYPE_REGEX_PATTERN =
+    /image\/(png|jpg|jpeg)/;
+
+  private static readonly AVATAR_MAX_FILE_SIZE = 1024 * 1024 * 10; // 10MB
+
   constructor(private userService: UserService) {}
 
   @UseGuards(AdminJwtAuthGuard)
@@ -46,12 +68,143 @@ export class UserController {
     description: "Get all users' profile",
   })
   @ApiOkResponse({
-    description: 'Successful',
     type: [UserEntity],
   })
   @Get()
   async getAll() {
-    return await this.userService.getAll();
+    return await this.userService.findAllUsers();
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get avatar',
+    description: 'Get avatar',
+  })
+  @ApiUnprocessableEntityResponse()
+  @ApiNotFoundResponse()
+  @ApiOkResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+    }),
+  )
+  @Get(':id/avatar')
+  async getAvatar(
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException('You are only allowed to get your avatar');
+    }
+    try {
+      const { file, filename, fileExtension } =
+        await this.userService.getAvatarByUserId(userId);
+      res.set({
+        'Content-Type': `image/${fileExtension}`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      });
+      return new StreamableFile(file);
+    } catch (error) {
+      if (error instanceof AvatarNotSetException) {
+        throw new NotFoundException('Avatar not set');
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Upload avatar',
+    description: 'Upload avatar and save it to storage',
+  })
+  @ApiBody({
+    description: 'Avatar file',
+    type: AvatarUploadDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse({ description: 'File may be unsupported' })
+  @ApiCreatedResponse()
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(avatarStorageOptions),
+      fileFilter: (_, file, callback) => {
+        if (!UserController.AVATAR_MIMETYPE_REGEX_PATTERN.test(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Only image files (png, jpg, jpeg) are allowed!',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: UserController.AVATAR_MAX_FILE_SIZE,
+      },
+    }),
+  )
+  @Post(':id/avatar')
+  async uploadAvatar(
+    @UploadedFile()
+    file: Express.Multer.File, // Do we need to validate file size, mimetype here? already done by multer above
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      await unlink(file.path);
+      throw new ForbiddenException(
+        'You are only allowed to upload your avatar',
+      );
+    }
+    try {
+      return await this.userService.partialUpdateUser(
+        { avatar: file.filename },
+        userId,
+      );
+    } catch (error) {
+      await unlink(file.path);
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found to upload avatar for');
+      }
+      throw error;
+    }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Delete avatar',
+    description:
+      'Delete avatar for a user, clean in storage if stored in storage',
+  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  @ApiOkResponse()
+  @Delete(':id/avatar')
+  async deleteAvatar(
+    @Param('id') userId: string,
+    @Req() req: Request & { user: UniversalJwtRequest },
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        'You are only allowed to delete your avatar',
+      );
+    }
+    try {
+      await this.userService.deleteAvatarByUserId(userId);
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException('User not found');
+      }
+      throw error;
+    }
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -105,7 +258,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.getByIdOrFail(id);
+      const user = await this.userService.findByUserIdOrFail(id);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -138,7 +291,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.update(updateUserDto, userId);
+      await this.userService.updateUser(updateUserDto, userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be updated');
@@ -152,12 +305,11 @@ export class UserController {
   @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Update paritial profile',
-    description:
-      "Update paritial user's profile. User ID is required for admin request",
+    description: "Update paritial user's profile",
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
-  @ApiOkResponse({})
+  @ApiOkResponse()
   @Patch(':id')
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
@@ -170,7 +322,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdate(
+      return await this.userService.partialUpdateUser(
         updateParitialUserDto,
         userId,
       );
@@ -203,7 +355,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    await this.userService.deleteById(userId);
+    await this.userService.deleteUserById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -229,7 +381,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getSources(userId);
+      return await this.userService.getSourcesByUserId(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to have sources");
@@ -261,7 +413,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getTickets(userId);
+      return await this.userService.getTicketsByUserId(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException(
@@ -276,22 +428,25 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Register FCM token',
-    description: 'Register FCM token for a device of a user',
+    summary: 'Register user devices (FCM)',
+    description: 'Register user devices. Currently for FCM - push notification',
   })
   @ApiForbiddenResponse()
-  @ApiOkResponse()
-  @Post(':id/fcm-token')
-  async registerFcmToken(
+  @ApiCreatedResponse({ type: DeviceEntity })
+  @Post(':id/devices')
+  async registerDevice(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() registerFcmTokenDto: RegisterFcmTokenDto,
+    @Body() registerDeviceDto: RegisterDeviceDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
-        "You are not allowed to register other user's FCM token slot",
+        "You are not allowed to register other user's devices",
       );
     }
-    await this.userService.registerFcmToken({ userId, registerFcmTokenDto });
+    return await this.userService.registerDevice({
+      userId,
+      registerDeviceDto,
+    });
   }
 }

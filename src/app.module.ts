@@ -16,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'src/config/database.config';
 import { Controller, Get } from '@nestjs/common';
 import { configModuleOptions } from 'src/config/nestjs-config.config';
+
 @Controller()
 export class RootController {
   @Get()

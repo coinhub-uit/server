@@ -1,3 +1,6 @@
+set dotenv-required
+set dotenv-path	:= '.env'
+
 default: run-api-server-dev
 
 alias c := type-check

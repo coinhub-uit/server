@@ -93,7 +93,7 @@ export class PlanController {
 
   @ApiBearerAuth('admin')
   @ApiNotFoundResponse()
-  @ApiUnprocessableEntityResponse({})
+  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
     type: UpdatePlanResponseDto,
   })

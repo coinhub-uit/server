@@ -9,7 +9,6 @@ import {
   Index,
   OneToMany,
   PrimaryColumn,
-  Unique,
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
@@ -18,7 +17,6 @@ import { DeviceEntity } from 'src/user/entities/device.entity';
 
 @ApiSchema()
 @Entity('user')
-@Unique(['citizenId'])
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()
   @PrimaryColumn({ type: 'uuid' })
@@ -42,7 +40,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty()
   @Index({ unique: true })
-  @Column({ name: 'citizenId', type: 'char', length: 12 })
+  @Column({ name: 'citizenId', type: 'char', length: 12, unique: true })
   citizenId!: string;
 
   @ApiProperty({ type: String, nullable: true, description: 'Avatar URL' })
