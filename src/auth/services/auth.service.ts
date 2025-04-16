@@ -40,7 +40,7 @@ export class AuthService {
         this._userJwtConfig,
       );
       const { email, sub } = payload;
-      const sourceIdList = (await this.userService.getSources(sub)).map(
+      const sourceIdList = (await this.userService.getSourcesByUserId(sub)).map(
         (source: SourceEntity) => source.id,
       );
       return { userId: sub, email, isAdmin: false, sourceIdList: sourceIdList };
@@ -55,9 +55,9 @@ export class AuthService {
         token,
         this._userJwtConfig,
       );
-      const sourceIdList = (await this.userService.getSources(payload.sub)).map(
-        (source: SourceEntity) => source.id,
-      );
+      const sourceIdList = (
+        await this.userService.getSourcesByUserId(payload.sub)
+      ).map((source: SourceEntity) => source.id);
       const userJwtRequest: UserJwtRequest = {
         isAdmin: false,
         email: payload.email,
