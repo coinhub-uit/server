@@ -5,7 +5,6 @@ import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { DataSource, Repository } from 'typeorm';
 import { PlanService } from 'src/plan/services/plan.service';
-import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import Decimal from 'decimal.js';
 
@@ -35,8 +34,6 @@ export class TicketService {
     private readonly ticketRepository: Repository<TicketEntity>,
     @InjectRepository(TicketHistoryEntity)
     private readonly ticketHistoryRepository: Repository<TicketHistoryEntity>,
-    @InjectRepository(SourceEntity)
-    private readonly sourceRepository: Repository<SourceEntity>,
     private planService: PlanService,
     private dataSource: DataSource,
   ) {}

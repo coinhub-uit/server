@@ -54,9 +54,9 @@ export class TicketController {
       );
     }
     const ticket = await this.ticketService.createTicket(createTicketDto);
-    await this.sourceService.changeSourceBalance(
-      -createTicketDto.amount,
+    await this.sourceService.changeSourceBalanceById(
       createTicketDto.sourceId,
+      -createTicketDto.amount,
     );
     return {
       ticket: ticket,

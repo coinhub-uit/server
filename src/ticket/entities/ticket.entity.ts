@@ -19,7 +19,7 @@ import {
 export class TicketEntity extends AbstractEntity<TicketEntity> {
   @ApiProperty()
   @PrimaryGeneratedColumn('increment')
-  id!: string;
+  id!: number;
 
   @ApiProperty()
   @CreateDateColumn({ type: 'timestamptz' })
