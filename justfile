@@ -5,6 +5,8 @@ alias c := type-check
 alias db := run-docker-db
 alias dbr := reset-database
 alias tc := type-check
+alias rs := run-supabase
+alias ss := stop-supabase
 
 bootstrap:
   npm i
@@ -16,6 +18,14 @@ run-api-server-prod:
 [doc('run nestjs dev')]
 run-api-server-dev:
   npm run start:dev
+
+[docs('run supabase')]
+run-supabase:
+  supabase start
+
+[docs('stop supabase')]
+stop-supabase:
+  supabase stop
 
 [doc('reset db')]
 reset-database:
