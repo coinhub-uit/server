@@ -13,7 +13,7 @@ import {
 @Entity('plan_history')
 export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @PrimaryGeneratedColumn('increment')
-  id!: string;
+  id!: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;

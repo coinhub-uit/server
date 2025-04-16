@@ -2,23 +2,17 @@ name: coinhub-api-server
 
 services:
   db:
-    image: supabase/postgres:17.4.1.014
+    image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_HOST: /var/run/postgresql
-      PGDATA: /var/lib/postgresql/data
-      PGPORT: ${DB_PORT:-5432}
-      POSTGRES_PORT: ${DB_PORT:-5432}
-      PGPASSWORD: ${DB_PASSWORD:-luckycube}
+      POSTGRES_USER: ${DB_USERNAME:-coinhub}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-luckycube}
-      PGDATABASE: ${DB_DATABASE:-coinhub}
+      PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: ${DB_DATABASE:-coinhub}
     ports:
-      - ${DB_PORT:-5432}:${DB_PORT:-5432}
+      - 5432:5432
     volumes:
       - db:/var/lib/postgresql/data
-      - ./docker/supabase/pg_cron.sql:/docker-entrypoint-initdb.d/init-scripts/1-pg_cron.sql
-      - ./docker/supabase/webhook.sql:/docker-entrypoint-initdb.d/init-scripts/2-webhook.sql
 
 volumes:
   db:

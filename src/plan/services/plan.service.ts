@@ -32,18 +32,18 @@ export class PlanService {
     return planHistoryEntity;
   }
 
-  async findPlanHistoryById(planHistoryId: string) {
-    const planHistoryEntity = await this.planHistoryRepository.findOne({
-      where: { id: planHistoryId },
-      relations: {
-        plan: true,
-      },
-    });
-    if (!planHistoryEntity) {
-      throw new PlanHistoryNotExist();
-    }
-    return planHistoryEntity;
-  }
+  // async findPlanHistoryById(planHistoryId: string) {
+  //   const planHistoryEntity = await this.planHistoryRepository.findOne({
+  //     where: { id: planHistoryId },
+  //     relations: {
+  //       plan: true,
+  //     },
+  //   });
+  //   if (!planHistoryEntity) {
+  //     throw new PlanHistoryNotExist();
+  //   }
+  //   return planHistoryEntity;
+  // }
 
   async createPlan(createPlanDto: CreatePlanRequestDto) {
     const plan = this.planRepository.create({

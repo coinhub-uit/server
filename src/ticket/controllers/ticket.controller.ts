@@ -53,18 +53,6 @@ export class TicketController {
         'You are not allowed to create ticket in source which not exist in your account',
       );
     }
-    const ticket = await this.ticketService.createTicket(createTicketDto);
-    await this.sourceService.changeSourceBalanceById(
-      createTicketDto.sourceId,
-      -createTicketDto.amount,
-    );
-    return {
-      ticket: ticket,
-      firstTicketHistory: await this.ticketService.createTicketHistory(
-        ticket,
-        createTicketDto,
-      ),
-    };
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -79,7 +67,8 @@ export class TicketController {
   @Get(':id/settlement')
   async settlementTicket(@Param('id', ParseIntPipe) ticketId: string) {
     try {
-      await this.ticketService.settlementTicket(ticketId);
+      await Promise.resolve(ticketId);
+      // await this.ticketService.settlementTicket(ticketId);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();
@@ -102,7 +91,8 @@ export class TicketController {
     @Param('endDate') endDate: Date,
   ) {
     try {
-      await this.ticketService.simulateSettlementTicket(ticketId, endDate);
+      await Promise.resolve([endDate, ticketId]);
+      // await this.ticketService.simulateSettlementTicket(ticketId, endDate);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();

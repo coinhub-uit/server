@@ -8,7 +8,7 @@ GRANT USAGE ON SCHEMA cron TO postgres;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
 
 -- Enable Supabase pg_net extension
-CREATE EXTENSION pg_net;
+CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Procedure insert_ticket_history
 CREATE
