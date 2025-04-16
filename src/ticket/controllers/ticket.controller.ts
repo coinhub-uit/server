@@ -77,7 +77,7 @@ export class TicketController {
   @ApiNotFoundResponse()
   @ApiOkResponse()
   @Get(':id/settlement')
-  async settlementTicket(@Param('id', ParseIntPipe) ticketId: number) {
+  async settlementTicket(@Param('id', ParseIntPipe) ticketId: string) {
     try {
       await this.ticketService.settlementTicket(ticketId);
     } catch (error) {
@@ -98,7 +98,7 @@ export class TicketController {
   @ApiOkResponse()
   @Get(':id/:endDate/simulate-settlement')
   async simulateSettlementTicket(
-    @Param('id', ParseIntPipe) ticketId: number,
+    @Param('id', ParseIntPipe) ticketId: string,
     @Param('endDate') endDate: Date,
   ) {
     try {

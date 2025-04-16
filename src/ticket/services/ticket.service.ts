@@ -10,7 +10,7 @@ import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.
 import Decimal from 'decimal.js';
 
 type FindTicketHistoryParams = {
-  id: number;
+  id: string;
   issuedAt: Date;
   ticketEntity?: boolean;
   planHistory?: boolean;
@@ -18,12 +18,12 @@ type FindTicketHistoryParams = {
 
 type SettlementTicketParams = {
   endDate: Date;
-  ticketId: number;
+  ticketId: string;
   money: Decimal;
 };
 
 type FindTicketParams = {
-  id: number;
+  id: string;
   ticketHistories?: boolean;
   source?: boolean;
 };
@@ -88,7 +88,7 @@ export class TicketService {
     return ticket;
   }
 
-  private async calculateInterest(ticketId: number, endDate: Date) {
+  private async calculateInterest(ticketId: string, endDate: Date) {
     const ticket = await this.findTicketWithTheirRelations({
       id: ticketId,
       source: true,
@@ -140,7 +140,7 @@ export class TicketService {
     ]);
   }
 
-  async simulateSettlementTicket(ticketId: number, endDate: Date) {
+  async simulateSettlementTicket(ticketId: string, endDate: Date) {
     const interest_money = await this.calculateInterest(ticketId, endDate);
     console.log(interest_money);
     await this.callProcedureSettlementTicket({
@@ -150,7 +150,7 @@ export class TicketService {
     });
   }
 
-  async settlementTicket(ticketId: number) {
+  async settlementTicket(ticketId: string) {
     const now = new Date();
     const interest_money = await this.calculateInterest(ticketId, now);
     await this.callProcedureSettlementTicket({

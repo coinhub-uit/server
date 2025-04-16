@@ -1,5 +1,5 @@
 CREATE
-OR REPLACE PROCEDURE settlement_ticket (p_end_date DATE, p_ticket_id INTEGER, p_money NUMERIC)
+OR REPLACE PROCEDURE settlement_ticket (p_end_date DATE, p_ticket_id SERIAL, p_money NUMERIC)
 LANGUAGE plpgsql
 AS $$
 DECLARE 

@@ -33,7 +33,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   amount!: Decimal;
 
   @PrimaryColumn()
-  ticketId: number;
+  ticketId: string;
 
   @Exclude()
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
