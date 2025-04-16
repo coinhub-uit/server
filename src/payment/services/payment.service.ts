@@ -8,12 +8,12 @@ export class PaymentService {
 
   async tranferMoney(tranferMoneyDetails: TranferMoneysDto) {
     await this.sourceService.changeSourceBalanceById(
-      -tranferMoneyDetails.money,
       tranferMoneyDetails.fromSourceId,
+      -tranferMoneyDetails.money,
     );
     await this.sourceService.changeSourceBalanceById(
-      tranferMoneyDetails.money,
       tranferMoneyDetails.toSourceId,
+      tranferMoneyDetails.money,
     );
   }
 }

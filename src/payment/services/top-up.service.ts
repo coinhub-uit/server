@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { VnpayService as _VnpayService } from 'nestjs-vnpay';
 import {
   dateFormat,
@@ -59,8 +59,8 @@ export class TopUpService {
 
     const sourceDestination = topUp.sourceDestination;
     await this.sourceService.changeSourceBalance(
-      topUp.amount,
       sourceDestination,
+      topUp.amount,
     );
 
     await this.topUpRepository.save(topUp);
@@ -68,13 +68,7 @@ export class TopUpService {
   }
 
   async createVNPayPayment(paymentDetails: CreateTopUpDto) {
-    const source = await this.sourceService.getSourceByIdOrFail(
-      paymentDetails.sourceDestinationId,
-    ); // To check if exists, if not will raiase error
-
-    if (!source) {
-      throw new NotFoundException('Source destination not found');
-    }
+    await this.sourceService.findByIdOrFail(paymentDetails.sourceDestinationId);
 
     const now = new Date();
     const topUpEntity = this.topUpRepository.create({

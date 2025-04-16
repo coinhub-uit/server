@@ -1,10 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,32 +11,30 @@ export class SourceService {
   constructor(
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
-    @InjectRepository(UserEntity)
-    private userService: UserService,
   ) {}
 
-  async getSourceByIdOrFail(sourceId: string) {
+  async existsByIdOrFail(sourceId: string) {
+    if (!(await this.sourceRepository.exists({ where: { id: sourceId } }))) {
+      throw new SourceNotExistException(sourceId);
+    }
+  }
+
+  async findByIdOrFail(sourceId: string) {
     const source = await this.sourceRepository.findOne({
       where: { id: sourceId },
     });
     if (!source) {
-      throw new NotFoundException('Source Not found');
+      throw new SourceNotExistException(sourceId);
     }
     return source;
   }
 
-  async changeSourceBalance(
-    money: Decimal.Value,
-    source: SourceEntity | string,
-  ) {
-    if (typeof source === 'string') {
-      source = await this.getSourceByIdOrFail(source);
-    }
-    source.balance.plus(money);
+  async changeSourceBalance(source: SourceEntity, money: Decimal.Value) {
+    source.balance = source.balance.plus(money);
     return await this.sourceRepository.save(source);
   }
 
-  async changeSourceBalanceById(money: Decimal.Value, sourceId: string) {
+  async changeSourceBalanceById(sourceId: string, money: Decimal.Value) {
     const source = await this.sourceRepository.findOne({
       where: {
         id: sourceId,
@@ -51,8 +48,14 @@ export class SourceService {
     return await this.sourceRepository.save(source);
   }
 
-  async getTickets(id: string) {
-    const source = await this.getSourceByIdOrFail(id);
+  async findTicketsBySourceId(sourceId: string) {
+    const source = await this.sourceRepository.findOne({
+      where: { id: sourceId },
+      relations: { tickets: true },
+    });
+    if (!source) {
+      throw new SourceNotExistException(sourceId);
+    }
     return source.tickets;
   }
 

@@ -1,14 +1,22 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceService } from 'src/source/services/source.service';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
@@ -43,14 +51,20 @@ export class SourceController {
     summary: 'Get all tickets of source',
     description: 'Get all tickets of source with source ID',
   })
-  @ApiUnprocessableEntityResponse()
+  @ApiNotFoundResponse()
   @ApiOkResponse({
     type: [TicketEntity],
   })
   @UseGuards(UniversalJwtAuthGuard)
   @Get(':id/tickets')
   async getTickets(@Param() id: string) {
-    const tickets = await this.sourceService.getTickets(id);
-    return tickets;
+    try {
+      return await this.sourceService.findTicketsBySourceId(id);
+    } catch (error) {
+      if (error instanceof SourceNotExistException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 }
