@@ -10,8 +10,8 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Exclude, Transform } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { URL_PATTERN } from 'lib/regex';
@@ -60,15 +60,15 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @Column({ type: 'text', nullable: true })
   address!: string | null;
 
-  @Exclude()
+  @ApiPropertyOptional({ type: [NotificationEntity] })
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
-  notifications: NotificationEntity[];
+  notifications?: NotificationEntity[];
 
-  @Exclude()
+  @ApiPropertyOptional({ type: [SourceEntity] })
   @OneToMany(() => SourceEntity, (source) => source.user)
-  sources: SourceEntity[];
+  sources?: SourceEntity[];
 
-  @Exclude()
+  @ApiPropertyOptional({ type: [DeviceEntity] })
   @OneToMany(() => DeviceEntity, (device) => device.user)
-  devices: DeviceEntity[];
+  devices?: DeviceEntity[];
 }

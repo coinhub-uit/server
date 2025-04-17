@@ -9,8 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema()
 @Entity('plan_history')
@@ -27,14 +26,16 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @Column({ type: 'decimal', precision: 4, scale: 2 })
   rate!: number;
 
-  @Exclude()
+  @ApiPropertyOptional({ type: [TicketHistoryEntity] })
   @OneToMany(
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketHistories!: TicketHistoryEntity[];
+  ticketHistories?: TicketHistoryEntity[];
 
-  @Exclude()
-  @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
-  plan!: PlanEntity;
+  @ApiPropertyOptional()
+  @ManyToOne(() => PlanEntity, (plan) => plan.planHistories, {
+    nullable: false,
+  })
+  plan?: PlanEntity;
 }

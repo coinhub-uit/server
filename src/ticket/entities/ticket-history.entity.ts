@@ -1,5 +1,5 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Exclude, Transform } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
@@ -42,20 +42,21 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   maturedInterest!: Decimal;
 
+  @ApiPropertyOptional()
   @PrimaryColumn()
-  ticketId!: number;
+  ticketId?: number;
 
-  @Exclude()
+  @ApiPropertyOptional()
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })
-  ticket!: TicketEntity;
+  ticket?: TicketEntity;
 
-  @Exclude()
+  @ApiPropertyOptional()
   @ManyToOne(
     () => PlanHistoryEntity,
     (planHistory) => planHistory.ticketHistories,
     { nullable: false },
   )
-  planHistory!: PlanHistoryEntity;
+  planHistory?: PlanHistoryEntity;
 }

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
@@ -32,6 +32,7 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount!: Decimal;
 
+  @ApiProperty({ enum: TopUpStatusEnum })
   @Column({
     type: 'enum',
     enum: TopUpStatusEnum,
@@ -39,6 +40,7 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   })
   status!: TopUpStatusEnum;
 
+  @ApiPropertyOptional()
   @ManyToOne(() => SourceEntity, (source) => source.topUps, { nullable: false })
-  sourceDestination: SourceEntity;
+  sourceDestination?: SourceEntity;
 }

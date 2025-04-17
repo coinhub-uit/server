@@ -20,8 +20,6 @@ export class TicketService {
 
   async createTicket(createTicketDto: CreateTicketDto) {
     const ticket = this.ticketRepository.create({
-      openedAt: new Date(),
-      closedAt: null,
       source: { id: createTicketDto.sourceId },
       method: createTicketDto.method,
     });
