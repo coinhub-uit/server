@@ -32,6 +32,16 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount!: Decimal;
 
+  @ApiProperty({ type: String })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 0,
+    transformer: new DecimalTransformer(),
+  })
+  @Transform(decimalToString, { toPlainOnly: true })
+  maturedInterest!: Decimal;
+
   @PrimaryColumn()
   ticketId!: number;
 
