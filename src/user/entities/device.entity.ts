@@ -14,6 +14,6 @@ export class DeviceEntity extends AbstractEntity<DeviceEntity> {
   fcmToken!: string;
 
   // NOTE: This relation is not really neccessary. Because we don't join. We already mark userId primary key
-  @ManyToOne(() => UserEntity, (user) => user.devices)
+  @ManyToOne(() => UserEntity, (user) => user.devices, { nullable: false })
   user: UserEntity;
 }

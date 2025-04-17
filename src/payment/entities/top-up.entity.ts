@@ -9,13 +9,7 @@ import {
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @ApiSchema()
 @Entity({ name: 'top_up' })
@@ -45,7 +39,6 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   })
   status!: TopUpStatusEnum;
 
-  @ManyToOne(() => SourceEntity)
-  @JoinColumn()
+  @ManyToOne(() => SourceEntity, (source) => source.topUps, { nullable: false })
   sourceDestination: SourceEntity;
 }

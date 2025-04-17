@@ -19,17 +19,12 @@ import {
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
-import { SourceService } from 'src/source/services/source.service';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
-import { TicketService } from 'src/ticket/services/ticket.service';
 
 @Controller('tickets')
 export class TicketController {
-  constructor(
-    private ticketService: TicketService,
-    private sourceService: SourceService,
-  ) {}
+  constructor() {}
 
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
@@ -41,7 +36,7 @@ export class TicketController {
   @ApiForbiddenResponse()
   @ApiOkResponse()
   @Post()
-  async create(
+  create(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Body() createTicketDto: CreateTicketDto,
   ) {

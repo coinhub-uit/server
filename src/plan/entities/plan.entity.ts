@@ -8,6 +8,8 @@ import {
   Unique,
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 @ApiSchema()
 @Entity('plan')
@@ -18,14 +20,14 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   id!: number;
 
   @ApiProperty()
-  @Column({ name: 'days', type: 'int', unique: true })
+  @Column({ type: 'int', unique: true })
   days!: number;
 
-  // TODO: Check this!! What is the logic here
   @ApiProperty()
-  @Column({ type: 'boolean', default: true })
-  isActive!: boolean;
-
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
   planHistories!: PlanHistoryEntity[];
+
+  @Exclude()
+  @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
+  tickets: TicketEntity[];
 }

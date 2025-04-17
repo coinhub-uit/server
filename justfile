@@ -3,12 +3,15 @@ set dotenv-path	:= '.env'
 
 default: run-api-server-dev
 
+alias b := bootstrap
 alias c := type-check
 alias db := run-docker-db
 alias dbr := reset-database
 alias tc := type-check
+alias rs := run-supabase
+alias ss := stop-supabase
 
-restore:
+bootstrap:
   npm i
 
 [doc('run nestjs prod')]
@@ -18,6 +21,14 @@ run-api-server-prod:
 [doc('run nestjs dev')]
 run-api-server-dev:
   npm run start:dev
+
+[docs('run supabase')]
+run-supabase:
+  supabase start
+
+[docs('stop supabase')]
+stop-supabase:
+  supabase stop
 
 [doc('reset db')]
 reset-database:
@@ -29,7 +40,7 @@ run-docker-db:
 
 [doc('typescript type checking')]
 type-check:
-  tsc --noEmit
+  npm run tsc --noEmit
 
 [doc('run with docker compose (local postgres, nestjs dev)')]
 run-dev-local:

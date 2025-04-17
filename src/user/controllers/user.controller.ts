@@ -1,8 +1,9 @@
-import type { Response } from 'express';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -10,13 +11,11 @@ import {
   Post,
   Put,
   Req,
-  ForbiddenException,
+  Res,
+  StreamableFile,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  StreamableFile,
-  Res,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -32,25 +31,25 @@ import {
   ApiOperation,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
+import { unlink } from 'fs/promises';
 import { diskStorage } from 'multer';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
 import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
-import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
-import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
-import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { DeviceEntity } from 'src/user/entities/device.entity';
-import { unlink } from 'fs/promises';
-import { Express } from 'express';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
+import { UserService } from 'src/user/services/user.service';
 
 @Controller('users')
 export class UserController {
@@ -72,7 +71,7 @@ export class UserController {
   })
   @Get()
   async getAll() {
-    return await this.userService.findAllUsers();
+    return await this.userService.findAll();
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -101,7 +100,7 @@ export class UserController {
     }
     try {
       const { file, filename, fileExtension } =
-        await this.userService.getAvatarByUserId(userId);
+        await this.userService.getAvatarById(userId);
       res.set({
         'Content-Type': `image/${fileExtension}`,
         'Content-Disposition': `attachment; filename="${filename}"`,
@@ -163,10 +162,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdateUser(
-        { avatar: file.filename },
-        userId,
-      );
+      return await this.userService.createAvatar(userId, file);
     } catch (error) {
       await unlink(file.path);
       if (error instanceof UserNotExistException) {
@@ -198,7 +194,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.deleteAvatarByUserId(userId);
+      await this.userService.deleteAvatarById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found');
@@ -232,7 +228,7 @@ export class UserController {
         'You are only allowed to create your own profile',
       );
     }
-    return await this.userService.createUser(createUserDto);
+    return await this.userService.create(createUserDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -258,7 +254,8 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.findByUserIdOrFail(id);
+      const user = await this.userService.findByIdOrFail(id);
+      console.log(user);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -291,7 +288,7 @@ export class UserController {
       );
     }
     try {
-      await this.userService.updateUser(updateUserDto, userId);
+      await this.userService.updateById(userId, updateUserDto);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException('User not found to be updated');
@@ -322,9 +319,9 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.partialUpdateUser(
-        updateParitialUserDto,
+      return await this.userService.partialUpdateById(
         userId,
+        updateParitialUserDto,
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -355,7 +352,7 @@ export class UserController {
         "You are not allowed to delete other user's profile",
       );
     }
-    await this.userService.deleteUserById(userId);
+    await this.userService.deleteById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -381,7 +378,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getSourcesByUserId(userId);
+      return await this.userService.findSourcesById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException("User doesn't exist to have sources");
@@ -413,7 +410,7 @@ export class UserController {
       );
     }
     try {
-      return await this.userService.getTicketsByUserId(userId);
+      return await this.userService.findTicketsById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
         throw new NotFoundException(
@@ -444,9 +441,6 @@ export class UserController {
         "You are not allowed to register other user's devices",
       );
     }
-    return await this.userService.registerDevice({
-      userId,
-      registerDeviceDto,
-    });
+    return await this.userService.createDevice(userId, registerDeviceDto);
   }
 }
