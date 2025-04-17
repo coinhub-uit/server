@@ -10,10 +10,14 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
 -- Enable Supabase pg_net extension
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
+
+-- TODO: Update ticket.status
+
 -- Procedure insert_ticket_history
 CREATE
 OR REPLACE PROCEDURE insert_ticket_history(endDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
+  -- TODO: update balance for PR
   INSERT INTO ticket_history (
     ticketId,
     issuedAt,
@@ -58,16 +62,19 @@ BEGIN
 END;
 $$;
 
+-- TODO: insert_ticket_history name is suck
+-- TODO: renew_PR_PIR_tickets too
+
 -- Cron insert_ticket_history
 SELECT
   cron.schedule(
     'renew_PR_PIR_tickets',
-    '0 1 * * *',
+    '0 0 * * *',
     'CALL insert_ticket_history(CURRENT_DATE)'
   );
 
--- Procedure settlement_ticket
-CREATE OR REPLACE PROCEDURE settlement_ticket(
+-- Procedure withdraw_ticket
+CREATE OR REPLACE PROCEDURE withdraw_ticket(
   pEndDate DATE,
   pTicketId INTEGER,
   pMoney NUMERIC
@@ -76,7 +83,7 @@ DECLARE
   ticketRecord RECORD;
   latestTicketHistoryRecord RECORD;
 BEGIN
-  SELECT t.id AS "ticketId" ,s.id AS "sourceId"
+  SELECT t.id AS "ticketId", s.id AS "sourceId"
   INTO ticketRecord
   FROM ticket t
   JOIN source s ON s.id = t."sourceId"
@@ -89,6 +96,7 @@ BEGIN
   ORDER BY "issuedAt" DESC
   LIMIT 1;
 
+  -- NOTE: maturedAt???
   UPDATE ticket_history
   SET "maturedAt" = pEndDate
   WHERE "ticketId" = pTicketId AND "issuedAt" = latestTicketHistoryRecord."issuedAt";
@@ -118,24 +126,24 @@ BEGIN
   SELECT *
   INTO ticketHistoryRecord
   FROM ticket_history th
-  WHERE th.planHistoryId = pTicketHistoryId
+  WHERE th.planHistoryId = pTicketHistoryId;
 
   SELECT *
   INTO ticketRecord
   FROM ticket t
-  WHERE t.id = ticketHistoryRecord."ticketId"
+  WHERE t.id = ticketHistoryRecord."ticketId";
 
   SELECT *
   INTO planRecord
   FROM plan p
-  WHERE p."ticketId" = ticketRecord.id
+  WHERE p."ticketId" = ticketRecord.id;
 
   endDate := ticketHistoryRecord.issuedAt + (planRecord.days || ' days')::INTERVAL;
 
   UPDATE ticket_history
   SET maturedAt = endDate
-  WHERE id = pTicketHistoryId
+  WHERE id = pTicketHistoryId;
 
-  CALL insert_ticket_history(endDate)
+  CALL insert_ticket_history(endDate);
 END;
-$$
+$$;

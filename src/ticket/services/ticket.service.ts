@@ -27,7 +27,25 @@ export class TicketService {
     return await this.ticketRepository.save(ticket);
   }
 
-  private calcInterest(
+  // static calcInterest({
+  //   ticketHistoryIssuedAt,
+  //   now,
+  //   planDays,
+  //   rate,
+  // }: {
+  //   ticketHistoryIssuedAt: Date;
+  //   now: Date;
+  //   planDays: number;
+  //   rate: number;
+  // }) {
+  //   const diffDays = Math.ceil(
+  //     Math.abs(now.getTime() - ticketHistoryIssuedAt.getTime()) /
+  //       (1000 * 3600 * 24),
+  //   );
+  //   return ticketHistoryEntity.interest.mul(diffDays).div(planDays);
+  // }
+
+  static calcInterest(
     ticketHistoryEntity: TicketHistoryEntity,
     settlementDate: Date,
     plan: PlanEntity,
@@ -38,7 +56,7 @@ export class TicketService {
       ) /
         (1000 * 3600 * 24),
     );
-    return ticketHistoryEntity.maturedInterest.mul(diffDays).div(plan.days);
+    return ticketHistoryEntity.interest.mul(diffDays).div(plan.days);
   }
 
   async settlementTicket(ticketId: number) {
@@ -65,14 +83,14 @@ export class TicketService {
           throw new TicketHistoryNotExistException();
         }
 
-        const interest = this.calcInterest(
+        const interest = TicketService.calcInterest(
           latestTicketHistory,
           settlementDate,
           latestTicketHistory.ticket!.plan!,
         );
         const newBalance = latestTicketHistory
           .ticket!.source!.balance.plus(interest)
-          .plus(latestTicketHistory.amount);
+          .plus(latestTicketHistory.principal);
 
         latestTicketHistory.maturedAt = settlementDate;
         latestTicketHistory.ticket!.source!.balance = newBalance;

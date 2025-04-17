@@ -50,10 +50,13 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     );
 
     const shouldWithdraw = this.shouldWithdraw;
+    const principal = randomMoney();
+    const interest = randomMoney(); // FIXME: later
 
     const ticketHistoryEntity: TicketHistoryEntity =
       ticketHistoryRepository.create({
-        amount: randomMoney(),
+        principal,
+        interest,
         issuedAt: new Date(randomStartDate),
         planHistory: reversedPlanHistoryEntities.find((planHistoryEntity) => {
           return shouldWithdraw
@@ -127,8 +130,12 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         return;
       }
 
+      // const principal = randomMoney(); // exist amount
+      const interest = randomMoney(); // FIXME: later
+
       const ticketHistoryEntity = ticketHistoryRepository.create({
-        amount: existingAmount,
+        principal: existingAmount,
+        interest: interest,
         issuedAt: new Date(iterateDate),
         planHistory: existingPlanHistoryEntity,
         maturedAt: new Date(maturedDate),

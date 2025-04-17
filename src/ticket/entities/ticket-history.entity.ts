@@ -30,7 +30,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
     transformer: new DecimalTransformer(),
   })
   @Transform(decimalToString, { toPlainOnly: true })
-  amount!: Decimal;
+  principal!: Decimal;
 
   @ApiProperty({ type: String })
   @Column({
@@ -40,7 +40,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
     transformer: new DecimalTransformer(),
   })
   @Transform(decimalToString, { toPlainOnly: true })
-  maturedInterest!: Decimal;
+  interest!: Decimal;
 
   @ApiPropertyOptional()
   @PrimaryColumn()
