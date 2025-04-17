@@ -70,7 +70,7 @@ SELECT
 -- Procedure settlement_ticket
 CREATE OR REPLACE PROCEDURE settlement_ticket(
   p_end_date DATE,
-  p_ticket_id SERIAL,
+  p_ticket_id INTEGER,
   p_money NUMERIC
 ) LANGUAGE plpgsql AS $$
 DECLARE 
@@ -106,7 +106,7 @@ $$;
 
 
 CREATE OR REPLACE PROCEDURE simulate_maturity_circle(
-  ticket_history_id SERIAL
+  ticket_history_id INTEGER
 ) LANGUAGE plpgsql AS
 $$ 
 DECLARE
