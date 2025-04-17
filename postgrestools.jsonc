@@ -15,7 +15,7 @@
     }
   },
   "db": {
-    "host": "localhost",
+    "host": "ntgnguyen.tailf6edf3.ts.net",
     "port": 54322,
     "username": "postgres",
     "password": "postgres",

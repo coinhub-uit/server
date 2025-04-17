@@ -16,15 +16,12 @@ import { verify } from 'lib/hashing';
 import adminJwtConfig from 'src/config/admin.jwt.config';
 import adminRefreshJwtConfig from 'src/config/admin.refresh-jwt.config';
 import userJwtConfig from 'src/config/user.jwt.config';
-import { UserService } from 'src/user/services/user.service';
-import { SourceEntity } from 'src/source/entities/source.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private adminService: AdminService,
     private jwtService: JwtService,
-    private userService: UserService,
     @Inject(adminRefreshJwtConfig.KEY)
     private _adminRefreshJwtConfig: ConfigType<typeof adminRefreshJwtConfig>,
     @Inject(adminJwtConfig.KEY)
@@ -33,36 +30,29 @@ export class AuthService {
     private _userJwtConfig: ConfigType<typeof userJwtConfig>,
   ) {}
 
-  async verifyUserToken(token: string): Promise<UserJwtRequest | null> {
+  verifyUserToken(token: string): UserJwtRequest | null {
     try {
       const payload: UserJwtPayload = this.jwtService.verify(
         token,
         this._userJwtConfig,
       );
       const { email, sub } = payload;
-      const sourceIdList = (await this.userService.findSourcesById(sub)).map(
-        (source: SourceEntity) => source.id,
-      );
-      return { userId: sub, email, isAdmin: false, sourceIdList: sourceIdList };
+      return { userId: sub, email, isAdmin: false };
     } catch {
       return null;
     }
   }
 
-  async verifyUniversalToken(token: string): Promise<UniversalJwtRequest> {
+  verifyUniversalToken(token: string): UniversalJwtRequest {
     try {
       const payload: UserJwtPayload = this.jwtService.verify(
         token,
         this._userJwtConfig,
       );
-      const sourceIdList = (
-        await this.userService.findSourcesById(payload.sub)
-      ).map((source: SourceEntity) => source.id);
       const userJwtRequest: UserJwtRequest = {
         isAdmin: false,
         email: payload.email,
         userId: payload.sub,
-        sourceIdList: sourceIdList,
       };
       return userJwtRequest;
     } catch {

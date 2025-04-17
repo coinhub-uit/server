@@ -40,10 +40,7 @@ export class TicketController {
     @Req() req: Request & { user: UniversalJwtRequest },
     @Body() createTicketDto: CreateTicketDto,
   ) {
-    if (
-      !req.user.isAdmin &&
-      createTicketDto.sourceId in req.user.sourceIdList!
-    ) {
+    if (!req.user.isAdmin) {
       throw new ForbiddenException(
         'You are not allowed to create ticket in source which not exist in your account',
       );

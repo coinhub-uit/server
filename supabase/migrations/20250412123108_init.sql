@@ -3,7 +3,6 @@
 -- Enable Supabase pg_cron extension
 CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 
-
 GRANT USAGE ON SCHEMA cron TO postgres;
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
@@ -18,11 +17,11 @@ BEGIN
   INSERT INTO ticket_history (
     ticketId,
     issuedAt,
-    maturedAt, 
+    maturedAt,
     planHistoryId,
     amount
   )
-  SELECT 
+  SELECT
     th.ticketId,
     th.maturedAt AS issuedAt,
     th.maturedAt + INTERVAL '1 day' * p.days AS maturedAt,
@@ -30,7 +29,7 @@ BEGIN
     CASE
       WHEN m.id = 'PIR' THEN th.amount + (th.amount * ph.rate / 100)
       ELSE th.amount
-    END AS amount 
+    END AS amount
     FROM
     ticket t
     JOIN method m ON t.method = m.id
@@ -69,74 +68,74 @@ SELECT
 
 -- Procedure settlement_ticket
 CREATE OR REPLACE PROCEDURE settlement_ticket(
-  p_end_date DATE,
-  p_ticket_id INTEGER,
-  p_money NUMERIC
+  pEndDate DATE,
+  pTicketId INTEGER,
+  pMoney NUMERIC
 ) LANGUAGE plpgsql AS $$
-DECLARE 
-  ticket_record RECORD;
-  latest_ticket_history_record RECORD;
+DECLARE
+  ticketRecord RECORD;
+  latestTicketHistoryRecord RECORD;
 BEGIN
   SELECT t.id AS "ticketId" ,s.id AS "sourceId"
-  INTO ticket_record
+  INTO ticketRecord
   FROM ticket t
   JOIN source s ON s.id = t."sourceId"
-  WHERE t.id = p_ticket_id;
+  WHERE t.id = pTicketId;
 
   SELECT *
-  INTO latest_ticket_history_record
+  INTO latestTicketHistoryRecord
   FROM ticket_history th
-  where th."ticketId" = p_ticket_id
+  where th."ticketId" = pTicketId
   ORDER BY "issuedAt" DESC
   LIMIT 1;
 
   UPDATE ticket_history
-  SET "maturedAt" = p_end_date
-  WHERE "ticketId" = p_ticket_id AND "issuedAt" = latest_ticket_history_record."issuedAt";
+  SET "maturedAt" = pEndDate
+  WHERE "ticketId" = pTicketId AND "issuedAt" = latestTicketHistoryRecord."issuedAt";
 
   UPDATE source
-  SET balance = balance + p_money
-  WHERE id = ticket_record."sourceId";
-  
+  SET balance = balance + pMoney
+  WHERE id = ticketRecord."sourceId";
+
   UPDATE ticket
-  SET "closedAt" = p_end_date
-  WHERE id = p_ticket_id;
+  SET "closedAt" = pEndDate
+  WHERE id = pTicketId;
 END;
 $$;
 
 
 CREATE OR REPLACE PROCEDURE simulate_maturity_circle(
-  ticket_history_id INTEGER
+  pTicketHistoryId INTEGER
 ) LANGUAGE plpgsql AS
-$$ 
+$$
 DECLARE
-  ticket_history_record RECORD; 
-  ticket_record RECORD;
-  plan_record RECORD;
-  end_date DATE;
+  ticketHistoryRecord RECORD;
+  ticketRecord RECORD;
+  planRecord RECORD;
+  endDate DATE;
 
 BEGIN
-  SELECT * 
-  INTO ticket_history_record
+  SELECT *
+  INTO ticketHistoryRecord
   FROM ticket_history th
-  WHERE th.planHistoryId = ticket_history_id    
+  WHERE th.planHistoryId = pTicketHistoryId
 
   SELECT *
-  INTO ticket_record
+  INTO ticketRecord
   FROM ticket t
-  WHERE t.id = ticket_history_record."ticketId"
+  WHERE t.id = ticketHistoryRecord."ticketId"
 
   SELECT *
-  INTO plan_record
+  INTO planRecord
   FROM plan p
-  WHERE p."ticketId" = ticket_record.id 
+  WHERE p."ticketId" = ticketRecord.id
 
-  end_date := ticket_history_record.issuedAt + (plan_record.days || ' days')::INTERVAL; 
+  endDate := ticketHistoryRecord.issuedAt + (planRecord.days || ' days')::INTERVAL;
 
-  UPDATE ticket_history 
-  SET maturedAt = end_date
-  WHERE id = ticket_history_id
-  
-  CALL insert_ticket_history(end_date) 
+  UPDATE ticket_history
+  SET maturedAt = endDate
+  WHERE id = pTicketHistoryId
+
+  CALL insert_ticket_history(endDate)
 END;
 $$

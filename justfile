@@ -22,11 +22,11 @@ run-api-server-prod:
 run-api-server-dev:
   npm run start:dev
 
-[docs('run supabase')]
+[doc('run supabase')]
 run-supabase:
   supabase start
 
-[docs('stop supabase')]
+[doc('stop supabase')]
 stop-supabase:
   supabase stop
 
