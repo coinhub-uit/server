@@ -24,7 +24,7 @@ jobs:
           version: latest
 
       - name: Get GCP_SA
-        run: echo '${{ secrets.GCP_SA }}' > 'supabase/functions/service-account.json'
+        run: echo '${{ secrets.GCP_SA_PRIVATE_KEY }}' > 'supabase/functions/service-account.json'
 
       - name: Deploy function
         run: supabase functions deploy --project-ref "$PROJECT_ID"
