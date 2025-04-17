@@ -13,7 +13,7 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Procedure insert_ticket_history
 CREATE
-OR REPLACE PROCEDURE insert_ticket_history() LANGUAGE plpgsql AS $$
+OR REPLACE PROCEDURE insert_ticket_history(endDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
   INSERT INTO ticket_history (
     ticketId,
@@ -45,7 +45,7 @@ BEGIN
   WHERE
     t.closedAt IS NULL
     AND m.id IN ('PR', 'PIR')
-    AND th.maturedAt <= CURRENT_DATE
+    AND th.maturedAt <= endDate
     AND (
       (
         m.id = 'PR'
@@ -64,7 +64,7 @@ SELECT
   cron.schedule(
     'renew_PR_PIR_tickets',
     '0 1 * * *',
-    'CALL insert_ticket_history()'
+    'CALL insert_ticket_history(CURRENT_DATE)'
   );
 
 -- Procedure settlement_ticket
@@ -103,3 +103,40 @@ BEGIN
   WHERE id = p_ticket_id;
 END;
 $$;
+
+
+CREATE OR REPLACE PROCEDURE simulate_maturity_circle(
+  ticket_history_id SERIAL
+) LANGUAGE plpgsql AS
+$$ 
+DECLARE
+  ticket_history_record RECORD; 
+  ticket_record RECORD;
+  plan_record RECORD;
+  end_date DATE;
+
+BEGIN
+  SELECT * 
+  INTO ticket_history_record
+  FROM ticket_history th
+  WHERE th.planHistoryId = ticket_history_id    
+
+  SELECT *
+  INTO ticket_record
+  FROM ticket t
+  WHERE t.id = ticket_history_record."ticketId"
+
+  SELECT *
+  INTO plan_record
+  FROM plan p
+  WHERE p."ticketId" = ticket_record.id 
+
+  end_date := ticket_history_record.issuedAt + (plan_record.days || ' days')::INTERVAL; 
+
+  UPDATE ticket_history 
+  SET maturedAt = end_date
+  WHERE id = ticket_history_id
+  
+  CALL insert_ticket_history(end_date) 
+END;
+$$
