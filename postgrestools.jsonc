@@ -3,16 +3,16 @@
   "vcs": {
     "enabled": false,
     "clientKind": "git",
-    "useIgnoreFile": false,
+    "useIgnoreFile": false
   },
   "files": {
-    "ignore": [],
+    "ignore": []
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-    },
+      "recommended": true
+    }
   },
   "db": {
     "host": "localhost",
@@ -20,6 +20,6 @@
     "username": "postgres",
     "password": "postgres",
     "database": "postgres",
-    "connTimeoutSecs": 10,
-  },
+    "connTimeoutSecs": 10
+  }
 }
