@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanNotExistException } from 'src/plan/exceptions/plan-not-exist';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UpdatePlanRateDto } from 'src/plan/dtos/update-plan-rate.dto';
 import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
 
@@ -20,29 +20,21 @@ export class PlanService {
   ) {}
 
   async findById(id: number, allHistories: boolean) {
-    try {
-      return await this.planRepository.findOneOrFail({
-        where: { id },
-        relations: { planHistories: allHistories },
-      });
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new PlanNotExistException(id);
-      }
-      throw error;
+    const planEntity = await this.planRepository.findOne({
+      where: { id },
+      relations: { planHistories: allHistories },
+    });
+    if (!planEntity) {
+      throw new PlanNotExistException(id);
     }
   }
 
   async findHistoryById(id: number) {
-    try {
-      return await this.planHistoryRepository.findOneOrFail({
-        where: { id },
-      });
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new PlanHistoryNotExistException(id);
-      }
-      throw error;
+    const planHistoryEntity = await this.planHistoryRepository.findOne({
+      where: { id },
+    });
+    if (!planHistoryEntity) {
+      throw new PlanHistoryNotExistException(id);
     }
   }
 

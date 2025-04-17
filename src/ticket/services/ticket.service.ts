@@ -22,6 +22,7 @@ export class TicketService {
     const ticket = this.ticketRepository.create({
       source: { id: createTicketDto.sourceId },
       method: createTicketDto.method,
+      plan: { id: createTicketDto.planHistoryId },
     });
     return await this.ticketRepository.save(ticket);
   }
@@ -54,7 +55,7 @@ export class TicketService {
         const latestTicketHistory = await ticketHistoryRepository.findOne({
           where: { ticketId },
           order: {
-            issuedAt: { direction: 'DESC' },
+            issuedAt: 'DESC',
           },
           relations: {
             ticket: { source: true, plan: true },
@@ -67,18 +68,18 @@ export class TicketService {
         const interest = this.calcInterest(
           latestTicketHistory,
           settlementDate,
-          latestTicketHistory.ticket.plan,
+          latestTicketHistory.ticket!.plan!,
         );
-        const newBalance = latestTicketHistory.ticket.source.balance
-          .plus(interest)
+        const newBalance = latestTicketHistory
+          .ticket!.source!.balance.plus(interest)
           .plus(latestTicketHistory.amount);
 
         latestTicketHistory.maturedAt = settlementDate;
-        latestTicketHistory.ticket.source.balance = newBalance;
+        latestTicketHistory.ticket!.source!.balance = newBalance;
 
         await ticketHistoryRepository.save(latestTicketHistory);
-        await sourceRepository.save(latestTicketHistory.ticket.source);
-        await ticketRepository.softRemove(latestTicketHistory.ticket);
+        await sourceRepository.save(latestTicketHistory.ticket!.source!);
+        await ticketRepository.softRemove(latestTicketHistory.ticket!);
       },
     );
   }

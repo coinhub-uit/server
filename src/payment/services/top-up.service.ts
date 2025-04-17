@@ -30,10 +30,12 @@ export class TopUpService {
     private readonly topUpRepository: Repository<TopUpEntity>,
   ) {}
 
+  // NOTE: isn't used
   getBankList() {
     return this.vnpayService.getBankList();
   }
 
+  // TODO: Transaction?
   async verifyIpn(query: ReturnQueryFromVNPay) {
     const verification = await this.vnpayService.verifyIpnCall(query);
     if (!verification.isVerified) {
@@ -59,7 +61,7 @@ export class TopUpService {
 
     const sourceDestination = topUp.sourceDestination;
     await this.sourceService.changeSourceBalance(
-      sourceDestination,
+      sourceDestination!,
       topUp.amount,
     );
 

@@ -255,7 +255,6 @@ export class UserController {
     }
     try {
       const user = await this.userService.findByIdOrFail(id);
-      console.log(user);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {

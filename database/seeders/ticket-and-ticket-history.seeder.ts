@@ -41,13 +41,13 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         method: MethodEnum.NR,
         openedAt: randomStartDate,
         closedAt: endDateFromRandomStartDate,
+        status:
+          endDateFromRandomStartDate <= this.DATE_NOW
+            ? TicketStatusEnum.maturedWithdrawn
+            : TicketStatusEnum.active,
         plan: randomPlanEntity,
       }),
     );
-
-    if (endDateFromRandomStartDate <= this.DATE_NOW) {
-      ticketEntity.status = TicketStatusEnum.maturedWithdrawn;
-    }
 
     const shouldWithdraw = this.shouldWithdraw;
 

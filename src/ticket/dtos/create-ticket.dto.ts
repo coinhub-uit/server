@@ -15,9 +15,9 @@ export class CreateTicketDto {
   method!: MethodEnum;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  planHistoryId!: string;
+  planHistoryId!: number;
 
   @ApiProperty()
   @IsNumber()

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
-import { URL_PATTERN } from 'lib/regex';
 import { extname, join as joinPath } from 'path';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
@@ -38,9 +37,6 @@ export class UserService {
   }
 
   static async deleteAvatarInStorageById(userId: string) {
-    if (URL_PATTERN.test(userId)) {
-      return;
-    }
     try {
       const dir = joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars`);
       const files = await readdir(dir);
@@ -60,7 +56,10 @@ export class UserService {
       UserService.AVATAR_FILENAME_FIRST_HEX_PATTERN,
       '',
     );
-    await rename(file.filename, sanitizedFilename);
+    const targetDir = file.destination;
+    const oldPath = file.path;
+    const newPath = joinPath(targetDir, sanitizedFilename);
+    await rename(oldPath, newPath);
     return await this.userRepository.save({
       id: userId,
       avatar: sanitizedFilename,
@@ -176,8 +175,8 @@ export class UserService {
     if (!user) {
       throw new UserNotExistException();
     }
-    const sources = user.sources;
-    return sources.flatMap((source) => source.tickets);
+    const sources = user.sources!;
+    return sources.flatMap((source) => source.tickets!);
   }
 
   async createDevice(userId: string, registerDeviceDto: RegisterDeviceDto) {

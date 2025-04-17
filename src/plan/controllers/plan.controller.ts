@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -93,7 +94,7 @@ export class PlanController {
   })
   @UseGuards(AdminJwtAuthGuard)
   @Post('histories')
-  async updateRate(updatePlanRateDto: UpdatePlanRateDto) {
+  async updateRate(@Body() updatePlanRateDto: UpdatePlanRateDto) {
     try {
       return await this.planService.updateRate(updatePlanRateDto);
     } catch (error) {

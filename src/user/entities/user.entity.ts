@@ -46,12 +46,10 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty({ type: String, nullable: true, description: 'Avatar URL' })
   @Transform(
-    ({ value, obj }: { value: UserEntity['avatar']; obj: UserEntity }) => {
-      console.log('value', value);
-      return value && URL_PATTERN.test(value)
+    ({ value, obj }: { value: UserEntity['avatar']; obj: UserEntity }) =>
+      value && URL_PATTERN.test(value)
         ? value
-        : `${process.env.API_SERVER_URL}/users/${obj.id}/avatar`;
-    },
+        : `${process.env.API_SERVER_URL}/users/${obj.id}/avatar`,
   )
   @Column({ type: 'text', nullable: true })
   avatar!: string | null;
