@@ -14,7 +14,7 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Procedure insert_ticket_history
 CREATE
-OR REPLACE PROCEDURE insert_ticket_history(endDate DATE) LANGUAGE plpgsql AS $$
+OR REPLACE PROCEDURE rotate_ticket(endDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
   INSERT INTO ticket_history (
     ticketId,
@@ -80,7 +80,7 @@ $$;
 -- Cron insert_ticket_history
 SELECT
   cron.schedule(
-    'renew_PR_PIR_tickets',
+    'rotate_ticket_cron_schedule',
     '0 0 * * *',
     'CALL insert_ticket_history(CURRENT_DATE)'
   );
