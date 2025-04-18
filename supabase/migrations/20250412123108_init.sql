@@ -120,6 +120,12 @@ BEGIN
   UPDATE ticket
   SET "closedAt" = pEndDate AND status = "earlyWithdrawn"
   WHERE id = pTicketId;
+  EXCEPTION
+    WHEN OTHERS THEN
+      RAISE NOTICE 'Error occurred: %', SQLERRM;
+        RAISE;
+
+
 END;
 $$;
 
@@ -157,5 +163,12 @@ BEGIN
   WHERE id = pTicketHistoryId;
 
   CALL insert_ticket_history(endDate);
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      RAISE NOTICE 'Error occurred: %', SQLERRM;
+        RAISE;
+
+
 END;
 $$;
