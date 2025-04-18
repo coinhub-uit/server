@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   ForbiddenException,
   Get,
@@ -18,11 +19,13 @@ import {
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
+import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
+import { TicketService } from 'src/ticket/services/ticket.service';
 
 @Controller('tickets')
 export class TicketController {
-  constructor() {}
+  constructor(private ticketService: TicketService) {}
 
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
@@ -36,13 +39,14 @@ export class TicketController {
   @Post()
   create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    //  @Body() createTicketDto: CreateTicketDto,
+    @Body() createTicketDto: CreateTicketDto,
   ) {
     if (!req.user.isAdmin) {
       throw new ForbiddenException(
         'You are not allowed to create ticket in source which not exist in your account',
       );
     }
+    return this.ticketService.createTicket(createTicketDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -55,10 +59,9 @@ export class TicketController {
   @ApiNotFoundResponse()
   @ApiOkResponse()
   @Get(':id/settlement')
-  async settlementTicket(@Param('id', ParseIntPipe) ticketId: string) {
+  async settlementTicket(@Param('id', ParseIntPipe) ticketId: number) {
     try {
-      await Promise.resolve(ticketId);
-      // await this.ticketService.settlementTicket(ticketId);
+      await this.ticketService.settlementTicket(ticketId);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();

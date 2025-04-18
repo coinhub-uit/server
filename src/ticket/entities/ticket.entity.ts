@@ -47,7 +47,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
 
   @ApiPropertyOptional()
   @ManyToOne(() => PlanEntity, (plan) => plan.tickets, { nullable: false })
-  plan?: PlanEntity;
+  plan!: PlanEntity;
 
   @ApiPropertyOptional({ type: [TicketHistoryEntity] })
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
@@ -57,5 +57,5 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   @ManyToOne(() => SourceEntity, (source) => source.tickets, {
     nullable: false,
   })
-  source?: SourceEntity;
+  source!: SourceEntity;
 }

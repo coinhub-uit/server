@@ -50,7 +50,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })
-  ticket?: TicketEntity;
+  ticket!: TicketEntity;
 
   @ApiPropertyOptional()
   @ManyToOne(

@@ -37,5 +37,5 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories, {
     nullable: false,
   })
-  plan?: PlanEntity;
+  plan!: PlanEntity;
 }

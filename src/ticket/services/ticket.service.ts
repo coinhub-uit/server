@@ -5,8 +5,12 @@ import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
-import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { dateAfter } from 'lib/date-utils';
+import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
+import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class TicketService {
@@ -19,12 +23,48 @@ export class TicketService {
   ) {}
 
   async createTicket(createTicketDto: CreateTicketDto) {
-    const ticket = this.ticketRepository.create({
-      source: { id: createTicketDto.sourceId },
-      method: createTicketDto.method,
-      plan: { id: createTicketDto.planHistoryId },
-    });
-    return await this.ticketRepository.save(ticket);
+    const now = new Date();
+    await this.dataSource.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const ticketRepository =
+          transactionalEntityManager.getRepository(TicketEntity);
+        const ticketHistoryRepository =
+          transactionalEntityManager.getRepository(TicketHistoryEntity);
+        const planHistoryRepository =
+          transactionalEntityManager.getRepository(PlanHistoryEntity);
+
+        const planHistory = await planHistoryRepository.findOne({
+          where: { id: createTicketDto.planHistoryId },
+          relations: {
+            plan: true,
+          },
+        });
+
+        if (!planHistory) {
+          throw new PlanHistoryNotExistException(createTicketDto.planHistoryId);
+        }
+        const ticket = ticketRepository.create({
+          openedAt: now,
+          status: TicketStatusEnum.active,
+          method: createTicketDto.method,
+          source: { id: createTicketDto.sourceId },
+          plan: planHistory.plan,
+        });
+        await ticketRepository.save(ticket);
+
+        const ticketHistory = ticketHistoryRepository.create({
+          issuedAt: now,
+          maturedAt: dateAfter(now, planHistory.plan.days),
+          principal: createTicketDto.amount,
+          interest: createTicketDto.amount * planHistory.rate,
+          planHistory: planHistory,
+          ticket: ticket,
+          ticketId: ticket.id,
+        });
+
+        return await ticketHistoryRepository.save(ticketHistory);
+      },
+    );
   }
 
   // static calcInterest({
@@ -45,18 +85,18 @@ export class TicketService {
   //   return ticketHistoryEntity.interest.mul(diffDays).div(planDays);
   // }
 
-  static calcInterest(
-    ticketHistoryEntity: TicketHistoryEntity,
+  static calculateEarlyInterest(
+    issuedDate: Date,
+    principal: Decimal,
     settlementDate: Date,
-    plan: PlanEntity,
+    days: number,
+    earlyMaturedInterestRate: number,
   ) {
     const diffDays = Math.ceil(
-      Math.abs(
-        settlementDate.getTime() - ticketHistoryEntity.issuedAt.getTime(),
-      ) /
+      Math.abs(settlementDate.getTime() - issuedDate.getTime()) /
         (1000 * 3600 * 24),
     );
-    return ticketHistoryEntity.interest.mul(diffDays).div(plan.days);
+    return principal.mul(diffDays * earlyMaturedInterestRate).div(days);
   }
 
   async settlementTicket(ticketId: number) {
@@ -69,7 +109,17 @@ export class TicketService {
           transactionalEntityManager.getRepository(TicketEntity);
         const sourceRepository =
           transactionalEntityManager.getRepository(SourceEntity);
+        const planHistoryRepository =
+          transactionalEntityManager.getRepository(PlanHistoryEntity);
 
+        const latestNrPlanHistory = await planHistoryRepository.findOne({
+          order: {
+            createdAt: 'DESC',
+            plan: {
+              days: -1,
+            },
+          },
+        });
         const latestTicketHistory = await ticketHistoryRepository.findOne({
           where: { ticketId },
           order: {
@@ -83,21 +133,24 @@ export class TicketService {
           throw new TicketHistoryNotExistException();
         }
 
-        const interest = TicketService.calcInterest(
-          latestTicketHistory,
+        const interest = TicketService.calculateEarlyInterest(
+          latestTicketHistory.issuedAt,
+          latestTicketHistory.principal,
           settlementDate,
-          latestTicketHistory.ticket!.plan!,
+          latestTicketHistory.ticket.plan.days,
+          latestNrPlanHistory!.rate,
         );
-        const newBalance = latestTicketHistory
-          .ticket!.source!.balance.plus(interest)
+
+        const newBalance = latestTicketHistory.ticket.source.balance
+          .plus(interest)
           .plus(latestTicketHistory.principal);
 
         latestTicketHistory.maturedAt = settlementDate;
-        latestTicketHistory.ticket!.source!.balance = newBalance;
+        latestTicketHistory.ticket.source.balance = newBalance;
 
         await ticketHistoryRepository.save(latestTicketHistory);
-        await sourceRepository.save(latestTicketHistory.ticket!.source!);
-        await ticketRepository.softRemove(latestTicketHistory.ticket!);
+        await sourceRepository.save(latestTicketHistory.ticket.source);
+        await ticketRepository.softRemove(latestTicketHistory.ticket);
       },
     );
   }
