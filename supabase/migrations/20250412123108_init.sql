@@ -73,6 +73,12 @@ FROM plan AS p
 WHERE p.id = t."planId"
   AND method = 'NR'
   AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE NOTICE 'Error occurred: %', SQLERRM;
+      RAISE;
+
 END;
 $$;
 
