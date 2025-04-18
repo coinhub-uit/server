@@ -6,12 +6,14 @@ import { TicketController } from './controllers/ticket.controller';
 import { TicketService } from './services/ticket.service';
 import { UserModule } from 'src/user/user.module';
 import { SourceModule } from 'src/source/source.module';
+import { PlanModule } from 'src/plan/plan.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TicketEntity, TicketHistoryEntity]),
     UserModule,
     SourceModule,
+    PlanModule,
   ],
   controllers: [TicketController],
   providers: [TicketService],

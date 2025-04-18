@@ -6,13 +6,14 @@ import {
   decimalToString,
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Check, Column, Entity, PrimaryColumn } from 'typeorm';
 
 @ApiSchema()
+@Check(`"id" = true`)
 @Entity({ name: 'settings' })
 export class SettingsEntity extends AbstractEntity<SettingsEntity> {
-  @PrimaryColumn()
-  id!: string;
+  @PrimaryColumn({ type: 'boolean', default: true })
+  id!: true;
 
   @ApiProperty({ type: String })
   @Column({

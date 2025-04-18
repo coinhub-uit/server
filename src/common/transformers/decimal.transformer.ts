@@ -2,7 +2,10 @@ import Decimal from 'decimal.js';
 import { ValueTransformer } from 'typeorm';
 
 export class DecimalTransformer implements ValueTransformer {
-  to(decimal: Decimal): string {
+  to(decimal?: Decimal): string {
+    if (!decimal) {
+      throw new Error('Decimal is not defined');
+    }
     return decimal.toString();
   }
 

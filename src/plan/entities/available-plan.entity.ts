@@ -11,9 +11,9 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
       .createQueryBuilder()
       .distinctOn(['plan.days'])
       .select('plan_history.id', 'id')
-      .addSelect('plan_history.createdAt', 'createdAt')
       .addSelect('plan_history.rate', 'rate')
       .addSelect('plan.id', 'planId')
+      .addSelect('plan.days', 'days')
       .from(PlanHistoryEntity, 'plan_history')
       .innerJoin(PlanEntity, 'plan', 'plan.id = plan_history.id')
       .orderBy('plan.days')
@@ -24,11 +24,6 @@ export class AvailablePlanEntity {
   @ViewColumn()
   id!: string;
 
-  // NOTE: Do we need this
-  @ApiProperty()
-  @ViewColumn()
-  createdAt!: Date;
-
   @ApiProperty()
   @ViewColumn()
   rate!: number;
@@ -36,4 +31,8 @@ export class AvailablePlanEntity {
   @ApiProperty()
   @ViewColumn()
   planId!: string;
+
+  @ApiProperty()
+  @ViewColumn()
+  days!: number;
 }

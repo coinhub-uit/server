@@ -1,7 +1,7 @@
 import { ServiceException } from 'src/common/exceptions/service.exception';
 
-export class PlanAlreadyExistException extends ServiceException {
-  constructor(message: string = 'Plan already exist') {
+export class TicketNotExistException extends ServiceException {
+  constructor(message: string = 'Ticket does not exist') {
     super();
     this.message = message;
   }

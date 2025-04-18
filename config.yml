@@ -1,0 +1,10 @@
+lowercaseKeywords: true
+connections:
+  - alias: coinhub
+    driver: postgres
+    proto: tcp
+    user: postgres
+    passwd: postgres
+    host: localhost
+    port: 54324
+    dbName: postgres

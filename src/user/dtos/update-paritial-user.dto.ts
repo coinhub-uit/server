@@ -1,5 +1,5 @@
 import { ApiSchema, PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 
 @ApiSchema()
-export class UpdateParitialUserDto extends PartialType(CreateUserDto) {}
+export class UpdateParitialUserDto extends PartialType(UpdateUserDto) {}

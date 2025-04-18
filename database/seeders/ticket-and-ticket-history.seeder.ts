@@ -8,6 +8,7 @@ import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { MethodEnum } from 'src/ticket/types/method.enum';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 
 // PERF: The planHistoryEntities is iterated awaiting to get the plan. Maybe try closure
 export default class TicketAndTicketHistorySeeder implements Seeder {
@@ -40,32 +41,41 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         method: MethodEnum.NR,
         openedAt: randomStartDate,
         closedAt: endDateFromRandomStartDate,
+        status:
+          endDateFromRandomStartDate <= this.DATE_NOW
+            ? TicketStatusEnum.maturedWithdrawn
+            : TicketStatusEnum.active,
+        plan: randomPlanEntity,
       }),
     );
 
-    const shouldSettlement = this.shouldSettlement;
+    const shouldWithdraw = this.shouldWithdraw;
+    const principal = randomMoney();
+    const interest = randomMoney(); // FIXME: later
 
     const ticketHistoryEntity: TicketHistoryEntity =
       ticketHistoryRepository.create({
-        amount: randomMoney(),
+        principal,
+        interest,
         issuedAt: new Date(randomStartDate),
         planHistory: reversedPlanHistoryEntities.find((planHistoryEntity) => {
-          return shouldSettlement
-            ? planHistoryEntity.plan.days === -1
-            : planHistoryEntity.plan.id === randomPlanEntity.id &&
+          return shouldWithdraw
+            ? planHistoryEntity.plan!.days === -1
+            : planHistoryEntity.plan!.id === randomPlanEntity.id &&
                 planHistoryEntity.createdAt <= randomStartDate;
         }),
         maturedAt: endDateFromRandomStartDate,
         ticket: ticketEntity,
       });
 
-    if (shouldSettlement) {
-      const randomSettlementDate = new Date(randomStartDate);
-      randomSettlementDate.setDate(
-        randomSettlementDate.getDate() +
+    if (shouldWithdraw) {
+      const randomWithdrawDate = new Date(randomStartDate);
+      randomWithdrawDate.setDate(
+        randomWithdrawDate.getDate() +
           faker.number.int({ min: 1, max: randomPlanEntity.days }),
       );
-      ticketEntity.closedAt = randomSettlementDate;
+      ticketEntity.closedAt = randomWithdrawDate;
+      ticketEntity.status = TicketStatusEnum.earlyWithdrawn;
       await ticketRepository.save(ticketEntity);
     }
 
@@ -104,13 +114,14 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
       source: faker.helpers.arrayElement(sourceEntities),
       method: methodType,
       openedAt: new Date(iterateDate),
+      plan: randomPlanEntity,
     });
     const secondTicketEntity = await ticketRepository.save(firstTicketEntity);
 
     for (let i = 1; i <= numberOfMonths; ++i) {
       const existingPlanHistoryEntity = reversedPlanHistoryEntities.find(
         (planHistoryEntity) =>
-          planHistoryEntity.plan.id === randomPlanEntity.id &&
+          planHistoryEntity.plan!.id === randomPlanEntity.id &&
           planHistoryEntity.createdAt <= iterateDate,
       );
 
@@ -119,8 +130,12 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         return;
       }
 
+      // const principal = randomMoney(); // exist amount
+      const interest = randomMoney(); // FIXME: later
+
       const ticketHistoryEntity = ticketHistoryRepository.create({
-        amount: existingAmount,
+        principal: existingAmount,
+        interest: interest,
         issuedAt: new Date(iterateDate),
         planHistory: existingPlanHistoryEntity,
         maturedAt: new Date(maturedDate),
@@ -129,18 +144,20 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
 
       ticketHistoryEntities.push(ticketHistoryEntity);
 
-      if (this.shouldSettlement) {
-        const randomSettlementDate = new Date(iterateDate);
-        randomSettlementDate.setDate(
-          randomSettlementDate.getDate() +
+      if (this.shouldWithdraw) {
+        const randomWithdrawDate = new Date(iterateDate);
+        randomWithdrawDate.setDate(
+          randomWithdrawDate.getDate() +
             faker.number.int({ min: 1, max: randomPlanEntity.days }),
         );
-        secondTicketEntity.closedAt = randomSettlementDate;
+        secondTicketEntity.closedAt = randomWithdrawDate;
+        secondTicketEntity.status = TicketStatusEnum.earlyWithdrawn;
         break;
       }
 
       if (maturedDate > this.DATE_NOW) {
         secondTicketEntity.closedAt = new Date(maturedDate);
+        secondTicketEntity.status = TicketStatusEnum.maturedWithdrawn;
         break;
       }
 
@@ -160,7 +177,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     await ticketHistoryRepository.save(ticketHistoryEntities);
   }
 
-  private get shouldSettlement() {
+  private get shouldWithdraw() {
     return faker.number.int({ min: 1, max: 100 }) <= 20;
   }
 

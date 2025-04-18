@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { Repository } from 'typeorm';
 import { CreateAdminDto } from '../dtos/create-admin.dto';
+import { hash } from 'lib/hashing';
 
 @Injectable()
 export class AdminService {
@@ -12,7 +13,11 @@ export class AdminService {
   ) {}
 
   async createAdmin(adminDetails: CreateAdminDto) {
-    const newAdmin: AdminEntity = this.AdminRepository.create(adminDetails);
+    const hasedPassword = await hash(adminDetails.password);
+    const newAdmin: AdminEntity = this.AdminRepository.create({
+      ...adminDetails,
+      password: hasedPassword,
+    });
     return await this.AdminRepository.save(newAdmin);
   }
 

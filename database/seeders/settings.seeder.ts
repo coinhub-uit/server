@@ -6,7 +6,6 @@ export default class MoneySeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     const repository = dataSource.getRepository(SettingsEntity);
     await repository.insert({
-      id: 'main',
       minAmountOpenTicket: 1000000,
     });
   }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Request,
   UseGuards,
@@ -33,7 +34,7 @@ export class AdminController {
 
   // TODO: Just for test, comment or guard this later
   @ApiOperation({
-    description: 'Create account in database',
+    summary: 'Create',
   })
   @ApiCreatedResponse()
   @Post()
@@ -42,13 +43,9 @@ export class AdminController {
   }
 
   @ApiBearerAuth('admin')
+  @ApiOperation({ summary: 'Get admins' })
   @ApiOkResponse({
-    description: "Get admins' information",
     type: [AdminEntity],
-    example: [
-      { username: 'GuessMe', password: 'StealMe!!' },
-      { username: 'foo', password: 'bar' },
-    ] satisfies Awaited<ReturnType<AdminController['getAdmins']>>,
   })
   @UseGuards(AdminJwtAuthGuard)
   @Get()
@@ -56,34 +53,21 @@ export class AdminController {
     return this.adminService.find();
   }
 
-  @ApiBody({ type: LoginAdminDto }) // Explicitly declarethe request body
-  @ApiOkResponse({
-    description: 'Login the admin',
-    example: {
-      accessToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
-      refreshToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
-    } satisfies Awaited<ReturnType<AdminController['login']>>,
-  })
-  @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
   @UseGuards(AdminLocalAuthGuard)
+  @ApiOperation({ summary: 'Login' })
+  @ApiBody({ type: LoginAdminDto }) // Explicitly declarethe request body
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse()
+  @HttpCode(200)
   @Post('login')
   login(@Request() req: Request & { user: AdminLocalRequest }) {
     return this.authService.generateTokens(req.user.username);
   }
 
   @ApiBearerAuth('admin')
-  @ApiOkResponse({
-    description: 'Successfully refreshed the token',
-    example: {
-      accessToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQyODMzODc3fQ.Uqnp518LNF6ZRVmrIy97c165XPAo5-s44UV0cTlS6f4',
-      refreshToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgzMDI3NywiZXhwIjoxNzQzNDM1MDc3fQ.KdWa6w76vn1GTz0sPM8bCzmoneJxEBsRMtdP5WlfdnE',
-    } satisfies Awaited<ReturnType<AdminController['refreshToken']>>,
-  })
-  @ApiUnauthorizedResponse({ description: 'Who the fuck are you?' })
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse()
   @UseGuards(AdminJwtAuthGuard)
   @Get('refresh')
   refreshToken(@Request() req: Request & { user: AdminJwtRequest }) {

@@ -11,6 +11,7 @@ import { UserJwtStrategy } from 'src/auth/strategies/user.jwt.strategy';
 import { UniversalJwtStrategy } from 'src/auth/strategies/universal.jwt.strategy';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
 import { AdminModule } from 'src/admin/admin.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AdminModule } from 'src/admin/admin.module';
     ConfigModule.forFeature(adminJwtConfig),
     ConfigModule.forFeature(adminRefreshJwtConfig),
     ConfigModule.forFeature(userJwtConfig),
+    UserModule,
   ],
   providers: [
     AuthService,
