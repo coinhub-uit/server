@@ -10,14 +10,12 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
 -- Enable Supabase pg_net extension
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
-
 -- TODO: Update ticket.status
 
 -- Procedure insert_ticket_history
 CREATE
 OR REPLACE PROCEDURE insert_ticket_history(endDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
-  -- TODO: update balance for PR
   INSERT INTO ticket_history (
     ticketId,
     issuedAt,
@@ -59,6 +57,20 @@ BEGIN
         AND (th.amount + (th.amount * ph.rate / 100)) >= s.minAmountOpenTicket
       )
     );
+
+UPDATE source s
+JOIN ticket_history th ON th."ticketId" = s."ticketId"
+JOIN plan_history ph ON th."planHistoryId" = ph.id
+JOIN ticket t ON t.id = th."ticketId"
+JOIN plan p ON ph."planId" = p.id
+SET s.balance = s.balance + (th.amount * ph.rate)/100
+WHERE method = "PR" AND t.openedAt + INTERVAL '1 day' * p.days = endDate;
+
+UPDATE ticket t
+JOIN plan p ON t.planId = planId
+SET t."closedAt" = endDate and t.status = "maturedWithdrawn"
+WHERE method = "NR" AND t.openedAt + INTERVAL '1 day' * p.days = endDate;
+
 END;
 $$;
 
@@ -96,17 +108,12 @@ BEGIN
   ORDER BY "issuedAt" DESC
   LIMIT 1;
 
-  -- NOTE: maturedAt???
-  UPDATE ticket_history
-  SET "maturedAt" = pEndDate
-  WHERE "ticketId" = pTicketId AND "issuedAt" = latestTicketHistoryRecord."issuedAt";
-
   UPDATE source
   SET balance = balance + pMoney
   WHERE id = ticketRecord."sourceId";
 
   UPDATE ticket
-  SET "closedAt" = pEndDate
+  SET "closedAt" = pEndDate AND status = "earlyWithdrawn"
   WHERE id = pTicketId;
 END;
 $$;
@@ -138,7 +145,7 @@ BEGIN
   FROM plan p
   WHERE p."ticketId" = ticketRecord.id;
 
-  endDate := ticketHistoryRecord.issuedAt + (planRecord.days || ' days')::INTERVAL;
+  endDate := ticketHistoryRecord.issuedAt + INTERVAL '1 day' * planRecord.days;
 
   UPDATE ticket_history
   SET maturedAt = endDate
