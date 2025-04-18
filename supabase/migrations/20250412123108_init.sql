@@ -10,8 +10,6 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
 -- Enable Supabase pg_net extension
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- TODO: Update ticket.status
-
 -- Procedure insert_ticket_history
 CREATE
 OR REPLACE PROCEDURE rotate_ticket(endDate DATE) LANGUAGE plpgsql AS $$
@@ -58,24 +56,25 @@ BEGIN
       )
     );
 
-UPDATE source s
-JOIN ticket_history th ON th."ticketId" = s."ticketId"
-JOIN plan_history ph ON th."planHistoryId" = ph.id
-JOIN ticket t ON t.id = th."ticketId"
-JOIN plan p ON ph."planId" = p.id
-SET s.balance = s.balance + (th.amount * ph.rate)/100
-WHERE method = "PR" AND t.openedAt + INTERVAL '1 day' * p.days = endDate;
+UPDATE source AS s
+SET balance = s.balance + (th.amount * ph.rate) / 100
+FROM ticket_history AS th
+JOIN plan_history AS ph ON th."planHistoryId" = ph.id
+JOIN ticket AS t ON t.id = th."ticketId"
+JOIN plan AS p ON ph."planId" = p.id
+WHERE th."ticketId" = s."ticketId"
+  AND method = 'PR'
+  AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
 
-UPDATE ticket t
-JOIN plan p ON t.planId = planId
-SET t."closedAt" = endDate and t.status = "maturedWithdrawn"
-WHERE method = "NR" AND t.openedAt + INTERVAL '1 day' * p.days = endDate;
-
+UPDATE ticket AS t
+SET "closedAt" = endDate,
+    status = 'maturedWithdrawn'
+FROM plan AS p
+WHERE p.id = t."planId"
+  AND method = 'NR'
+  AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
 END;
 $$;
-
--- TODO: insert_ticket_history name is suck
--- TODO: renew_PR_PIR_tickets too
 
 -- Cron insert_ticket_history
 SELECT
