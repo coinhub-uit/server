@@ -79,13 +79,9 @@ export class TicketController {
   @ApiNotFoundResponse()
   @ApiOkResponse()
   @Get(':id/:endDate/simulate-settlement')
-  async simulateSettlementTicket(
-    @Param('id', ParseIntPipe) ticketId: string,
-    @Param('endDate') endDate: Date,
-  ) {
+  async simulateMaturityCircle(@Param('id', ParseIntPipe) ticketId: number) {
     try {
-      await Promise.resolve([endDate, ticketId]);
-      // await this.ticketService.simulateSettlementTicket(ticketId, endDate);
+      await this.ticketService.simulateMaturityCircle(ticketId);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();

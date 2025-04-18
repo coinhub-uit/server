@@ -90,13 +90,13 @@ export class TicketService {
     principal: Decimal,
     settlementDate: Date,
     days: number,
-    earlyMaturedInterestRate: number,
+    earlyMaturityInterestRate: number,
   ) {
     const diffDays = Math.ceil(
       Math.abs(settlementDate.getTime() - issuedDate.getTime()) /
         (1000 * 3600 * 24),
     );
-    return principal.mul(diffDays * earlyMaturedInterestRate).div(days);
+    return principal.mul(diffDays * earlyMaturityInterestRate).div(days);
   }
 
   async settlementTicket(ticketId: number) {
@@ -153,5 +153,9 @@ export class TicketService {
         await ticketRepository.softRemove(latestTicketHistory.ticket);
       },
     );
+  }
+
+  async simulateMaturityCircle(ticketId: number) {
+    await this.dataSource.query(`CALl simulate_maturity_circle(${ticketId})`);
   }
 }

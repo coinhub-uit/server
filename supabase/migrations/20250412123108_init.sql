@@ -131,7 +131,7 @@ $$;
 
 
 CREATE OR REPLACE PROCEDURE simulate_maturity_circle(
-  pTicketHistoryId INTEGER
+  pTicketId INTEGER
 ) LANGUAGE plpgsql AS
 $$
 DECLARE
@@ -144,7 +144,9 @@ BEGIN
   SELECT *
   INTO ticketHistoryRecord
   FROM ticket_history th
-  WHERE th.planHistoryId = pTicketHistoryId;
+  WHERE th."ticketId" = pTicketId
+  ORDER BY th."issuedAt" DESC
+  LIMIT 1
 
   SELECT *
   INTO ticketRecord
@@ -160,7 +162,7 @@ BEGIN
 
   UPDATE ticket_history
   SET maturedAt = endDate
-  WHERE id = pTicketHistoryId;
+  WHERE id = ticketHistoryRecord.id;
 
   CALL insert_ticket_history(endDate);
 
