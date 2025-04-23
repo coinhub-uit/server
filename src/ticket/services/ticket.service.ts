@@ -67,24 +67,6 @@ export class TicketService {
     );
   }
 
-  // static calcInterest({
-  //   ticketHistoryIssuedAt,
-  //   now,
-  //   planDays,
-  //   rate,
-  // }: {
-  //   ticketHistoryIssuedAt: Date;
-  //   now: Date;
-  //   planDays: number;
-  //   rate: number;
-  // }) {
-  //   const diffDays = Math.ceil(
-  //     Math.abs(now.getTime() - ticketHistoryIssuedAt.getTime()) /
-  //       (1000 * 3600 * 24),
-  //   );
-  //   return ticketHistoryEntity.interest.mul(diffDays).div(planDays);
-  // }
-
   static calculateEarlyInterest(
     issuedDate: Date,
     principal: Decimal,
