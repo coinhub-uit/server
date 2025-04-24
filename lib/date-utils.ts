@@ -10,6 +10,7 @@ export function getMonthDifference(start: Date, end: Date) {
 }
 
 export function dateAfter(startDate: Date, days: number) {
-  const endDate = new Date().setDate(startDate.getDate() + days);
+  const endDate = new Date();
+  endDate.setDate(startDate.getDate() + days);
   return endDate;
 }

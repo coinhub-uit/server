@@ -26,14 +26,14 @@ export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
   @Column({ type: 'decimal', precision: 4, scale: 2 })
   rate!: number;
 
-  @ApiPropertyOptional({ type: [TicketHistoryEntity] })
+  @ApiPropertyOptional({ type: () => [TicketHistoryEntity] })
   @OneToMany(
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
   ticketHistories?: TicketHistoryEntity[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: () => PlanEntity })
   @ManyToOne(() => PlanEntity, (plan) => plan.planHistories, {
     nullable: false,
   })

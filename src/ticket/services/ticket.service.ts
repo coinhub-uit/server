@@ -56,7 +56,7 @@ export class TicketService {
           issuedAt: now,
           maturedAt: dateAfter(now, planHistory.plan.days),
           principal: createTicketDto.amount,
-          interest: createTicketDto.amount * planHistory.rate,
+          interest: (createTicketDto.amount * planHistory.rate) / 100,
           planHistory: planHistory,
           ticket: ticket,
           ticketId: ticket.id,
@@ -78,7 +78,10 @@ export class TicketService {
       Math.abs(settlementDate.getTime() - issuedDate.getTime()) /
         (1000 * 3600 * 24),
     );
-    return principal.mul(diffDays * earlyMaturityInterestRate).div(days);
+    return principal
+      .mul(diffDays * earlyMaturityInterestRate)
+      .div(days)
+      .div(100);
   }
 
   async settlementTicket(ticketId: number) {

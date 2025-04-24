@@ -46,13 +46,13 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   @PrimaryColumn()
   ticketId?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: () => TicketEntity })
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })
   ticket!: TicketEntity;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: () => PlanHistoryEntity })
   @ManyToOne(
     () => PlanHistoryEntity,
     (planHistory) => planHistory.ticketHistories,

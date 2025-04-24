@@ -1,4 +1,4 @@
--- vim:ft=sql.postgresql
+-- vim:ft=plsql.postgresql
 
 -- Enable Supabase pg_cron extension
 CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
@@ -14,56 +14,57 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 CREATE
 OR REPLACE PROCEDURE rotate_ticket(endDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
+ RAISE EXCEPTION '%' ,endDate;
   INSERT INTO ticket_history (
-    ticketId,
-    issuedAt,
-    maturedAt,
-    planHistoryId,
-    amount
+    "ticketId",
+    "issuedAt",
+    "maturedAt",
+    "planHistoryId",
+    principal
   )
   SELECT
-    th.ticketId,
-    th.maturedAt AS issuedAt,
-    th.maturedAt + INTERVAL '1 day' * p.days AS maturedAt,
+    th."ticketId",
+    th."maturedAt" AS "issuedAt",
+    th."maturedAt" + INTERVAL '1 day' * p.days AS "maturedAt",
     ph.id AS planHistoryId,
     CASE
-      WHEN m.id = 'PIR' THEN th.amount + (th.amount * ph.rate / 100)
-      ELSE th.amount
-    END AS amount
+      WHEN t.method = 'PIR' THEN th.principal + (th.principal * ph.rate / 100)
+      ELSE th.principal
+    END AS principal
     FROM
     ticket t
-    JOIN method m ON t.method = m.id
     JOIN (
-      SELECT DISTINCT ON (ticketId) *
+      SELECT DISTINCT ON ("ticketId") *
       FROM ticket_history
-      ORDER BY ticketId, createdAt DESC
-    ) th ON th.ticketId = t.id
-    JOIN plan p ON th.planHistoryId = p.id
-    JOIN plan_history ph ON ph.planId = p.id
+      ORDER BY "ticketId", "issuedAt" DESC
+    ) th ON th."ticketId" = t.id
+    JOIN plan p ON th."planHistoryId" = p.id
+    JOIN plan_history ph ON ph."planId" = p.id
+    JOIN source so ON so.id = t."sourceId"
     CROSS JOIN settings s
   WHERE
-    t.closedAt IS NULL
-    AND m.id IN ('PR', 'PIR')
-    AND th.maturedAt <= endDate
+    t."closedAt" IS NULL
+    AND t.method IN ('PR', 'PIR')
+    AND th."maturedAt" = endDate
     AND (
       (
-        m.id = 'PR'
-        AND s.balance >= s.minAmountOpenTicket
+        t.method = 'PR'
+        AND so.balance >= s."minAmountOpenTicket"
       )
-      OR (
-        m.id = 'PIR'
-        AND (th.amount + (th.amount * ph.rate / 100)) >= s.minAmountOpenTicket
+      OR
+      (
+        t.method = 'PIR'
+        AND (th.principal + (th.principal * ph.rate / 100)) >= s."minAmountOpenTicket"
       )
     );
 
 UPDATE source AS s
-SET balance = s.balance + (th.amount * ph.rate) / 100
+SET balance = s.balance + (th.principal * ph.rate) / 100
 FROM ticket_history AS th
 JOIN plan_history AS ph ON th."planHistoryId" = ph.id
 JOIN ticket AS t ON t.id = th."ticketId"
 JOIN plan AS p ON ph."planId" = p.id
-WHERE th."ticketId" = s."ticketId"
-  AND method = 'PR'
+WHERE method = 'PR'
   AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
 
 UPDATE ticket AS t
@@ -146,25 +147,27 @@ BEGIN
   FROM ticket_history th
   WHERE th."ticketId" = pTicketId
   ORDER BY th."issuedAt" DESC
-  LIMIT 1
+  LIMIT 1;
 
   SELECT *
   INTO ticketRecord
   FROM ticket t
   WHERE t.id = ticketHistoryRecord."ticketId";
 
-  SELECT *
+  SELECT p.days
   INTO planRecord
   FROM plan p
-  WHERE p."ticketId" = ticketRecord.id;
+  JOIN ticket t ON t."planId" = p.id;
 
-  endDate := ticketHistoryRecord.issuedAt + INTERVAL '1 day' * planRecord.days;
+  endDate := ticketHistoryRecord."issuedAt" + INTERVAL '1 day' * planRecord.days;
+
+  RAISE NOTICE 'hello, sql is dcm %',endDate;
 
   UPDATE ticket_history
-  SET maturedAt = endDate
-  WHERE id = ticketHistoryRecord.id;
+  SET "maturedAt" = endDate
+  WHERE "ticketId" = ticketRecord.id AND "issuedAt" = ticketHistoryRecord."issuedAt";
 
-  CALL insert_ticket_history(endDate);
+  CALL rotate_ticket(endDate);
 
   EXCEPTION
     WHEN OTHERS THEN

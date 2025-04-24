@@ -34,7 +34,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   @Column({ type: 'boolean' })
   isRead!: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: () => UserEntity })
   @ManyToOne(() => UserEntity, (user) => user.notifications)
   user?: UserEntity;
 }

@@ -67,7 +67,7 @@ export class UserController {
     description: "Get all users' profile",
   })
   @ApiOkResponse({
-    type: [UserEntity],
+    type: [() => UserEntity],
   })
   @Get()
   async getAll() {
@@ -216,7 +216,7 @@ export class UserController {
     description: 'User already exists, or constraint error',
   })
   @ApiCreatedResponse({
-    type: UserEntity,
+    type: () => UserEntity,
   })
   @Post()
   async create(
@@ -241,7 +241,7 @@ export class UserController {
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   @ApiOkResponse({
-    type: UserEntity,
+    type: () => UserEntity,
   })
   @Get(':id')
   async getById(

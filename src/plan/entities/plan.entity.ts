@@ -22,11 +22,11 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ type: 'int', unique: true })
   days!: number;
 
-  @ApiPropertyOptional({ type: [PlanHistoryEntity] })
+  @ApiPropertyOptional({ type: () => [PlanHistoryEntity] })
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
   planHistories?: PlanHistoryEntity[];
 
-  @ApiPropertyOptional({ type: [TicketEntity] })
+  @ApiPropertyOptional({ type: () => [TicketEntity] })
   @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
   tickets?: TicketEntity[];
 }

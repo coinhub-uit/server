@@ -37,15 +37,15 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 
-  @ApiPropertyOptional({ type: [TopUpEntity] })
+  @ApiPropertyOptional({ type: () => [TopUpEntity] })
   @OneToMany(() => TopUpEntity, (topUp) => topUp.sourceDestination)
   topUps?: TopUpEntity[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: () => UserEntity })
   @ManyToOne(() => UserEntity, (user) => user.sources, { nullable: false })
   user?: UserEntity;
 
-  @ApiPropertyOptional({ type: [TicketEntity] })
+  @ApiPropertyOptional({ type: () => [TicketEntity] })
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
   tickets?: TicketEntity[];
 }

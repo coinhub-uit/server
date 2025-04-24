@@ -32,6 +32,7 @@ stop-supabase:
 
 [doc('reset db')]
 reset-database:
+  supabase db reset
   npm run db:reset
 
 [doc('run docker compose local postgres')]
