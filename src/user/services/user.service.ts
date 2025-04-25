@@ -181,9 +181,11 @@ export class UserService {
 
   async createDevice(userId: string, registerDeviceDto: RegisterDeviceDto) {
     const device = this.deviceRepository.create({
-      userId,
       fcmToken: registerDeviceDto.fcmToken,
-      deviceId: registerDeviceDto.deviceId,
+      id: registerDeviceDto.deviceId,
+      user: {
+        id: userId,
+      },
     });
     return await this.deviceRepository.save(device);
   }
