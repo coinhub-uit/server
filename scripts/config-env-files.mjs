@@ -18,7 +18,7 @@ export default async function configEnvFiles() {
       continue;
     }
     try {
-      await copyFile(source);
+      await copyFile(source, targetPath);
       console.log(`Successfully created ${target} from ${source}`);
     } catch (err) {
       console.error(`Error occured while creating ${target}: ${err}`);
