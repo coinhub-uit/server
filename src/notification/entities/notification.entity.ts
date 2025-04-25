@@ -20,7 +20,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
 
   @ApiProperty()
   @Index()
-  @Column({ type: 'varchar' })
+  @Column({ type: 'text' })
   title!: string;
 
   @ApiProperty()
