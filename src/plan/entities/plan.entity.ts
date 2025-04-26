@@ -7,7 +7,8 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 @ApiSchema()
 @Entity('plan')
@@ -18,14 +19,14 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   id!: number;
 
   @ApiProperty()
-  @Column({ name: 'days', type: 'int', unique: true })
+  @Column({ type: 'int', unique: true })
   days!: number;
 
-  // TODO: Check this!! What is the logic here
-  @ApiProperty()
-  @Column({ type: 'boolean', default: true })
-  isActive!: boolean;
-
+  @ApiPropertyOptional({ type: () => [PlanHistoryEntity] })
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
-  planHistories!: PlanHistoryEntity[];
+  planHistories?: PlanHistoryEntity[];
+
+  @ApiPropertyOptional({ type: () => [TicketEntity] })
+  @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
+  tickets?: TicketEntity[];
 }

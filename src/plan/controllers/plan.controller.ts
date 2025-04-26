@@ -1,121 +1,116 @@
 import {
-  ConflictException,
+  BadRequestException,
+  Body,
   Controller,
   Get,
   NotFoundException,
   Param,
   Post,
   Query,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiUnprocessableEntityResponse,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
-import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
-import { CreatePlanRequestDto } from 'src/plan/dtos/requests/create-plan.request.dto';
-import { UpdatePlanRequestDto } from 'src/plan/dtos/requests/update-plan.request.dto';
-import { CreatePlanResponseDto } from 'src/plan/dtos/responses/create-plan.response.dto';
-import { UpdatePlanResponseDto } from 'src/plan/dtos/responses/update-plan.response.dto';
+import { UpdatePlanRateDto } from 'src/plan/dtos/update-plan-rate.dto';
 import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
-import { PlanNotExist } from 'src/plan/exceptions/plan-not-exist';
+import { PlanNotExistException } from 'src/plan/exceptions/plan-not-exist';
 import { PlanService } from 'src/plan/services/plan.service';
-import { UserAlreadyExistException } from 'src/user/exceptions/user-already-exist.exception';
+import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
+import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
 
 @Controller('plans')
 export class PlanController {
   constructor(private planService: PlanService) {}
 
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
+  @ApiOperation({ summary: 'Get available plans' })
   @ApiOkResponse({
     type: [AvailablePlanEntity],
   })
-  @UseGuards(UniversalJwtAuthGuard)
-  @Get('available-plan')
-  findAvailablePlan() {
-    return this.planService.getAvailablePlans();
+  @Get('available-plans')
+  async getAvailablePlans() {
+    return await this.planService.getAvailablePlans();
   }
 
+  @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
+  @ApiOperation({ summary: 'Get plan by id' })
+  @ApiNotFoundResponse()
   @ApiOkResponse({
     type: [PlanEntity],
   })
-  @ApiNotFoundResponse()
-  @UseGuards(UniversalJwtAuthGuard)
-  @Get(':days')
+  @Get(':id')
   async getPlan(
-    @Request() req: Request & { user: UniversalJwtRequest },
-    @Param() days: number,
+    @Param('id') planId: number,
+    @Query('allHistories') allHistories: boolean = false,
   ) {
     try {
-      if (!req.user.isAdmin) {
-        return await this.planService.findPlanByDays(days);
-      }
-      return await this.planService.findPlansByDaysWithHistory(days);
+      return await this.planService.findById(planId, allHistories);
     } catch (error) {
-      if (error instanceof PlanNotExist) {
-        throw new NotFoundException();
+      if (error instanceof PlanNotExistException) {
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
   }
 
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
-  @ApiConflictResponse()
-  @ApiUnprocessableEntityResponse()
-  @ApiOkResponse({
-    type: CreatePlanResponseDto,
-  })
-  @UseGuards(AdminJwtAuthGuard)
-  @Post('create')
-  async createPlan(createPlanDto: CreatePlanRequestDto) {
-    try {
-      return await this.planService.createPlan(createPlanDto);
-    } catch (error) {
-      if (error instanceof UserAlreadyExistException) {
-        throw new ConflictException(
-          'This Plan with this day number is already existed, please try new one',
-        );
-      }
-      throw error;
-    }
-  }
-
-  @ApiBearerAuth('admin')
+  @ApiOperation({ summary: 'Get plan history by id' })
   @ApiNotFoundResponse()
-  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
-    type: UpdatePlanResponseDto,
+    type: [PlanHistoryEntity],
+  })
+  @Get('histories/:id')
+  async getPlanHistory(@Param('id') planHistoryId: number) {
+    try {
+      return await this.planService.findHistoryById(planHistoryId);
+    } catch (error) {
+      if (error instanceof PlanHistoryNotExistException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+
+  @ApiBearerAuth('admin')
+  @ApiOperation({ summary: 'Update plan rate' })
+  @ApiBadRequestResponse()
+  @ApiOkResponse({
+    type: PlanHistoryEntity,
   })
   @UseGuards(AdminJwtAuthGuard)
-  @Post('update')
-  async updatePlan(updatePlanDto: UpdatePlanRequestDto) {
+  @Post('histories')
+  async updateRate(@Body() updatePlanRateDto: UpdatePlanRateDto) {
     try {
-      const [plan] = await this.planService.findPlanByDays(updatePlanDto.days);
-      return await this.planService.updatePlan(updatePlanDto, plan);
+      return await this.planService.updateRate(updatePlanRateDto);
     } catch (error) {
-      if (error instanceof PlanNotExist)
-        throw new NotFoundException(
-          'This plan is not exist, may you find another one?',
-        );
+      if (error instanceof PlanNotExistException) {
+        throw new BadRequestException(error.message);
+      }
       throw error;
     }
   }
 
   @ApiBearerAuth('admin')
   @UseGuards(AdminJwtStrategy)
+  @ApiOperation({ summary: 'Get all plans' })
+  @ApiOkResponse({ type: [PlanEntity] })
   @Get()
-  getPlans(@Query('isActive') isActive: boolean) {
-    return this.planService.getPlans(isActive);
+  getAll() {
+    return this.planService.findAll();
   }
 }

@@ -1,0 +1,45 @@
+# vim:ft=toml
+
+[sqlfluff]
+dialect = postgres
+max_line_length = 80
+template = raw
+
+[sqlfluff:rules:capitalisation.keywords]
+# Keywords
+capitalisation_policy = upper
+
+[sqlfluff:indentation]
+# See https://docs.sqlfluff.com/en/stable/perma/indent_locations.html
+indent_unit = space
+tab_space_size = 2
+indented_joins = True
+indented_ctes = True
+indented_using_on = True
+indented_on_contents = True
+indented_then = True
+indented_then_contents = True
+allow_implicit_indents = True
+template_blocks_indent = True
+# This is a comma separated list of elements to skip
+# indentation edits to.
+skip_indentation_in = script_content
+# If comments are found at the end of long lines, we default to moving
+# them to the line _before_ their current location as the convention is
+# that a comment precedes the line it describes. However if you prefer
+# comments moved _after_, this configuration setting can be set to "after".
+trailing_comments = before
+# To exclude comment lines from indentation entirely set this to "True".
+ignore_comment_lines = False
+
+[sqlfluff:rules:aliasing.table]
+aliasing.table = explicit
+
+[sqlfluff:rules:aliasing.column]
+aliasing.column = explicit
+
+[sqlfluff:rules:aliasing.expression]
+allow_scalar = True
+
+[sqlfluff:rules:ambiguous.join]
+fully_qualify_join_types = inner

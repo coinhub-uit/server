@@ -1,4 +1,4 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
@@ -11,8 +11,8 @@ import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -38,6 +38,7 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   amount!: Decimal;
 
+  @ApiProperty({ enum: TopUpStatusEnum })
   @Column({
     type: 'enum',
     enum: TopUpStatusEnum,
@@ -45,7 +46,11 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   })
   status!: TopUpStatusEnum;
 
-  @ManyToOne(() => SourceEntity)
-  @JoinColumn()
-  sourceDestination: SourceEntity;
+  @ApiProperty()
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @ApiPropertyOptional({ type: () => SourceEntity })
+  @ManyToOne(() => SourceEntity, (source) => source.topUps, { nullable: false })
+  sourceDestination?: SourceEntity;
 }

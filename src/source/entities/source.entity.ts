@@ -1,11 +1,12 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Exclude, Transform } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
   decimalToString,
   DecimalTransformer,
 } from 'src/common/transformers/decimal.transformer';
+import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
@@ -19,7 +20,7 @@ import {
 
 @ApiSchema()
 @Entity('source')
-@Check(`"balance"::numeric >= 0`)
+@Check(`"balance" >= 0`)
 export class SourceEntity extends AbstractEntity<SourceEntity> {
   @ApiProperty()
   @PrimaryColumn({ type: 'varchar', length: 20 })
@@ -36,11 +37,15 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 
-  @Exclude()
-  @ManyToOne(() => UserEntity, (user) => user.sources)
-  user!: UserEntity;
+  @ApiPropertyOptional({ type: () => [TopUpEntity] })
+  @OneToMany(() => TopUpEntity, (topUp) => topUp.sourceDestination)
+  topUps?: TopUpEntity[];
 
-  @Exclude()
+  @ApiPropertyOptional({ type: () => UserEntity })
+  @ManyToOne(() => UserEntity, (user) => user.sources, { nullable: false })
+  user?: UserEntity;
+
+  @ApiPropertyOptional({ type: () => [TicketEntity] })
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
-  tickets!: TicketEntity[];
+  tickets?: TicketEntity[];
 }

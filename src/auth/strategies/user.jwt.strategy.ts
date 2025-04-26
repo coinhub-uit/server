@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
+import type { Request } from 'express';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { ExtractJwt } from 'passport-jwt';
@@ -12,7 +13,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     super();
   }
 
-  validate(req: Request): UserJwtRequest {
+  validate(req: Request) {
     let token: string | null;
     try {
       token = UserJwtStrategy.extractJwt(req);

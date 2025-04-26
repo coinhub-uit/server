@@ -9,24 +9,33 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 
+@ApiSchema()
 @Entity('plan_history')
 export class PlanHistoryEntity extends AbstractEntity<PlanHistoryEntity> {
+  @ApiProperty()
   @PrimaryGeneratedColumn('increment')
   id!: number;
 
+  @ApiProperty()
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
+  @ApiProperty()
   @Column({ type: 'decimal', precision: 4, scale: 2 })
   rate!: number;
 
+  @ApiPropertyOptional({ type: () => [TicketHistoryEntity] })
   @OneToMany(
     () => TicketHistoryEntity,
     (ticketHistoryEntity) => ticketHistoryEntity.planHistory,
   )
-  ticketHistories!: TicketHistoryEntity[];
+  ticketHistories?: TicketHistoryEntity[];
 
-  @ManyToOne(() => PlanEntity, (plan) => plan.planHistories)
+  @ApiPropertyOptional({ type: () => PlanEntity })
+  @ManyToOne(() => PlanEntity, (plan) => plan.planHistories, {
+    nullable: false,
+  })
   plan!: PlanEntity;
 }
