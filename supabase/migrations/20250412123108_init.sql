@@ -12,68 +12,56 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Procedure insert_ticket_history
 CREATE
-OR REPLACE PROCEDURE rotate_ticket(endDate DATE) LANGUAGE plpgsql AS $$
+OR REPLACE PROCEDURE rotate_ticket(pendDate DATE) LANGUAGE plpgsql AS $$
 BEGIN
- RAISE EXCEPTION '%' ,endDate;
   INSERT INTO ticket_history (
     "ticketId",
     "issuedAt",
     "maturedAt",
     "planHistoryId",
     principal
+    interest
   )
   SELECT
     th."ticketId",
-    th."maturedAt" AS "issuedAt",
-    th."maturedAt" + INTERVAL '1 day' * p.days AS "maturedAt",
-    ph.id AS planHistoryId,
+    th."maturedAt" + INTERVAL '1 day' AS "issuedAt",
+    th."maturedAt" + INTERVAL '1 day' * p.days + INTERVAL '1 day' AS "maturedAt",
+    p.id AS "planHistoryId",
     CASE
-      WHEN t.method = 'PIR' THEN th.principal + (th.principal * ph.rate / 100)
+      WHEN t.method = 'PIR' THEN th.principal + (th.principal * p.rate / 100)
       ELSE th.principal
-    END AS principal
+    END AS principal,
+    CASE
+      WHEN t.method = 'PIR' THEN (th.principal + th.interest)*(p.rate/100)
+      ELSE th.interest
+    END AS interest
     FROM
     ticket t
-    JOIN (
-      SELECT DISTINCT ON ("ticketId") *
-      FROM ticket_history
-      ORDER BY "ticketId", "issuedAt" DESC
-    ) th ON th."ticketId" = t.id
-    JOIN plan p ON th."planHistoryId" = p.id
-    JOIN plan_history ph ON ph."planId" = p.id
+    JOIN ticket_history th ON th."ticketId" = t.id
+    JOIN available_plan p ON t."planId" = p."planId"
     JOIN source so ON so.id = t."sourceId"
-    CROSS JOIN settings s
   WHERE
-    t."closedAt" IS NULL
+    t."closedAt" IS NULL AND t.status = 'active'
     AND t.method IN ('PR', 'PIR')
-    AND th."maturedAt" = endDate
-    AND (
-      (
-        t.method = 'PR'
-        AND so.balance >= s."minAmountOpenTicket"
-      )
-      OR
-      (
-        t.method = 'PIR'
-        AND (th.principal + (th.principal * ph.rate / 100)) >= s."minAmountOpenTicket"
-      )
-    );
+    AND th."maturedAt" = pendDate;
 
 UPDATE source AS s
-SET balance = s.balance + (th.principal * ph.rate) / 100
-FROM ticket_history AS th
-JOIN plan_history AS ph ON th."planHistoryId" = ph.id
-JOIN ticket AS t ON t.id = th."ticketId"
-JOIN plan AS p ON ph."planId" = p.id
+SET balance = s.balance + interest
+FROM ticket AS t
+JOIN ticket_history AS th ON t.id = th."ticketId"
+JOIN available_plan AS p ON t."planId"= p."planId"
 WHERE method = 'PR'
-  AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
+  AND t."sourceId" = s.id
+  AND th."maturedAt" = pendDate;
 
 UPDATE ticket AS t
-SET "closedAt" = endDate,
+SET "closedAt" = pendDate,
     status = 'maturedWithdrawn'
-FROM plan AS p
-WHERE p.id = t."planId"
+FROM available_plan AS p, ticket_history AS th
+WHERE p."planId" = t."planId"
+  AND th."ticketId" = t.id
   AND method = 'NR'
-  AND t."openedAt" + (p.days * INTERVAL '1 day') = endDate;
+  AND th."maturedAt" = pendDate;
 
 EXCEPTION
   WHEN OTHERS THEN
@@ -160,8 +148,6 @@ BEGIN
   JOIN ticket t ON t."planId" = p.id;
 
   endDate := ticketHistoryRecord."issuedAt" + INTERVAL '1 day' * planRecord.days;
-
-  RAISE NOTICE 'hello, sql is dcm %',endDate;
 
   UPDATE ticket_history
   SET "maturedAt" = endDate
