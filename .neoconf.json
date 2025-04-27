@@ -1,0 +1,11 @@
+{
+  "lspconfig": {
+    "vtsls": {
+      "typescript": {
+        "preferences": {
+          "importModuleSpecifier": "non-relative"
+        }
+      }
+    }
+  }
+}
