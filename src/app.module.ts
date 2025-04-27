@@ -1,21 +1,20 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
-import { NotificationModule } from './notification/notification.module';
-import { PaymentModule } from './payment/payment.module';
-import { PlanModule } from './plan/plan.module';
-import { TicketModule } from './ticket/ticket.module';
-import { AdminModule } from './admin/admin.module';
-import { StatisticModule } from './statistic/statistic.module';
-import { SettingModule } from './setting/settings.module';
+import { Controller, Get, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import databaseConfig from 'src/config/database.config';
-import { Controller, Get } from '@nestjs/common';
 import { configModuleOptions } from 'src/config/nestjs-config.config';
+import { ReportModule } from 'src/report/report.module';
+import { AdminModule } from 'src/admin/admin.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { NotificationModule } from 'src/notification/notification.module';
+import { PaymentModule } from 'src/payment/payment.module';
+import { PlanModule } from 'src/plan/plan.module';
+import { SettingModule } from 'src/setting/settings.module';
+import { TicketModule } from 'src/ticket/ticket.module';
+import { UserModule } from 'src/user/user.module';
 
 @Controller()
 export class RootController {
@@ -35,7 +34,7 @@ export class RootController {
     PlanModule,
     TicketModule,
     AdminModule,
-    StatisticModule,
+    ReportModule,
     SettingModule,
     ConfigModule,
     AuthModule,

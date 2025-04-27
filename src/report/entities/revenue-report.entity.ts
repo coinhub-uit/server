@@ -10,23 +10,19 @@ import {
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @ApiSchema()
-@Entity({ name: 'statistic' })
-export class StatisticEntity extends AbstractEntity<StatisticEntity> {
+@Entity({ name: 'revenue_report' })
+export class RevenueReportEntity extends AbstractEntity<RevenueReportEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'uuid' })
-  statId: string;
-
-  @ApiProperty()
-  @Column({ type: 'date', transformer: new DateTransformer() })
-  date: Date;
-
-  @ApiProperty()
-  @Column({ type: 'int' })
-  users: number;
+  @PrimaryColumn({
+    type: 'date',
+    default: 'now()',
+    transformer: new DateTransformer(),
+  })
+  date!: Date;
 
   @ApiProperty()
   @Column({ type: 'int' })
-  tickets: number;
+  days!: number;
 
   @ApiProperty({ type: String })
   @Column({
@@ -36,5 +32,25 @@ export class StatisticEntity extends AbstractEntity<StatisticEntity> {
     transformer: new DecimalTransformer(),
   })
   @Transform(decimalToString, { toPlainOnly: true })
-  deposits: Decimal;
+  income!: Decimal;
+
+  @ApiProperty({ type: String })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 0,
+    transformer: new DecimalTransformer(),
+  })
+  @Transform(decimalToString, { toPlainOnly: true })
+  expense!: Decimal;
+
+  @ApiProperty({ type: String })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 0,
+    transformer: new DecimalTransformer(),
+  })
+  @Transform(decimalToString, { toPlainOnly: true })
+  netIncome!: Decimal;
 }
