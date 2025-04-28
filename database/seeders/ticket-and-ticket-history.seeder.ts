@@ -71,7 +71,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
               planHistoryEntity.createdAt <= randomStartDate;
       },
     )!;
-    const principal = randomMoney();
+    const principal = randomMoney({ min: 1000000 });
     const interest = TicketAndTicketHistorySeeder.calcInterest({
       principal,
       rate: planHistory.rate,
@@ -127,7 +127,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         iterateDate.getDate() + randomPlanEntity.days + 1,
       ),
     );
-    let existingAmount = randomMoney();
+    let existingAmount = randomMoney({ min: 1000000 });
     const ticketHistoryEntities: TicketHistoryEntity[] = [];
 
     const firstTicketEntity: TicketEntity = ticketRepository.create({
@@ -150,7 +150,6 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
         return;
       }
 
-      // const principal = randomMoney(); // exist amount
       const interest = TicketAndTicketHistorySeeder.calcInterest({
         principal: existingAmount,
         rate: existingPlanHistoryEntity.rate,

@@ -1,5 +1,4 @@
 set dotenv-required
-set dotenv-path	:= '.env'
 
 default: run-api-server-dev
 
@@ -7,6 +6,7 @@ alias b := bootstrap
 alias c := type-check
 alias db := run-docker-db
 alias dbr := reset-database
+alias dbrd := reset-database
 alias tc := type-check
 alias rs := run-supabase
 alias ss := stop-supabase
@@ -32,8 +32,13 @@ stop-supabase:
 
 [doc('reset db')]
 reset-database:
-  supabase db reset
-  npm run db:reset
+  JUST_ENV=.env supabase db reset --local
+  JUST_ENV=.env npm run db:reset
+
+[doc('reset db production')]
+reset-database-prod:
+  JUST_ENV=.env.production supabase db reset --linked
+  JUST_ENV=.env.production npm run db:reset
 
 [doc('run docker compose local postgres')]
 run-docker-db:
