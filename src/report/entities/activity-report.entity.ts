@@ -9,7 +9,7 @@ import {
 } from 'src/common/transformers/decimal.transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@ApiSchema()
+@ApiSchema({ name: ActivityReportEntity.name })
 @Entity({ name: 'activity_report' })
 export class ActivityReportEntity extends AbstractEntity<ActivityReportEntity> {
   @ApiProperty()

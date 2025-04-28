@@ -34,12 +34,14 @@ import {
 import type { Response } from 'express';
 import { unlink } from 'fs/promises';
 import { diskStorage } from 'multer';
+import { Paginate, PaginatedSwaggerDocs, PaginateQuery } from 'nestjs-paginate';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
 import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
@@ -66,12 +68,10 @@ export class UserController {
     summary: 'Get all profiles',
     description: "Get all users' profile",
   })
-  @ApiOkResponse({
-    type: [() => UserEntity],
-  })
+  @PaginatedSwaggerDocs(UserEntity, userPaginationConfig)
   @Get()
-  async getAll() {
-    return await this.userService.findAll();
+  async getAll(@Paginate() query: PaginateQuery) {
+    return await this.userService.findAll(query);
   }
 
   @UseGuards(UniversalJwtAuthGuard)

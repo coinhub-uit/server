@@ -16,7 +16,7 @@ import { DateTransformer } from 'src/common/transformers/date.transformer';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { URL_PATTERN } from 'lib/regex';
 
-@ApiSchema()
+@ApiSchema({ name: UserEntity.name })
 @Entity('user')
 export class UserEntity extends AbstractEntity<UserEntity> {
   @ApiProperty()

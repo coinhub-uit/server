@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
+import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { extname, join as joinPath } from 'path';
+import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
 import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
@@ -87,8 +89,8 @@ export class UserService {
   }
 
   // TODO: Maybe paginate this
-  async findAll() {
-    return await this.userRepository.find();
+  async findAll(query: PaginateQuery) {
+    return paginate(query, this.userRepository, userPaginationConfig);
   }
 
   async create(userDetails: CreateUserDto) {

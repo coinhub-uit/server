@@ -3,7 +3,7 @@ import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@ApiSchema()
+@ApiSchema({ name: TicketReportEntity.name })
 @Entity({ name: 'ticket_report' })
 export class TicketReportEntity extends AbstractEntity<TicketReportEntity> {
   @ApiProperty()
