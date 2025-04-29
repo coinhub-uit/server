@@ -8,7 +8,7 @@ export default class ActivityReportSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ) {
     await datasource.manager.transaction(async (transactionEntityManager) => {
-      const repository =
+      const activityReportRepository =
         transactionEntityManager.getRepository(ActivityReportEntity);
       const activityReportFactory = factoryManager.get(ActivityReportEntity);
 
@@ -23,7 +23,7 @@ export default class ActivityReportSeeder implements Seeder {
         const activityReportEntity = await activityReportFactory.make({
           date: currentDate,
         });
-        repository.insert(activityReportEntity);
+        activityReportRepository.insert(activityReportEntity);
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
     });

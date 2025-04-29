@@ -1,11 +1,14 @@
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { DataSource } from 'typeorm';
-import PlanSeeder from 'database/seeders/plan.seeder';
+import ActivityReportSeeder from 'database/seeders/activity-report.seeder';
+import AdminSeeder from 'database/seeders/admin.seeder';
 import PlanHistorySeeder from 'database/seeders/plan-history.seeder';
-import UserSeeder from 'database/seeders/user.seeder';
+import PlanSeeder from 'database/seeders/plan.seeder';
+import RevenueReportSeeder from 'database/seeders/revenue-report.seeder';
 import SourceSeeder from 'database/seeders/source.seeder';
 import TicketAndTicketHistorySeeder from 'database/seeders/ticket-and-ticket-history.seeder';
-import AdminSeeder from 'database/seeders/admin.seeder';
+import TicketReportSeeder from 'database/seeders/ticket-report.seeder';
+import UserSeeder from 'database/seeders/user.seeder';
+import { DataSource } from 'typeorm';
+import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 
 export default class MainSeeder implements Seeder {
   public async run(
@@ -35,5 +38,14 @@ export default class MainSeeder implements Seeder {
     // ticket
     await new TicketAndTicketHistorySeeder().run(dataSource);
     console.log('Seeded tickets and ticket histories');
+
+    // activity report
+    await new ActivityReportSeeder().run(dataSource, factoryManager);
+
+    // revenue report
+    await new RevenueReportSeeder().run(dataSource, factoryManager);
+
+    // ticket report
+    await new TicketReportSeeder().run(dataSource, factoryManager);
   }
 }
