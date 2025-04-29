@@ -340,7 +340,10 @@ export class UserController {
   })
   @ApiForbiddenResponse()
   @ApiUnprocessableEntityResponse()
-  @ApiNoContentResponse() // NOTE: Is it? no content response? in reality
+  @ApiOkResponse({
+    description:
+      "For easier to dev, this is made to not reflect the right flow. If there aren't that user ID to delete, still 200 return",
+  })
   @Delete(':id')
   async delete(
     @Req() req: Request & { user: UniversalJwtRequest },
