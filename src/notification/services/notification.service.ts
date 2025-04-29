@@ -9,6 +9,7 @@ export class NotificationService {
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: Repository<NotificationEntity>,
   ) {}
+
   getNotificationById(id: string) {
     return this.notificationRepository.findOneOrFail({ where: { id: id } });
   }
