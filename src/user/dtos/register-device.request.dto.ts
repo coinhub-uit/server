@@ -2,7 +2,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 @ApiSchema()
-export class RegisterDeviceDto {
+export class RegisterDeviceRequestDto {
   @ApiProperty({
     description: 'FCM token retrieve from FCM in client',
   })

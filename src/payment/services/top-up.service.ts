@@ -19,6 +19,8 @@ import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
 import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { CreateVNPayTopUpFailedException } from 'src/payment/exceptions/create-vnpay-topup-failed.exceptions';
 
 // TODO: Cron? for checking topup status to overdue later
 @Injectable()
@@ -28,6 +30,8 @@ export class TopUpService {
     private readonly vnpayService: _VnpayService,
     @InjectRepository(TopUpEntity)
     private readonly topUpRepository: Repository<TopUpEntity>,
+    @InjectRepository(SourceEntity)
+    private readonly sourceRepository: Repository<SourceEntity>,
   ) {}
 
   // NOTE: isn't used
@@ -69,25 +73,32 @@ export class TopUpService {
     return IpnSuccess;
   }
 
-  async createVNPayPayment(paymentDetails: CreateTopUpDto) {
-    await this.sourceService.findByIdOrFail(paymentDetails.sourceDestinationId);
+  async createVNPayTopUp(createTopUpDto: CreateTopUpDto) {
+    const sourceEntity = await this.sourceRepository.findOne({
+      where: { id: createTopUpDto.sourceDestinationId },
+    });
+    if (!sourceEntity) {
+      throw new CreateVNPayTopUpFailedException(
+        `Source with id ${createTopUpDto.sourceDestinationId} not found`,
+      );
+    }
 
     const now = new Date();
     const topUpEntity = this.topUpRepository.create({
       provider: TopUpProviderEnum.vnpay,
-      amount: new Decimal(paymentDetails.amount),
+      amount: new Decimal(createTopUpDto.amount),
       sourceDestination: {
-        id: paymentDetails.sourceDestinationId,
+        id: createTopUpDto.sourceDestinationId,
       },
     });
 
     await this.topUpRepository.save(topUpEntity);
 
     return this.vnpayService.buildPaymentUrl({
-      vnp_ReturnUrl: paymentDetails.returnUrl,
-      vnp_Amount: paymentDetails.amount,
-      vnp_IpAddr: paymentDetails.ipAddress,
-      vnp_OrderInfo: `Top up ${paymentDetails.amount} VND`,
+      vnp_ReturnUrl: createTopUpDto.returnUrl,
+      vnp_Amount: createTopUpDto.amount,
+      vnp_IpAddr: createTopUpDto.ipAddress,
+      vnp_OrderInfo: `Top up ${createTopUpDto.amount} VND`,
       vnp_TxnRef: topUpEntity.id,
       vnp_OrderType: ProductCode.Pay,
       vnp_Locale: VnpLocale.VN,

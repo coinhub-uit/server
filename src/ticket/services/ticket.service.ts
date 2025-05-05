@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
+import { TicketRequestDto } from 'src/ticket/dtos/ticket.request.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
@@ -22,7 +22,7 @@ export class TicketService {
     private dataSource: DataSource,
   ) {}
 
-  async createTicket(createTicketDto: CreateTicketDto) {
+  async createTicket(createTicketDto: TicketRequestDto) {
     const now = new Date();
     await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
@@ -122,20 +122,20 @@ export class TicketService {
           latestTicketHistory.issuedAt,
           latestTicketHistory.principal,
           settlementDate,
-          latestTicketHistory.ticket.plan.days,
+          latestTicketHistory.ticket!.plan!.days,
           latestNrPlanHistory!.rate,
         );
 
-        const newBalance = latestTicketHistory.ticket.source.balance
-          .plus(interest)
+        const newBalance = latestTicketHistory
+          .ticket!.source!.balance.plus(interest)
           .plus(latestTicketHistory.principal);
 
         latestTicketHistory.maturedAt = settlementDate;
-        latestTicketHistory.ticket.source.balance = newBalance;
+        latestTicketHistory.ticket!.source!.balance = newBalance;
 
         await ticketHistoryRepository.save(latestTicketHistory);
-        await sourceRepository.save(latestTicketHistory.ticket.source);
-        await ticketRepository.softRemove(latestTicketHistory.ticket);
+        await sourceRepository.save(latestTicketHistory.ticket!.source!);
+        await ticketRepository.softRemove(latestTicketHistory.ticket!);
       },
     );
   }

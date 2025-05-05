@@ -4,11 +4,17 @@ import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { extname, join as joinPath } from 'path';
+import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
-import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
-import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
+import { CreateUserRequestDto } from 'src/user/dtos/create-user.request.dto';
+import { DeviceResponseDto } from 'src/user/dtos/device.response.dto';
+import { RegisterDeviceRequestDto } from 'src/user/dtos/register-device.request.dto';
+import { UpdateParitialUserRequestDto } from 'src/user/dtos/update-paritial-user.request.dto';
+import { UpdateUserRequestDto } from 'src/user/dtos/update-user.request.dto';
+import { UserResponseDto } from 'src/user/dtos/user.response.dto';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
@@ -22,6 +28,10 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DeviceEntity)
     private readonly deviceRepository: Repository<DeviceEntity>,
+    @InjectRepository(SourceEntity)
+    private readonly sourceRepository: Repository<SourceEntity>,
+    @InjectRepository(TicketEntity)
+    private readonly ticketRepository: Repository<TicketEntity>,
   ) {}
 
   private static readonly AVATAR_FILENAME_FIRST_HEX_PATTERN = /^[^-]+-/;
@@ -34,12 +44,17 @@ export class UserService {
     });
   }
 
-  async findByIdOrFail(userId: string) {
+  private async findByIdOrFail(userId: string) {
     const user = await this.FindById(userId);
     if (!user) {
       throw new UserNotExistException();
     }
     return user;
+  }
+
+  async find(userId: string) {
+    const userEntity = await this.findByIdOrFail(userId);
+    return userEntity as UserResponseDto;
   }
 
   static async deleteAvatarInStorageById(userId: string) {
@@ -92,22 +107,22 @@ export class UserService {
     return { file, filename, fileExtension };
   }
 
-  // TODO: Maybe paginate this
   async findAll(query: PaginateQuery) {
     return paginate(query, this.userRepository, userPaginationConfig);
   }
 
-  async create(userDetails: CreateUserDto) {
-    const user = this.userRepository.create({ ...userDetails });
+  async create(createUserRequestDto: CreateUserRequestDto) {
+    const user = this.userRepository.create({ ...createUserRequestDto });
     await this.userRepository.insert(user);
-    return this.findByIdOrFail(userDetails.id);
+    const userEntity = await this.findByIdOrFail(createUserRequestDto.id);
+    return userEntity as UserResponseDto;
   }
 
-  async updateById(userId: string, userDetails: UpdateUserDto) {
+  async updateById(userId: string, updateUserRequestDto: UpdateUserRequestDto) {
     const updateResult = await this.userRepository.update(userId, {
-      ...userDetails,
+      ...updateUserRequestDto,
     });
-    if (!userDetails.avatar) {
+    if (!updateUserRequestDto.avatar) {
       await UserService.deleteAvatarInStorageById(userId);
     }
     if (updateResult.affected === 0) {
@@ -115,9 +130,12 @@ export class UserService {
     }
   }
 
-  async partialUpdateById(userId: string, userDetails: UpdateParitialUserDto) {
+  async partialUpdateById(
+    userId: string,
+    updatePartialUserRequestDto: UpdateParitialUserRequestDto,
+  ) {
     const user = await this.findByIdOrFail(userId);
-    if (!userDetails.avatar) {
+    if (!updatePartialUserRequestDto.avatar) {
       try {
         await UserService.deleteAvatarInStorageById(userId);
       } catch (error) {
@@ -127,8 +145,12 @@ export class UserService {
         );
       }
     }
-    const updatedUser = this.userRepository.merge(user, userDetails);
-    return await this.userRepository.save(updatedUser);
+    const updatedUser = this.userRepository.merge(
+      user,
+      updatePartialUserRequestDto,
+    );
+    const userEntity = await this.userRepository.save(updatedUser);
+    return userEntity as UserResponseDto;
   }
 
   private async deleteInSupabaseById(userId: string) {
@@ -155,44 +177,41 @@ export class UserService {
   }
 
   async findSourcesById(userId: string) {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: {
-        sources: true,
-      },
-    });
-    if (!user) {
-      throw new UserNotExistException();
-    }
-    return user.sources;
-  }
-
-  async findTicketsById(userId: string) {
-    const user = await this.userRepository.findOne({
+    const sourceEntities = await this.sourceRepository.find({
       where: {
-        id: userId,
-      },
-      relations: {
-        sources: {
-          tickets: true,
+        user: {
+          id: userId,
         },
       },
     });
-    if (!user) {
-      throw new UserNotExistException();
-    }
-    const sources = user.sources!;
-    return sources.flatMap((source) => source.tickets!);
+    return sourceEntities as SourceResponseDto[];
   }
 
-  async createDevice(userId: string, registerDeviceDto: RegisterDeviceDto) {
+  async findTicketsById(userId: string) {
+    const ticketEntities = await this.ticketRepository.find({
+      where: {
+        source: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+    });
+    return ticketEntities as TicketResponseDto[];
+  }
+
+  async createDevice(
+    userId: string,
+    registerDeviceRequestDto: RegisterDeviceRequestDto,
+  ) {
     const device = this.deviceRepository.create({
-      fcmToken: registerDeviceDto.fcmToken,
-      id: registerDeviceDto.deviceId,
+      fcmToken: registerDeviceRequestDto.fcmToken,
+      id: registerDeviceRequestDto.deviceId,
       user: {
         id: userId,
       },
     });
-    return await this.deviceRepository.save(device);
+    const deviceEntity = await this.deviceRepository.save(device);
+    return deviceEntity as DeviceResponseDto;
   }
 }

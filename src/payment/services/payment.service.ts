@@ -7,13 +7,17 @@ export class PaymentService {
   constructor(private readonly sourceService: SourceService) {}
 
   async tranferMoney(tranferMoneyDetails: TranferMoneysDto) {
-    await this.sourceService.changeSourceBalanceById(
+    const minus = this.sourceService.changeSourceBalanceById(
       tranferMoneyDetails.fromSourceId,
       -tranferMoneyDetails.money,
     );
-    await this.sourceService.changeSourceBalanceById(
+    const plus = this.sourceService.changeSourceBalanceById(
       tranferMoneyDetails.toSourceId,
       tranferMoneyDetails.money,
     );
+    const result = await Promise.all([minus, plus]);
+    if (result[0] === null || result[1] === null) {
+      return null;
+    }
   }
 }

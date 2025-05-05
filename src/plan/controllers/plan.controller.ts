@@ -1,3 +1,5 @@
+// TODO: Response DTO later
+
 import {
   BadRequestException,
   Body,
@@ -53,6 +55,7 @@ export class PlanController {
   })
   @Get(':id')
   async getPlan(
+    // TODO: Check do we need pipe?
     @Param('id') planId: number,
     @Query('allHistories') allHistories: boolean = false,
   ) {

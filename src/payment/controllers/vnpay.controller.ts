@@ -25,7 +25,7 @@ export class VnpayController {
   @UseGuards(UserJwtAuthGuard)
   @Post('create')
   async create(@Body() createVnPayDto: CreateTopUpDto) {
-    return await this.topUpService.createVNPayPayment(createVnPayDto);
+    return await this.topUpService.createVNPayTopUp(createVnPayDto);
   }
 
   @ApiOperation({

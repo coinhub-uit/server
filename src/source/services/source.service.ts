@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
-import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
+import { CreateSourceDto } from 'src/source/dtos/source.request.dto';
+import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
+import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,15 +14,11 @@ export class SourceService {
   constructor(
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
+    @InjectRepository(TicketEntity)
+    private readonly ticketRepository: Repository<TicketEntity>,
   ) {}
 
-  async existsByIdOrFail(sourceId: string) {
-    if (!(await this.sourceRepository.exists({ where: { id: sourceId } }))) {
-      throw new SourceNotExistException(sourceId);
-    }
-  }
-
-  async findByIdOrFail(sourceId: string) {
+  private async findByIdOrFail(sourceId: string) {
     const source = await this.sourceRepository.findOne({
       where: { id: sourceId },
     });
@@ -27,6 +26,11 @@ export class SourceService {
       throw new SourceNotExistException(sourceId);
     }
     return source;
+  }
+
+  async find(sourceId: string) {
+    const sourceEntity = await this.findByIdOrFail(sourceId);
+    return sourceEntity as SourceResponseDto;
   }
 
   async changeSourceBalance(source: SourceEntity, money: Decimal.Value) {
@@ -40,7 +44,6 @@ export class SourceService {
         id: sourceId,
       },
     });
-    // TODO: Raise error ?
     if (!source) {
       return null;
     }
@@ -49,14 +52,14 @@ export class SourceService {
   }
 
   async findTicketsBySourceId(sourceId: string) {
-    const source = await this.sourceRepository.findOne({
-      where: { id: sourceId },
-      relations: { tickets: true },
+    const ticketEntities = await this.ticketRepository.find({
+      where: {
+        source: {
+          id: sourceId,
+        },
+      },
     });
-    if (!source) {
-      throw new SourceNotExistException(sourceId);
-    }
-    return source.tickets;
+    return ticketEntities as TicketResponseDto[];
   }
 
   async createSource(sourceDetails: CreateSourceDto) {
@@ -67,7 +70,7 @@ export class SourceService {
     });
     try {
       const sourceEntity = await this.sourceRepository.save(source);
-      return sourceEntity;
+      return sourceEntity as SourceResponseDto;
     } catch {
       // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps
     }

@@ -14,7 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
       PlanEntity,
       AvailablePlanEntity,
     ]),
-    AuthModule,
+    AuthModule, // TODO: Wait, other modules don't import this module, so why is it here?
   ],
   providers: [PlanService],
   controllers: [PlanController],

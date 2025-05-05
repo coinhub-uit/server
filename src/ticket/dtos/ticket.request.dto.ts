@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import { MethodEnum } from 'src/ticket/types/method.enum';
 
 @ApiSchema()
-export class CreateTicketDto {
+export class TicketRequestDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

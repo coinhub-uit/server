@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NotificationResponseDto } from 'src/notification/dto/notification.response.dto';
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { Repository } from 'typeorm';
 
@@ -10,7 +11,11 @@ export class NotificationService {
     private readonly notificationRepository: Repository<NotificationEntity>,
   ) {}
 
-  getNotificationById(id: string) {
-    return this.notificationRepository.findOneOrFail({ where: { id: id } });
+  // TODO: Raise?
+  async getNotificationById(id: string) {
+    const notificationEntity = await this.notificationRepository.findOneOrFail({
+      where: { id: id },
+    });
+    return notificationEntity as NotificationResponseDto;
   }
 }

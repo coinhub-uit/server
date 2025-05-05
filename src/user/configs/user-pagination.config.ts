@@ -1,7 +1,7 @@
 import { PaginateConfig, PaginationType } from 'nestjs-paginate';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserResponseDto } from 'src/user/dtos/user.response.dto';
 
-export const userPaginationConfig: PaginateConfig<UserEntity> = {
+export const userPaginationConfig: PaginateConfig<UserResponseDto> = {
   sortableColumns: ['createdAt'],
   paginationType: PaginationType.CURSOR,
 };

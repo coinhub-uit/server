@@ -4,17 +4,9 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketController } from './controllers/ticket.controller';
 import { TicketService } from './services/ticket.service';
-import { UserModule } from 'src/user/user.module';
-import { SourceModule } from 'src/source/source.module';
-import { PlanModule } from 'src/plan/plan.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([TicketEntity, TicketHistoryEntity]),
-    UserModule,
-    SourceModule,
-    PlanModule,
-  ],
+  imports: [TypeOrmModule.forFeature([TicketEntity, TicketHistoryEntity])],
   controllers: [TicketController],
   providers: [TicketService],
   exports: [TicketService, TypeOrmModule],

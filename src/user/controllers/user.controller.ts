@@ -39,15 +39,16 @@ import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
-import { SourceEntity } from 'src/source/entities/source.entity';
-import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
+import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
-import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
-import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
-import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
-import { DeviceEntity } from 'src/user/entities/device.entity';
+import { AvatarUploadRequestDto } from 'src/user/dtos/avatar-upload.request.dto';
+import { CreateUserRequestDto } from 'src/user/dtos/create-user.request.dto';
+import { DeviceResponseDto } from 'src/user/dtos/device.response.dto';
+import { RegisterDeviceRequestDto } from 'src/user/dtos/register-device.request.dto';
+import { UpdateParitialUserRequestDto } from 'src/user/dtos/update-paritial-user.request.dto';
+import { UpdateUserRequestDto } from 'src/user/dtos/update-user.request.dto';
+import { UserResponseDto } from 'src/user/dtos/user.response.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
@@ -68,7 +69,7 @@ export class UserController {
     summary: 'Get all profiles',
     description: "Get all users' profile",
   })
-  @PaginatedSwaggerDocs(UserEntity, userPaginationConfig)
+  @PaginatedSwaggerDocs(UserResponseDto, userPaginationConfig)
   @Get()
   async getAll(@Paginate() query: PaginateQuery) {
     return await this.userService.findAll(query);
@@ -123,7 +124,7 @@ export class UserController {
   })
   @ApiBody({
     description: 'Avatar file',
-    type: AvatarUploadDto,
+    type: AvatarUploadRequestDto,
   })
   @ApiConsumes('multipart/form-data')
   @ApiNotFoundResponse()
@@ -221,14 +222,14 @@ export class UserController {
   @Post()
   async create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    @Body() createUserDto: CreateUserDto,
+    @Body() createUserRequestDto: CreateUserRequestDto,
   ) {
-    if (!req.user.isAdmin && req.user.userId !== createUserDto.id) {
+    if (!req.user.isAdmin && req.user.userId !== createUserRequestDto.id) {
       throw new ForbiddenException(
         'You are only allowed to create your own profile',
       );
     }
-    return await this.userService.create(createUserDto);
+    return await this.userService.create(createUserRequestDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -241,7 +242,7 @@ export class UserController {
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   @ApiOkResponse({
-    type: () => UserEntity,
+    type: UserResponseDto,
   })
   @Get(':id')
   async getById(
@@ -254,7 +255,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.findByIdOrFail(id);
+      const user = await this.userService.find(id);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -279,7 +280,7 @@ export class UserController {
   async update(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserRequestDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -310,7 +311,7 @@ export class UserController {
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateParitialUserDto: UpdateParitialUserDto,
+    @Body() updateParitialUserRequestDto: UpdateParitialUserRequestDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -320,7 +321,7 @@ export class UserController {
     try {
       return await this.userService.partialUpdateById(
         userId,
-        updateParitialUserDto,
+        updateParitialUserRequestDto,
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -330,7 +331,6 @@ export class UserController {
     }
   }
 
-  // NOTE: This require supabase client delete also
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
@@ -365,9 +365,9 @@ export class UserController {
     description: 'Get all sources of user with user id',
   })
   @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
+  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
-    type: [SourceEntity],
+    type: [SourceResponseDto],
   })
   @Get(':id/sources')
   async getSources(
@@ -379,14 +379,7 @@ export class UserController {
         "You are not allowed to get other user's sources",
       );
     }
-    try {
-      return await this.userService.findSourcesById(userId);
-    } catch (error) {
-      if (error instanceof UserNotExistException) {
-        throw new NotFoundException("User doesn't exist to have sources");
-      }
-      throw error;
-    }
+    return await this.userService.findSourcesById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -397,9 +390,9 @@ export class UserController {
     description: 'Get all tickets of user with user id',
   })
   @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
+  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
-    type: [TicketEntity],
+    type: [TicketResponseDto],
   })
   @Get(':id/tickets')
   async getTickets(
@@ -411,16 +404,7 @@ export class UserController {
         "You are not allowed to get other user's tickets",
       );
     }
-    try {
-      return await this.userService.findTicketsById(userId);
-    } catch (error) {
-      if (error instanceof UserNotExistException) {
-        throw new NotFoundException(
-          "User doesn't exist to have sources to have tickets",
-        );
-      }
-      throw error;
-    }
+    return await this.userService.findTicketsById(userId);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -431,18 +415,21 @@ export class UserController {
     description: 'Register user devices. Currently for FCM - push notification',
   })
   @ApiForbiddenResponse()
-  @ApiCreatedResponse({ type: DeviceEntity })
+  @ApiCreatedResponse({ type: DeviceResponseDto })
   @Post(':id/devices')
   async registerDevice(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() registerDeviceDto: RegisterDeviceDto,
+    @Body() registerDeviceRequestDto: RegisterDeviceRequestDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
         "You are not allowed to register other user's devices",
       );
     }
-    return await this.userService.createDevice(userId, registerDeviceDto);
+    return await this.userService.createDevice(
+      userId,
+      registerDeviceRequestDto,
+    );
   }
 }
