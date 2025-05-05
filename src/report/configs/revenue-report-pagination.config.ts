@@ -4,5 +4,5 @@ import { RevenueReportEntity } from 'src/report/entities/revenue-report.entity';
 export const revenueReportPaginationConfig: PaginateConfig<RevenueReportEntity> =
   {
     sortableColumns: ['date'],
-    paginationType: PaginationType.CURSOR,
+    paginationType: PaginationType.LIMIT_AND_OFFSET,
   };

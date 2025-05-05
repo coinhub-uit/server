@@ -27,7 +27,11 @@ export class UserService {
   private static readonly AVATAR_FILENAME_FIRST_HEX_PATTERN = /^[^-]+-/;
 
   private async FindById(userId: string) {
-    return await this.userRepository.findOne({ where: { id: userId } });
+    return await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
   }
 
   async findByIdOrFail(userId: string) {
