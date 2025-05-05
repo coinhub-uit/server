@@ -16,11 +16,11 @@ bootstrap:
 
 [doc('run nestjs prod')]
 run-api-server-prod:
-  npm run start
+  JUST_ENV=.env.production npm run start
 
 [doc('run nestjs dev')]
 run-api-server-dev:
-  npm run start:dev
+  JUST_ENV=.env npm run start:dev
 
 [doc('run supabase')]
 run-supabase:
