@@ -14,7 +14,7 @@ import {
 import { SourceService } from 'src/source/services/source.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TopUpEntity } from 'src/payment/entities/top-up.entity';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
@@ -32,45 +32,45 @@ export class TopUpService {
     private readonly topUpRepository: Repository<TopUpEntity>,
     @InjectRepository(SourceEntity)
     private readonly sourceRepository: Repository<SourceEntity>,
+    private dataSource: DataSource,
   ) {}
 
-  // NOTE: isn't used
-  getBankList() {
-    return this.vnpayService.getBankList();
-  }
-
-  // TODO: Transaction?
   async verifyIpn(query: ReturnQueryFromVNPay) {
-    const verification = await this.vnpayService.verifyIpnCall(query);
-    if (!verification.isVerified) {
-      return IpnFailChecksum;
-    }
-    if (!verification.isSuccess) {
-      return IpnUnknownError;
-    }
-    const topUp = await this.topUpRepository.findOne({
-      where: { id: verification.vnp_TxnRef },
-      relations: { sourceDestination: true },
-    });
-    if (!topUp) {
-      return IpnOrderNotFound;
-    }
-    if (!topUp.amount.eq(verification.vnp_Amount)) {
-      topUp.status = TopUpStatusEnum.declined;
-      await this.topUpRepository.save(topUp);
-      return IpnInvalidAmount;
-    }
+    await this.dataSource.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const topUpRepository =
+          transactionalEntityManager.getRepository(TopUpEntity);
+        const verification = await this.vnpayService.verifyIpnCall(query);
+        if (!verification.isVerified) {
+          return IpnFailChecksum;
+        }
+        if (!verification.isSuccess) {
+          return IpnUnknownError;
+        }
+        const topUp = await topUpRepository.findOne({
+          where: { id: verification.vnp_TxnRef },
+          relations: { sourceDestination: true },
+        });
+        if (!topUp) {
+          return IpnOrderNotFound;
+        }
+        if (!topUp.amount.eq(verification.vnp_Amount)) {
+          topUp.status = TopUpStatusEnum.declined;
+          await topUpRepository.save(topUp);
+          return IpnInvalidAmount;
+        }
+        topUp.status = TopUpStatusEnum.success;
 
-    topUp.status = TopUpStatusEnum.success;
+        const sourceDestination = topUp.sourceDestination;
+        await this.sourceService.changeSourceBalance(
+          sourceDestination!,
+          topUp.amount,
+        );
 
-    const sourceDestination = topUp.sourceDestination;
-    await this.sourceService.changeSourceBalance(
-      sourceDestination!,
-      topUp.amount,
+        await topUpRepository.save(topUp);
+        return IpnSuccess;
+      },
     );
-
-    await this.topUpRepository.save(topUp);
-    return IpnSuccess;
   }
 
   async createVNPayTopUp(createTopUpDto: CreateTopUpDto) {

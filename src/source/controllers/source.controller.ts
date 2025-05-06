@@ -32,7 +32,6 @@ export class SourceController {
     return await this.sourceService.createSource(createSourceDto);
   }
 
-  // TODO: Add get source by id @NTGNguyen aslkfdj;lkasjdf;
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
@@ -41,8 +40,10 @@ export class SourceController {
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({ type: [SourceResponseDto] })
-  @Get()
-  async getById() {}
+  @Get(':id')
+  async getById(@Param('id') sourceId: string) {
+    return this.sourceService.find(sourceId);
+  }
 
   // TODO: Add delete source later (NOT IMPORTANT) so later
 

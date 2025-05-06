@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
@@ -10,12 +9,10 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CreateAdminDto } from 'src/admin/dtos/create-admin.dto';
 import { LoginAdminDto } from 'src/admin/dtos/login-admin.dto';
 import { AdminEntity } from 'src/admin/entities/admin.entity';
 import { AdminService } from 'src/admin/services/admin.service';
@@ -31,16 +28,6 @@ export class AdminController {
     private readonly adminService: AdminService,
     private readonly authService: AuthService,
   ) {}
-
-  // TODO: Just for test, comment or guard this later
-  @ApiOperation({
-    summary: 'Create',
-  })
-  @ApiCreatedResponse()
-  @Post()
-  async createAdmin(@Body() createAdminDto: CreateAdminDto) {
-    await this.adminService.createAdmin(createAdminDto);
-  }
 
   @ApiBearerAuth('admin')
   @ApiOperation({ summary: 'Get admins' })
