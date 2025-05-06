@@ -1,4 +1,3 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
@@ -9,10 +8,8 @@ import {
 } from 'src/common/transformers/decimal.transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@ApiSchema({ name: RevenueReportEntity.name })
 @Entity({ name: 'revenue_report' })
 export class RevenueReportEntity extends AbstractEntity<RevenueReportEntity> {
-  @ApiProperty()
   @PrimaryColumn({
     type: 'date',
     default: 'now()',
@@ -20,11 +17,9 @@ export class RevenueReportEntity extends AbstractEntity<RevenueReportEntity> {
   })
   date!: Date;
 
-  @ApiProperty()
-  @Column({ type: 'int' })
+  @PrimaryColumn({ type: 'int' })
   days!: number;
 
-  @ApiProperty({ type: String })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -34,7 +29,6 @@ export class RevenueReportEntity extends AbstractEntity<RevenueReportEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   income!: Decimal;
 
-  @ApiProperty({ type: String })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -44,7 +38,6 @@ export class RevenueReportEntity extends AbstractEntity<RevenueReportEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   expense!: Decimal;
 
-  @ApiProperty({ type: String })
   @Column({
     type: 'decimal',
     precision: 12,

@@ -25,12 +25,13 @@ export default class RevenueReportSeeder implements Seeder {
       now.setDate(1);
 
       while (currentDate <= now) {
+        const newCurrentDate = new Date(currentDate);
         for (const days of planDays) {
           const revenueReportEntity = await revenueReportFactory.make({
-            date: currentDate,
+            date: newCurrentDate,
             days,
           });
-          revenueReportRepository.insert(revenueReportEntity);
+          await revenueReportRepository.insert(revenueReportEntity);
         }
         currentDate.setMonth(currentDate.getMonth() + 1);
       }

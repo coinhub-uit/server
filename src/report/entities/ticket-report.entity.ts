@@ -1,12 +1,9 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@ApiSchema({ name: TicketReportEntity.name })
 @Entity({ name: 'ticket_report' })
 export class TicketReportEntity extends AbstractEntity<TicketReportEntity> {
-  @ApiProperty()
   @PrimaryColumn({
     type: 'date',
     default: 'now()',
@@ -14,15 +11,12 @@ export class TicketReportEntity extends AbstractEntity<TicketReportEntity> {
   })
   date!: Date;
 
-  @ApiProperty()
-  @Column({ type: 'int' })
+  @PrimaryColumn({ type: 'int' })
   days!: number;
 
-  @ApiProperty()
   @Column()
   openedCount!: number;
 
-  @ApiProperty()
   @Column()
   closedCount!: number;
 }

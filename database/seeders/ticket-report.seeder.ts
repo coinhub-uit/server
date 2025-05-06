@@ -25,12 +25,13 @@ export default class TicketReportSeeder implements Seeder {
       now.setDate(1);
 
       while (currentDate <= now) {
+        const newCurrentDate = new Date(currentDate);
         for (const days of planDays) {
           const ticketReportEntity = await ticketReportFactory.make({
-            date: currentDate,
+            date: newCurrentDate,
             days,
           });
-          ticketReportRepository.insert(ticketReportEntity);
+          await ticketReportRepository.insert(ticketReportEntity);
         }
         currentDate.setMonth(currentDate.getMonth() + 1);
       }

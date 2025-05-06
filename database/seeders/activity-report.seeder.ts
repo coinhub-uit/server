@@ -21,9 +21,9 @@ export default class ActivityReportSeeder implements Seeder {
 
       while (currentDate <= now) {
         const activityReportEntity = await activityReportFactory.make({
-          date: currentDate,
+          date: new Date(currentDate),
         });
-        activityReportRepository.insert(activityReportEntity);
+        await activityReportRepository.insert(activityReportEntity);
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
     });

@@ -9,7 +9,6 @@ import { RevenueReportEntity } from 'src/report/entities/revenue-report.entity';
 import { TicketReportEntity } from 'src/report/entities/ticket-report.entity';
 import { Repository } from 'typeorm';
 
-// TODO: Paginate all
 @Injectable()
 export class ReportService {
   constructor(

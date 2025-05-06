@@ -41,11 +41,14 @@ export default class MainSeeder implements Seeder {
 
     // activity report
     await new ActivityReportSeeder().run(dataSource, factoryManager);
+    console.log('Seeded activity report');
 
     // revenue report
     await new RevenueReportSeeder().run(dataSource, factoryManager);
+    console.log('Seeded revenue report');
 
     // ticket report
     await new TicketReportSeeder().run(dataSource, factoryManager);
+    console.log('Seeded ticket report');
   }
 }
