@@ -5,6 +5,7 @@ import { CreateSourceDto } from 'src/source/dtos/source.request.dto';
 import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
+import { SourceStillHasMoneyException } from 'src/source/exceptions/source-still-has-money.exceptions';
 import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Repository } from 'typeorm';
@@ -26,6 +27,14 @@ export class SourceService {
       throw new SourceNotExistException(sourceId);
     }
     return source;
+  }
+
+  async deleteSourceById(sourceId: string) {
+    const source = await this.findByIdOrFail(sourceId);
+    if (source.balance != new Decimal(0)) {
+      throw new SourceStillHasMoneyException(sourceId);
+    }
+    return this.sourceRepository.delete(sourceId);
   }
 
   async find(sourceId: string) {
