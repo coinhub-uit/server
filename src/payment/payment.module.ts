@@ -9,6 +9,7 @@ import { TopUpService } from 'src/payment/services/top-up.service';
 import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { SourceModule } from 'src/source/source.module';
 import { UserModule } from 'src/user/user.module';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from 'src/user/user.module';
     TypeOrmModule.forFeature([TopUpEntity]),
     SourceModule,
     UserModule,
+    NotificationModule,
   ],
   controllers: [PaymentController, VnpayController],
   providers: [PaymentService, TopUpService],

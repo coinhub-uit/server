@@ -71,6 +71,16 @@ export class SourceService {
     return ticketEntities as TicketResponseDto[];
   }
 
+  async findUserBySourceId(sourceId: string) {
+    const source = await this.sourceRepository.findOneOrFail({
+      where: { id: sourceId },
+      relations: {
+        user: true,
+      },
+    });
+    return source.user!;
+  }
+
   async createSource(sourceDetails: CreateSourceDto) {
     const { userId, ...newSourceDetails } = sourceDetails;
     const source = this.sourceRepository.create({

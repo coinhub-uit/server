@@ -18,4 +18,16 @@ export class NotificationService {
     });
     return notificationEntity as NotificationResponseDto;
   }
+
+  async create(userId: string, title: string, body: string, createdAt: Date) {
+    const notification = this.notificationRepository.create({
+      title: title,
+      body: body,
+      createdAt: createdAt,
+      user: {
+        id: userId,
+      },
+    });
+    return await this.notificationRepository.save(notification);
+  }
 }
