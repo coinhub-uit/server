@@ -1,18 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SourceService } from 'src/source/services/source.service';
 import { TranferMoneysDto } from '../dtos/transfer-money.dto';
 import { DataSource, EntityManager } from 'typeorm';
-import { NotificationService } from 'src/notification/services/notification.service';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 
 @Injectable()
 export class PaymentService {
-  constructor(
-    private readonly sourceService: SourceService,
-    private readonly notificationService: NotificationService,
-    private dataSource: DataSource,
-  ) {}
+  constructor(private dataSource: DataSource) {}
 
   async tranferMoney(tranferMoneyDetails: TranferMoneysDto) {
     const now = new Date();
@@ -48,13 +42,14 @@ export class PaymentService {
           Destination account: ${receivedMoneySource.id}.
           Your new balance: $${receivedMoneySource.balance.toNumber()}.`,
           user: receivedMoneySource.user,
-          createAt: now,
+          createdAt: now,
         });
         const tranferMoneyNotification = notificationRepository.create({
           title: 'Money Tranferred',
           body: `You have transferred $${tranferMoneyDetails.money} to ${receivedMoneySource.user?.fullname}.
           Source account: ${tranferMoneySource.id}.
           Remaining balance: $${tranferMoneySource.balance.toNumber()}.`,
+          createdAt: now,
         });
         await notificationRepository.save(receivedMoneyNotification);
         await notificationRepository.save(tranferMoneyNotification);
