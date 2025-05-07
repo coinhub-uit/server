@@ -31,12 +31,18 @@ export class AiChatService {
           role: 'system',
           content: 'Cool', // TODO: @NTGNguyen give it context of what user has, bla bla, how much, many, option, no asking irrelevant requestions
         },
+        {
+          role: 'user',
+          content: aiChatRequestDto.message,
+        },
       ];
     }
+
     const chatCompletion = await this.openai.chat.completions.create({
       messages: aiChatSession.messages,
       model: this.OPENAI_MODEL,
     });
+
     const messageContent = chatCompletion.choices[0].message.content;
     if (messageContent) {
       aiChatSession.messages.push({
@@ -44,6 +50,7 @@ export class AiChatService {
         content: messageContent,
       });
     }
+
     // TODO: Declare abstract response dto and pass as arg to constructor later
     const aiChatResponseDto = new AiChatResponseDto();
     aiChatResponseDto.message = messageContent;

@@ -8,7 +8,7 @@ import {
 import * as path from 'path';
 import { writeFileSync } from 'fs';
 
-export function configSwagger(app: INestApplication<any>) {
+export function configAppSwagger(app: INestApplication<any>) {
   // TODO: This seem isn't right? it's the site, not the api docs site?
   const config = new DocumentBuilder()
     .setTitle('CoinHub')
