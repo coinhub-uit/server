@@ -17,6 +17,7 @@ import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatService } from 'src/ai-chat/services/ai-chat.service';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
+import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 
 @Controller('ai-chat')
 export class AiChatController {
@@ -35,7 +36,7 @@ export class AiChatController {
     @Session()
     aiChatSession: AiChatSession,
     @Body()
-    aiChatRequestDto: AiChatRequestDto,
+    aiChatRequestDto: AiChatRequestDto & { user: UserJwtRequest },
   ) {
     return await this.aiChatService.ask({
       aiChatSession,

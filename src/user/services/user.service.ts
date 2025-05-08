@@ -214,4 +214,27 @@ export class UserService {
     const deviceEntity = await this.deviceRepository.save(device);
     return deviceEntity as DeviceResponseDto;
   }
+
+  async findAllUserInformation(userId: string) {
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userId },
+      relations: {
+        sources: {
+          topUps: true,
+          tickets: {
+            ticketHistories: {
+              planHistory: {
+                plan: true,
+              },
+            },
+          },
+        },
+        notifications: true,
+      },
+    });
+    if (!user) {
+      throw new UserNotExistException();
+    }
+    return user;
+  }
 }
