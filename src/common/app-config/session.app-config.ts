@@ -1,10 +1,12 @@
 import { INestApplication } from '@nestjs/common';
-import session from 'express-session';
+import * as session from 'express-session';
 import { RedisStore } from 'connect-redis';
 import { createClient } from 'redis';
 
 export async function configAppSession(app: INestApplication<any>) {
-  const redisClient = createClient();
+  const redisClient = createClient({
+    url: process.env.REDIS_URL,
+  });
 
   await redisClient.connect();
   const redisStore = new RedisStore({
