@@ -1,11 +1,11 @@
 import {
   Controller,
-  Get,
   HttpCode,
   Post,
   Req,
   UseGuards,
   Session,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -61,7 +61,7 @@ export class AiChatController {
     description: 'When you are done, delete your butt',
   })
   @ApiForbiddenResponse()
-  @Get('deleteSession')
+  @Delete('session')
   deleteSession(@Session() aiChatSession: AiChatSession) {
     return this.aiChatService.deleteSession(aiChatSession);
   }

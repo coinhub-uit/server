@@ -5,7 +5,6 @@ import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -23,8 +22,7 @@ export class AiChatService {
   private OPENAI_MODEL = process.env.OPENAI_MODEL;
 
   private async getUserInformation(userId: string) {
-    // FIXME: ngalusdfasdfjaskdfj fix this
-    const user = await this.userRepository.findOneOrFail({
+    const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: {
         sources: {
@@ -40,10 +38,7 @@ export class AiChatService {
         notifications: true,
       },
     });
-    if (!user) {
-      throw new UserNotExistException();
-    }
-    return user;
+    return JSON.stringify(user);
   }
 
   async ask({
@@ -74,9 +69,8 @@ You are a secure and knowledgeable banking assistant.
         },
         {
           role: 'assistant',
-          content: `This is the information you need to know about this user (in json format). You have to parse yourself the json. Here is ${JSON.stringify(
-            await this.getUserInformation(userId),
-          )}`,
+          content: `This is the information you need to know about this user (in json format). You have to parse yourself the json. Here is the data:
+            ${await this.getUserInformation(userId)}`,
         },
         {
           role: 'user',
