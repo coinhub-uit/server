@@ -58,7 +58,7 @@ export class SourceController {
   })
   @UseGuards(UniversalJwtAuthGuard)
   @Get(':id/tickets')
-  async getTickets(@Param() id: string) {
-    return await this.sourceService.findTicketsBySourceId(id);
+  async getTickets(@Param('id') sourceId: string) {
+    return await this.sourceService.findTicketsBySourceId(sourceId);
   }
 }
