@@ -30,6 +30,7 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
     default: 0,
     transformer: new DecimalTransformer(),
   })
+  // Have to transform the entity here... for nestjs to respond.
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 

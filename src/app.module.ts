@@ -15,6 +15,7 @@ import { PlanModule } from 'src/plan/plan.module';
 import { SettingModule } from 'src/setting/settings.module';
 import { TicketModule } from 'src/ticket/ticket.module';
 import { UserModule } from 'src/user/user.module';
+import { AiChatModule } from 'src/ai-chat/ai-chat.module';
 
 @Controller()
 export class RootController {
@@ -38,6 +39,7 @@ export class RootController {
     SettingModule,
     ConfigModule,
     AuthModule,
+    AiChatModule,
   ],
   controllers: [RootController],
   providers: [],

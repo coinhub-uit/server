@@ -25,7 +25,7 @@ import { TicketService } from 'src/ticket/services/ticket.service';
 
 @Controller('tickets')
 export class TicketController {
-  constructor(private ticketService: TicketService) {}
+  constructor(private readonly ticketService: TicketService) {}
 
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')

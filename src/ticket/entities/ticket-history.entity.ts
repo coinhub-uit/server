@@ -1,11 +1,7 @@
-import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
-import {
-  decimalToString,
-  DecimalTransformer,
-} from 'src/common/transformers/decimal.transformer';
+import { DecimalTransformer } from 'src/common/transformers/decimal.transformer';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
@@ -24,7 +20,6 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
     scale: 0,
     transformer: new DecimalTransformer(),
   })
-  @Transform(decimalToString, { toPlainOnly: true })
   principal!: Decimal;
 
   @Column({
@@ -33,7 +28,6 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
     scale: 0,
     transformer: new DecimalTransformer(),
   })
-  @Transform(decimalToString, { toPlainOnly: true })
   interest!: Decimal;
 
   @PrimaryColumn()

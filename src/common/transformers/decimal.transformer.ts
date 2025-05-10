@@ -9,7 +9,11 @@ export class DecimalTransformer implements ValueTransformer {
     return decimal.toString();
   }
 
-  from(decimal: string): Decimal {
+  from(decimal?: string | null): Decimal {
+    // HACK: This is tricked for AI Chat, not supposed to be like this
+    if (!decimal) {
+      return new Decimal(0);
+    }
     return new Decimal(decimal);
   }
 }
