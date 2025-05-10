@@ -18,7 +18,7 @@ export async function configAppSession(app: INestApplication<any>) {
       store: redisStore,
       secret: process.env.ADMIN_JWT_SECRET, // huhmm
       cookie: {
-        maxAge: 60 * 15, // 15 mins
+        maxAge: 60 * 15 * 1000, // 15 mins
       },
     }),
   );
