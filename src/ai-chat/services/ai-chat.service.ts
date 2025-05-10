@@ -28,7 +28,7 @@ export class AiChatService {
       where: { id: userId },
       relations: {
         sources: {
-          topUps: false,
+          topUps: true,
           tickets: {
             ticketHistories: {
               planHistory: {

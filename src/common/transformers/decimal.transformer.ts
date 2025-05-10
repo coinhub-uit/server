@@ -10,10 +10,8 @@ export class DecimalTransformer implements ValueTransformer {
   }
 
   from(decimal?: string | null): Decimal {
-    // This is tricked for AI Chat, not supposed to be like this
+    // HACK: This is tricked for AI Chat, not supposed to be like this
     if (!decimal) {
-      console.log('bad');
-
       return new Decimal(0);
     }
     return new Decimal(decimal);
