@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  Session,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -33,14 +26,21 @@ export class AiChatController {
   @HttpCode(200)
   @Post('chat')
   async ask(
-    @Session()
-    aiChatSession: AiChatSession,
-    @Body()
-    aiChatRequestDto: AiChatRequestDto & { user: UserJwtRequest },
+    @Req()
+    req: Request & {
+      user: UserJwtRequest;
+    } & {
+      session: AiChatSession;
+    } & {
+      body: AiChatRequestDto;
+    },
   ) {
+    const { user, session: aiChatSession, body: aiChatRequestDto } = req;
+    const userId = user.userId;
     return await this.aiChatService.ask({
-      aiChatSession,
+      userId,
       aiChatRequestDto,
+      aiChatSession,
     });
   }
 }

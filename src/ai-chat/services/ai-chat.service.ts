@@ -4,7 +4,6 @@ import OpenAI from 'openai';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
-import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { Repository } from 'typeorm';
@@ -49,11 +48,13 @@ export class AiChatService {
   async ask({
     aiChatSession,
     aiChatRequestDto,
+    userId,
   }: {
     aiChatSession: AiChatSession;
-    aiChatRequestDto: AiChatRequestDto & { user: UserJwtRequest };
+    aiChatRequestDto: AiChatRequestDto;
+    userId: string;
   }) {
-    const current_user = this.getUserInformation(aiChatRequestDto.user.userId);
+    const current_user = this.getUserInformation(userId);
     if (aiChatSession.messages) {
       aiChatSession.messages.push({
         role: 'user',
