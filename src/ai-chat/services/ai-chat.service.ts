@@ -23,11 +23,12 @@ export class AiChatService {
   private OPENAI_MODEL = process.env.OPENAI_MODEL;
 
   private async getUserInformation(userId: string) {
+    // FIXME: ngalusdfasdfjaskdfj fix this
     const user = await this.userRepository.findOneOrFail({
       where: { id: userId },
       relations: {
         sources: {
-          topUps: true,
+          topUps: false,
           tickets: {
             ticketHistories: {
               planHistory: {
@@ -54,7 +55,6 @@ export class AiChatService {
     aiChatRequestDto: AiChatRequestDto;
     userId: string;
   }) {
-    const current_user = this.getUserInformation(userId);
     if (aiChatSession.messages) {
       aiChatSession.messages.push({
         role: 'user',
@@ -64,13 +64,19 @@ export class AiChatService {
       aiChatSession.messages = [
         {
           role: 'system',
-          content: [
-            {
-              type: 'text',
-              text: `You are a helpful banking assistant. Answer questions about savings accounts, balances, interest rates, and related transactions. This is the information you need to know about this user:
-              ${JSON.stringify(current_user)}`,
-            },
-          ],
+          content: `
+You are a secure and knowledgeable banking assistant.
+  - Answer questions about savings accounts, balances, interest rates, and transactions.
+  - You must **not** provide advice outside of banking-related topics.
+  - If the user asks for personal details, only respond with the data provided in the initial context.
+  - Be precise, concise, and avoid speculation.
+`,
+        },
+        {
+          role: 'assistant',
+          content: `This is the information you need to know about this user (in json format). You have to parse yourself the json. Here is ${JSON.stringify(
+            await this.getUserInformation(userId),
+          )}`,
         },
         {
           role: 'user',
@@ -88,7 +94,7 @@ export class AiChatService {
     const messageContent = chatCompletion.choices[0].message.content;
     if (messageContent) {
       aiChatSession.messages.push({
-        role: 'user',
+        role: 'assistant',
         content: messageContent,
       });
     }
@@ -97,5 +103,9 @@ export class AiChatService {
     const aiChatResponseDto = new AiChatResponseDto();
     aiChatResponseDto.message = messageContent;
     return aiChatResponseDto;
+  }
+
+  deleteSession(aiChatSession: AiChatSession) {
+    aiChatSession.destroy(() => {});
   }
 }

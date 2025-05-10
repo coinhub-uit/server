@@ -1,6 +1,15 @@
-import { Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  UseGuards,
+  Session,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
@@ -21,6 +30,7 @@ export class AiChatController {
   @ApiOperation({
     summary: 'AI chat bot',
   })
+  @ApiBody({ type: AiChatRequestDto })
   @ApiForbiddenResponse()
   @ApiOkResponse({ type: AiChatResponseDto })
   @HttpCode(200)
@@ -42,5 +52,17 @@ export class AiChatController {
       aiChatRequestDto,
       aiChatSession,
     });
+  }
+
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Delete chat session',
+    description: 'When you are done, delete your butt',
+  })
+  @ApiForbiddenResponse()
+  @Get('deleteSession')
+  deleteSession(@Session() aiChatSession: AiChatSession) {
+    return this.aiChatService.deleteSession(aiChatSession);
   }
 }

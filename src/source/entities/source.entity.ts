@@ -1,10 +1,6 @@
-import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import {
-  decimalToString,
-  DecimalTransformer,
-} from 'src/common/transformers/decimal.transformer';
+import { DecimalTransformer } from 'src/common/transformers/decimal.transformer';
 import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -30,7 +26,6 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
     default: 0,
     transformer: new DecimalTransformer(),
   })
-  @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 
   @OneToMany(() => TopUpEntity, (topUp) => topUp.sourceDestination)
