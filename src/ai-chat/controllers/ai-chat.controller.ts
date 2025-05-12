@@ -4,7 +4,6 @@ import {
   Post,
   Req,
   UseGuards,
-  Session,
   Delete,
 } from '@nestjs/common';
 import {
@@ -62,7 +61,14 @@ export class AiChatController {
   })
   @ApiForbiddenResponse()
   @Delete('session')
-  deleteSession(@Session() aiChatSession: AiChatSession) {
-    return this.aiChatService.deleteSession(aiChatSession);
+  deleteSession(
+    @Req()
+    req: Request & {
+      session: AiChatSession;
+    },
+  ) {
+    // TODO: this should hold response and pass through delete service
+    const aiChatSession = req.session;
+    this.aiChatService.deleteSession(aiChatSession);
   }
 }
