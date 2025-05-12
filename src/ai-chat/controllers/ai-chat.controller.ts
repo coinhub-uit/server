@@ -33,7 +33,7 @@ export class AiChatController {
   @ApiForbiddenResponse()
   @ApiOkResponse({ type: AiChatResponseDto })
   @HttpCode(200)
-  @Post('chat')
+  @Post()
   async ask(
     @Req()
     req: Request & {
@@ -60,7 +60,7 @@ export class AiChatController {
     description: 'When you are done, delete your butt',
   })
   @ApiForbiddenResponse()
-  @Delete('session')
+  @Delete()
   deleteSession(
     @Req()
     req: Request & {
