@@ -54,7 +54,7 @@ export class UserService {
 
   async find(userId: string) {
     const userEntity = await this.findByIdOrFail(userId);
-    return userEntity as UserResponseDto;
+    return new UserResponseDto(userEntity);
   }
 
   static async deleteAvatarInStorageById(userId: string) {
@@ -115,7 +115,7 @@ export class UserService {
     const user = this.userRepository.create({ ...createUserRequestDto });
     await this.userRepository.insert(user);
     const userEntity = await this.findByIdOrFail(createUserRequestDto.id);
-    return userEntity as UserResponseDto;
+    return new UserResponseDto(userEntity);
   }
 
   async updateById(userId: string, updateUserRequestDto: UpdateUserRequestDto) {
@@ -150,7 +150,7 @@ export class UserService {
       updatePartialUserRequestDto,
     );
     const userEntity = await this.userRepository.save(updatedUser);
-    return userEntity as UserResponseDto;
+    return new UserResponseDto(userEntity);
   }
 
   private async deleteInSupabaseById(userId: string) {
@@ -184,7 +184,9 @@ export class UserService {
         },
       },
     });
-    return sourceEntities as SourceResponseDto[];
+    return sourceEntities.map(
+      (sourceEntity) => new SourceResponseDto(sourceEntity),
+    );
   }
 
   async findTicketsById(userId: string) {
@@ -197,7 +199,9 @@ export class UserService {
         },
       },
     });
-    return ticketEntities as TicketResponseDto[];
+    return ticketEntities.map(
+      (ticketEntity) => new TicketResponseDto(ticketEntity),
+    );
   }
 
   async createDevice(
@@ -212,6 +216,6 @@ export class UserService {
       },
     });
     const deviceEntity = await this.deviceRepository.save(device);
-    return deviceEntity as DeviceResponseDto;
+    return new DeviceResponseDto(deviceEntity);
   }
 }

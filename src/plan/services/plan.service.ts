@@ -52,19 +52,6 @@ export class PlanService {
     return await this.planHistoryRepository.save(planHistory);
   }
 
-  // async findPlanHistoryById(planHistoryId: string) {
-  //   const planHistoryEntity = await this.planHistoryRepository.findOne({
-  //     where: { id: planHistoryId },
-  //     relations: {
-  //       plan: true,
-  //     },
-  //   });
-  //   if (!planHistoryEntity) {
-  //     throw new PlanHistoryNotExist();
-  //   }
-  //   return planHistoryEntity;
-  // }
-
   async getAvailablePlans() {
     return await this.availablePlanRepository.find();
   }

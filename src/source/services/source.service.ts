@@ -39,7 +39,7 @@ export class SourceService {
 
   async find(sourceId: string) {
     const sourceEntity = await this.findByIdOrFail(sourceId);
-    return sourceEntity as SourceResponseDto;
+    return new SourceResponseDto(sourceEntity);
   }
 
   async changeSourceBalance(source: SourceEntity, money: Decimal.Value) {
@@ -68,7 +68,9 @@ export class SourceService {
         },
       },
     });
-    return ticketEntities as TicketResponseDto[];
+    return ticketEntities.map(
+      (ticketEntity) => new TicketResponseDto(ticketEntity),
+    );
   }
 
   async findUserBySourceId(sourceId: string) {
@@ -89,7 +91,7 @@ export class SourceService {
     });
     try {
       const sourceEntity = await this.sourceRepository.save(source);
-      return sourceEntity as SourceResponseDto;
+      return new SourceResponseDto(sourceEntity);
     } catch {
       // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps
     }

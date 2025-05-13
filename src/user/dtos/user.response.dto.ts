@@ -1,9 +1,10 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { URL_PATTERN } from 'lib/regex';
+import { AbstractResponseDto } from 'src/common/dto/abstract.response.dto';
 
 @ApiSchema({ name: UserResponseDto.name })
-export class UserResponseDto {
+export class UserResponseDto extends AbstractResponseDto<UserResponseDto> {
   @ApiProperty()
   id!: string;
 
