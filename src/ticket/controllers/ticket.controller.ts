@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -20,6 +21,7 @@ import {
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { TicketRequestDto } from 'src/ticket/dtos/ticket.request.dto';
+import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketService } from 'src/ticket/services/ticket.service';
 
@@ -35,7 +37,9 @@ export class TicketController {
     description: 'Create ticket of source in user account',
   })
   @ApiForbiddenResponse()
-  @ApiOkResponse()
+  @ApiCreatedResponse({
+    type: TicketResponseDto,
+  })
   @Post()
   create(
     @Req() req: Request & { user: UniversalJwtRequest },

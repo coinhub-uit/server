@@ -85,6 +85,7 @@ export class SourceService {
     const { userId, ...newSourceDetails } = sourceDetails;
     const source = this.sourceRepository.create({
       ...newSourceDetails,
+      balance: new Decimal(0),
       user: { id: userId },
     });
     try {

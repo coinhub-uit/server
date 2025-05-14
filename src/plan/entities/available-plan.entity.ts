@@ -10,7 +10,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
     dataSource
       .createQueryBuilder()
       .distinctOn(['plan.days'])
-      .select('plan_history.id', 'id')
+      .select('plan_history.id', 'planHistoryId')
       .addSelect('plan_history.rate', 'rate')
       .addSelect('plan.id', 'planId')
       .addSelect('plan.days', 'days')
@@ -22,7 +22,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 export class AvailablePlanEntity {
   @ApiProperty()
   @ViewColumn()
-  id!: string;
+  planHistoryId!: string;
 
   @ApiProperty()
   @ViewColumn()

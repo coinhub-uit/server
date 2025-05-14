@@ -24,7 +24,7 @@ export class TicketService {
 
   async createTicket(createTicketDto: TicketRequestDto) {
     const now = new Date();
-    await this.dataSource.manager.transaction(
+    const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const ticketRepository =
           transactionalEntityManager.getRepository(TicketEntity);
@@ -50,7 +50,7 @@ export class TicketService {
           source: { id: createTicketDto.sourceId },
           plan: planHistory.plan,
         });
-        await ticketRepository.save(ticket);
+        const ticketEntity = await ticketRepository.save(ticket);
 
         const ticketHistory = ticketHistoryRepository.create({
           issuedAt: now,
@@ -62,9 +62,11 @@ export class TicketService {
           ticketId: ticket.id,
         });
 
-        return await ticketHistoryRepository.save(ticketHistory);
+        await ticketHistoryRepository.save(ticketHistory);
+        return ticketEntity;
       },
     );
+    return ticketEntity;
   }
 
   static calculateEarlyInterest(

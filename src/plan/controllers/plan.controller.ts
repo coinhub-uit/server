@@ -7,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -78,7 +79,7 @@ export class PlanController {
     type: [PlanHistoryEntity],
   })
   @Get('histories/:id')
-  async getPlanHistory(@Param('id') planHistoryId: number) {
+  async getPlanHistory(@Param('id', ParseIntPipe) planHistoryId: number) {
     try {
       return await this.planService.findHistoryById(planHistoryId);
     } catch (error) {
