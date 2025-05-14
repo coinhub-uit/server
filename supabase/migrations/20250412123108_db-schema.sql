@@ -11,3 +11,7 @@ CREATE TABLE notification (
 CREATE TABLE top_up (
   _id INT
 );
+
+CREATE TABLE plan_history (
+  _id INT
+);
