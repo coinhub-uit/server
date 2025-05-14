@@ -6,7 +6,7 @@ alias b := bootstrap
 alias c := type-check
 alias d := run-docker-compose
 alias dbr := reset-database
-alias dbrd := reset-database
+alias dbrd := reset-database-prod
 alias tc := type-check
 alias rs := run-supabase
 alias ss := stop-supabase
@@ -16,11 +16,11 @@ bootstrap:
 
 [doc('run nestjs prod')]
 run-api-server-prod:
-  JUST_ENV=.env.production npm run start
+  npm run start
 
 [doc('run nestjs dev')]
 run-api-server-dev:
-  JUST_ENV=.env npm run start:dev
+  npm run start:dev
 
 [doc('run supabase')]
 run-supabase:
@@ -32,13 +32,15 @@ stop-supabase:
 
 [doc('reset db')]
 reset-database:
-  JUST_ENV=.env supabase db reset --local
-  JUST_ENV=.env npm run db:reset
+  supabase db reset --local
+  npm run typeorm:sync
+  npm run db:seed
 
 [doc('reset db production')]
 reset-database-prod:
-  JUST_ENV=.env.production supabase db reset --linked
-  JUST_ENV=.env.production npm run db:reset
+  supabase db reset --linked
+  npm run typeorm:sync
+  npm run db:seed
 
 [doc('run docker compose')]
 run-docker-compose:
