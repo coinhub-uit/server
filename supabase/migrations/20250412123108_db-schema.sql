@@ -7,3 +7,7 @@ CREATE TABLE ticket_history (
 CREATE TABLE notification (
   _id INT
 );
+
+CREATE TABLE top_up (
+  _id INT
+);
