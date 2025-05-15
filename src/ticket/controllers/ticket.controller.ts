@@ -63,7 +63,7 @@ export class TicketController {
   @ApiNotFoundResponse()
   @ApiOkResponse()
   @Get(':id/withdraw')
-  async settlementTicket(@Param('id', ParseIntPipe) ticketId: number) {
+  async withdrawTicket(@Param('id', ParseIntPipe) ticketId: number) {
     try {
       await this.ticketService.withdrawTicket(ticketId);
     } catch (error) {
