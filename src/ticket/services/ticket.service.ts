@@ -5,24 +5,21 @@ import { dateAfter } from 'lib/date-utils';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { TicketRequestDto } from 'src/ticket/dtos/ticket.request.dto';
+import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectRepository(TicketEntity)
-    private readonly ticketRepository: Repository<TicketEntity>,
-    @InjectRepository(TicketHistoryEntity)
-    private readonly ticketHistoryRepository: Repository<TicketHistoryEntity>,
     private dataSource: DataSource,
   ) {}
 
-  async createTicket(createTicketDto: TicketRequestDto) {
+  async createTicket(createTicketDto: CreateTicketDto) {
     const now = new Date();
     const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
@@ -54,7 +51,7 @@ export class TicketService {
 
         const ticketHistory = ticketHistoryRepository.create({
           issuedAt: now,
-          maturedAt: dateAfter(now, planHistory.plan.days),
+          maturedAt: dateAfter(now, planHistory.plan!.days),
           principal: createTicketDto.amount,
           interest: (createTicketDto.amount * planHistory.rate) / 100,
           planHistory: planHistory,

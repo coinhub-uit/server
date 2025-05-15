@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
@@ -50,7 +50,6 @@ export class TopUpEntity extends AbstractEntity<TopUpEntity> {
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @ApiPropertyOptional({ type: () => SourceEntity })
   @ManyToOne(() => SourceEntity, (source) => source.topUps, { nullable: false })
   sourceDestination?: SourceEntity;
 }

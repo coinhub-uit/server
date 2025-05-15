@@ -1,5 +1,3 @@
-// TODO: Response DTO later
-
 import {
   BadRequestException,
   Body,
@@ -7,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Post,
   Query,
@@ -56,9 +55,8 @@ export class PlanController {
   })
   @Get(':id')
   async getPlan(
-    // TODO: Check do we need pipe?
-    @Param('id') planId: number,
-    @Query('allHistories') allHistories: boolean = false,
+    @Param('id', ParseIntPipe) planId: number,
+    @Query('allHistories', ParseBoolPipe) allHistories: boolean = false,
   ) {
     try {
       return await this.planService.findById(planId, allHistories);

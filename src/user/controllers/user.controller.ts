@@ -39,16 +39,15 @@ import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
-import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
-import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
-import { AvatarUploadRequestDto } from 'src/user/dtos/avatar-upload.request.dto';
-import { CreateUserRequestDto } from 'src/user/dtos/create-user.request.dto';
-import { DeviceResponseDto } from 'src/user/dtos/device.response.dto';
-import { RegisterDeviceRequestDto } from 'src/user/dtos/register-device.request.dto';
-import { UpdateParitialUserRequestDto } from 'src/user/dtos/update-paritial-user.request.dto';
-import { UpdateUserRequestDto } from 'src/user/dtos/update-user.request.dto';
-import { UserResponseDto } from 'src/user/dtos/user.response.dto';
+import { AvatarUploadDto } from 'src/user/dtos/avatar-upload.dto';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
+import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
@@ -69,7 +68,7 @@ export class UserController {
     summary: 'Get all profiles',
     description: "Get all users' profile",
   })
-  @PaginatedSwaggerDocs(UserResponseDto, userPaginationConfig)
+  @PaginatedSwaggerDocs(UserEntity, userPaginationConfig)
   @Get()
   async getAll(@Paginate() query: PaginateQuery) {
     return await this.userService.findAll(query);
@@ -124,7 +123,7 @@ export class UserController {
   })
   @ApiBody({
     description: 'Avatar file',
-    type: AvatarUploadRequestDto,
+    type: AvatarUploadDto,
   })
   @ApiConsumes('multipart/form-data')
   @ApiNotFoundResponse()
@@ -222,14 +221,14 @@ export class UserController {
   @Post()
   async create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    @Body() createUserRequestDto: CreateUserRequestDto,
+    @Body() createUserDto: CreateUserDto,
   ) {
-    if (!req.user.isAdmin && req.user.userId !== createUserRequestDto.id) {
+    if (!req.user.isAdmin && req.user.userId !== createUserDto.id) {
       throw new ForbiddenException(
         'You are only allowed to create your own profile',
       );
     }
-    return await this.userService.create(createUserRequestDto);
+    return await this.userService.create(createUserDto);
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -242,7 +241,7 @@ export class UserController {
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   @ApiOkResponse({
-    type: UserResponseDto,
+    type: () => UserEntity,
   })
   @Get(':id')
   async getById(
@@ -255,7 +254,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.userService.find(id);
+      const user = await this.userService.findByIdOrFail(id);
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -280,7 +279,7 @@ export class UserController {
   async update(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateUserDto: UpdateUserRequestDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -311,7 +310,7 @@ export class UserController {
   async updateParitial(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() updateParitialUserRequestDto: UpdateParitialUserRequestDto,
+    @Body() updateParitialUserDto: UpdateParitialUserDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -321,7 +320,7 @@ export class UserController {
     try {
       return await this.userService.partialUpdateById(
         userId,
-        updateParitialUserRequestDto,
+        updateParitialUserDto,
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
@@ -365,9 +364,8 @@ export class UserController {
     description: 'Get all sources of user with user id',
   })
   @ApiForbiddenResponse()
-  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
-    type: [SourceResponseDto],
+    type: [SourceEntity],
   })
   @Get(':id/sources')
   async getSources(
@@ -390,9 +388,8 @@ export class UserController {
     description: 'Get all tickets of user with user id',
   })
   @ApiForbiddenResponse()
-  @ApiUnprocessableEntityResponse()
   @ApiOkResponse({
-    type: [TicketResponseDto],
+    type: [TicketEntity],
   })
   @Get(':id/tickets')
   async getTickets(
@@ -415,21 +412,18 @@ export class UserController {
     description: 'Register user devices. Currently for FCM - push notification',
   })
   @ApiForbiddenResponse()
-  @ApiCreatedResponse({ type: DeviceResponseDto })
+  @ApiCreatedResponse({ type: DeviceEntity })
   @Post(':id/devices')
   async registerDevice(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
-    @Body() registerDeviceRequestDto: RegisterDeviceRequestDto,
+    @Body() registerDeviceDto: RegisterDeviceDto,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
         "You are not allowed to register other user's devices",
       );
     }
-    return await this.userService.createDevice(
-      userId,
-      registerDeviceRequestDto,
-    );
+    return await this.userService.createDevice(userId, registerDeviceDto);
   }
 }

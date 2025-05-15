@@ -11,11 +11,10 @@ import {
 import { stringToDate } from 'src/common/transformers/date.transformer';
 
 @ApiSchema()
-export class CreateUserRequestDto {
+export class CreateUserDto {
   @ApiProperty({
     description: 'UUID of the user retreive from supabase',
-    example:
-      '20c75444-798a-4708-9105-69de67e35c1c' satisfies CreateUserRequestDto['id'],
+    example: '20c75444-798a-4708-9105-69de67e35c1c',
   })
   @IsNotEmpty()
   @IsUUID()
@@ -39,7 +38,7 @@ export class CreateUserRequestDto {
 
   @ApiProperty({
     description: 'Citizen ID with 12 digits',
-    example: '077002455001' satisfies CreateUserRequestDto['citizenId'],
+    example: '077002455001',
   })
   @IsString()
   @Length(12, 12)
@@ -48,8 +47,7 @@ export class CreateUserRequestDto {
   @ApiProperty({
     required: false,
     description: 'Avatar URL',
-    example:
-      'https://avatars.githubusercontent.com/u/86353526?v=4' satisfies CreateUserRequestDto['avatar'],
+    example: 'https://avatars.githubusercontent.com/u/86353526?v=4',
   })
   @IsString()
   avatar?: string;

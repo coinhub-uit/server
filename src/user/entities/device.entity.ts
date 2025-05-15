@@ -5,7 +5,7 @@ import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 @Entity('device')
 export class DeviceEntity extends AbstractEntity<DeviceEntity> {
   @PrimaryColumn({ type: 'text' })
-  id!: string;
+  id: string;
 
   @Column({ type: 'text' })
   fcmToken!: string;

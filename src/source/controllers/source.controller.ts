@@ -18,13 +18,12 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
-import { CreateSourceDto } from 'src/source/dtos/source.request.dto';
-import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
+import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceStillHasMoneyException } from 'src/source/exceptions/source-still-has-money.exceptions';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceService } from 'src/source/services/source.service';
-import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 @Controller('sources')
 export class SourceController {
@@ -52,7 +51,7 @@ export class SourceController {
     summary: 'Get source',
   })
   @ApiNotFoundResponse()
-  @ApiOkResponse({ type: [SourceResponseDto] })
+  @ApiOkResponse({ type: [SourceEntity] })
   @Get(':id')
   async getById(@Param('id') sourceId: string) {
     return this.sourceService.find(sourceId);
@@ -87,7 +86,7 @@ export class SourceController {
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({
-    type: [TicketResponseDto],
+    type: [TicketEntity],
   })
   @UseGuards(UniversalJwtAuthGuard)
   @Get(':id/tickets')

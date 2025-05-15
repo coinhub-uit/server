@@ -4,17 +4,13 @@ import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { extname, join as joinPath } from 'path';
-import { SourceResponseDto } from 'src/source/dtos/source.response.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
-import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
-import { CreateUserRequestDto } from 'src/user/dtos/create-user.request.dto';
-import { DeviceResponseDto } from 'src/user/dtos/device.response.dto';
-import { RegisterDeviceRequestDto } from 'src/user/dtos/register-device.request.dto';
-import { UpdateParitialUserRequestDto } from 'src/user/dtos/update-paritial-user.request.dto';
-import { UpdateUserRequestDto } from 'src/user/dtos/update-user.request.dto';
-import { UserResponseDto } from 'src/user/dtos/user.response.dto';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
+import { UpdateParitialUserDto } from 'src/user/dtos/update-paritial-user.dto';
+import { UpdateUserDto } from 'src/user/dtos/update-user.dto';
 import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
@@ -44,17 +40,12 @@ export class UserService {
     });
   }
 
-  private async findByIdOrFail(userId: string) {
+  async findByIdOrFail(userId: string) {
     const user = await this.FindById(userId);
     if (!user) {
       throw new UserNotExistException();
     }
     return user;
-  }
-
-  async find(userId: string) {
-    const userEntity = await this.findByIdOrFail(userId);
-    return userEntity as UserResponseDto;
   }
 
   static async deleteAvatarInStorageById(userId: string) {
@@ -107,22 +98,23 @@ export class UserService {
     return { file, filename, fileExtension };
   }
 
+  // TODO: Maybe paginate this
   async findAll(query: PaginateQuery) {
     return paginate(query, this.userRepository, userPaginationConfig);
   }
 
-  async create(createUserRequestDto: CreateUserRequestDto) {
-    const user = this.userRepository.create({ ...createUserRequestDto });
+  async create(createUserDto: CreateUserDto) {
+    const user = this.userRepository.create(createUserDto);
     await this.userRepository.insert(user);
-    const userEntity = await this.findByIdOrFail(createUserRequestDto.id);
-    return userEntity as UserResponseDto;
+    return this.findByIdOrFail(createUserDto.id);
   }
 
-  async updateById(userId: string, updateUserRequestDto: UpdateUserRequestDto) {
-    const updateResult = await this.userRepository.update(userId, {
-      ...updateUserRequestDto,
-    });
-    if (!updateUserRequestDto.avatar) {
+  async updateById(userId: string, updateUserDto: UpdateUserDto) {
+    const updateResult = await this.userRepository.update(
+      userId,
+      updateUserDto,
+    );
+    if (!updateUserDto.avatar) {
       await UserService.deleteAvatarInStorageById(userId);
     }
     if (updateResult.affected === 0) {
@@ -130,12 +122,9 @@ export class UserService {
     }
   }
 
-  async partialUpdateById(
-    userId: string,
-    updatePartialUserRequestDto: UpdateParitialUserRequestDto,
-  ) {
+  async partialUpdateById(userId: string, userDetails: UpdateParitialUserDto) {
     const user = await this.findByIdOrFail(userId);
-    if (!updatePartialUserRequestDto.avatar) {
+    if (!userDetails.avatar) {
       try {
         await UserService.deleteAvatarInStorageById(userId);
       } catch (error) {
@@ -145,12 +134,8 @@ export class UserService {
         );
       }
     }
-    const updatedUser = this.userRepository.merge(
-      user,
-      updatePartialUserRequestDto,
-    );
-    const userEntity = await this.userRepository.save(updatedUser);
-    return userEntity as UserResponseDto;
+    const updatedUser = this.userRepository.merge(user, userDetails);
+    return await this.userRepository.save(updatedUser);
   }
 
   private async deleteInSupabaseById(userId: string) {
@@ -167,7 +152,6 @@ export class UserService {
     );
   }
 
-  // TODO: If soft delete / remove, return nothing
   async deleteById(userId: string) {
     await Promise.all([
       this.userRepository.softDelete({ id: userId }),
@@ -184,7 +168,7 @@ export class UserService {
         },
       },
     });
-    return sourceEntities as SourceResponseDto[];
+    return sourceEntities;
   }
 
   async findTicketsById(userId: string) {
@@ -197,21 +181,17 @@ export class UserService {
         },
       },
     });
-    return ticketEntities as TicketResponseDto[];
+    return ticketEntities;
   }
 
-  async createDevice(
-    userId: string,
-    registerDeviceRequestDto: RegisterDeviceRequestDto,
-  ) {
+  async createDevice(userId: string, registerDeviceDto: RegisterDeviceDto) {
     const device = this.deviceRepository.create({
-      fcmToken: registerDeviceRequestDto.fcmToken,
-      id: registerDeviceRequestDto.deviceId,
+      fcmToken: registerDeviceDto.fcmToken,
+      id: registerDeviceDto.deviceId,
       user: {
         id: userId,
       },
     });
-    const deviceEntity = await this.deviceRepository.save(device);
-    return deviceEntity as DeviceResponseDto;
+    return await this.deviceRepository.save(device);
   }
 }

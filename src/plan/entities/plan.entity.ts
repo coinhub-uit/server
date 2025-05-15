@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 @ApiSchema()
@@ -22,11 +22,9 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ type: 'int', unique: true })
   days!: number;
 
-  @ApiPropertyOptional({ type: () => [PlanHistoryEntity] })
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
   planHistories?: PlanHistoryEntity[];
 
-  @ApiPropertyOptional({ type: () => [TicketEntity] })
   @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
   tickets?: TicketEntity[];
 }

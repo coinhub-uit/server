@@ -20,8 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
-import { TicketRequestDto } from 'src/ticket/dtos/ticket.request.dto';
-import { TicketResponseDto } from 'src/ticket/dtos/ticket.response.dto';
+import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
+import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketService } from 'src/ticket/services/ticket.service';
 
@@ -38,12 +38,12 @@ export class TicketController {
   })
   @ApiForbiddenResponse()
   @ApiCreatedResponse({
-    type: TicketResponseDto,
+    type: TicketEntity,
   })
   @Post()
   create(
     @Req() req: Request & { user: UniversalJwtRequest },
-    @Body() createTicketDto: TicketRequestDto,
+    @Body() createTicketDto: CreateTicketDto,
   ) {
     if (!req.user.isAdmin) {
       throw new ForbiddenException(

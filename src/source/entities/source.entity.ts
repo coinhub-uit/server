@@ -1,3 +1,4 @@
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
@@ -17,12 +18,15 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
+@ApiSchema()
 @Entity('source')
 @Check(`"balance" >= 0`)
 export class SourceEntity extends AbstractEntity<SourceEntity> {
+  @ApiProperty()
   @PrimaryColumn({ type: 'varchar', length: 20 })
   id!: string;
 
+  @ApiProperty({ type: String })
   @Column({
     type: 'decimal',
     precision: 12,
@@ -30,7 +34,6 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
     default: 0,
     transformer: new DecimalTransformer(),
   })
-  // Have to transform the entity here... for nestjs to respond.
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 

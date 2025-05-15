@@ -66,8 +66,8 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     const planHistory = reversedPlanHistoryEntities.find(
       (planHistoryEntity) => {
         return shouldWithdraw
-          ? planHistoryEntity.plan.days === -1
-          : planHistoryEntity.plan.id === randomPlanEntity.id &&
+          ? planHistoryEntity.plan!.days === -1
+          : planHistoryEntity.plan!.id === randomPlanEntity.id &&
               planHistoryEntity.createdAt <= randomStartDate;
       },
     )!;
@@ -75,7 +75,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     const interest = TicketAndTicketHistorySeeder.calcInterest({
       principal,
       rate: planHistory.rate,
-      days: planHistory.plan.days,
+      days: planHistory.plan!.days,
     });
 
     const ticketHistoryEntity: TicketHistoryEntity =
@@ -141,7 +141,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
     for (let i = 1; i <= numberOfMonths; ++i) {
       const existingPlanHistoryEntity = reversedPlanHistoryEntities.find(
         (planHistoryEntity) =>
-          planHistoryEntity.plan.id === randomPlanEntity.id &&
+          planHistoryEntity.plan!.id === randomPlanEntity.id &&
           planHistoryEntity.createdAt <= iterateDate,
       );
 
@@ -153,7 +153,7 @@ export default class TicketAndTicketHistorySeeder implements Seeder {
       const interest = TicketAndTicketHistorySeeder.calcInterest({
         principal: existingAmount,
         rate: existingPlanHistoryEntity.rate,
-        days: existingPlanHistoryEntity.plan.days,
+        days: existingPlanHistoryEntity.plan!.days,
       });
 
       const ticketHistoryEntity = ticketHistoryRepository.create({
