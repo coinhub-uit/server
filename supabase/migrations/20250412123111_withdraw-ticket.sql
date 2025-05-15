@@ -36,7 +36,7 @@ CREATE OR REPLACE PROCEDURE withdraw_ticket(
   END;
 $$;
 
-CREATE OR REPLACE PROCEDURE simulate_maturity_circle(
+CREATE OR REPLACE PROCEDURE simulate_ticket_mature(
   ticketId INTEGER
 ) LANGUAGE plpgsql AS $$
   DECLARE

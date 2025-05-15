@@ -57,15 +57,15 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'settlement ticket',
-    description: 'settlement ticket of source in user account',
+    summary: 'withdraw ticket',
+    description: 'withdraw ticket of source in user account',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse()
-  @Get(':id/settlement')
+  @Get(':id/withdraw')
   async settlementTicket(@Param('id', ParseIntPipe) ticketId: number) {
     try {
-      await this.ticketService.settlementTicket(ticketId);
+      await this.ticketService.withdrawTicket(ticketId);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();
@@ -77,15 +77,14 @@ export class TicketController {
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiOperation({
-    summary: ' settlement ticket',
-    description: 'settlement ticket of source in user account',
+    summary: 'simulate mature ticket',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse()
-  @Get(':id/:endDate/simulate-settlement')
+  @Get(':id/:endDate/simulate-mature')
   async simulateMaturityCircle(@Param('id', ParseIntPipe) ticketId: number) {
     try {
-      await this.ticketService.simulateMaturityCircle(ticketId);
+      await this.ticketService.simulateMature(ticketId);
     } catch (error) {
       if (error instanceof TicketNotExistException) {
         throw new NotFoundException();

@@ -83,7 +83,7 @@ export class TicketService {
       .div(100);
   }
 
-  async settlementTicket(ticketId: number) {
+  async withdrawTicket(ticketId: number) {
     const settlementDate = new Date();
     await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
@@ -139,7 +139,7 @@ export class TicketService {
     );
   }
 
-  async simulateMaturityCircle(ticketId: number) {
-    await this.dataSource.query(`CALl simulate_maturity_circle(${ticketId})`);
+  async simulateMature(ticketId: number) {
+    await this.dataSource.query(`CALl simulate_ticket_mature(${ticketId})`);
   }
 }
