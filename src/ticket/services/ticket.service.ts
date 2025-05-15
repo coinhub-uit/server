@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { dateAfter } from 'lib/date-utils';
+import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
 import { SourceEntity } from 'src/source/entities/source.entity';
@@ -93,15 +94,11 @@ export class TicketService {
           transactionalEntityManager.getRepository(TicketEntity);
         const sourceRepository =
           transactionalEntityManager.getRepository(SourceEntity);
-        const planHistoryRepository =
-          transactionalEntityManager.getRepository(PlanHistoryEntity);
-
-        const latestNrPlanHistory = await planHistoryRepository.findOne({
-          order: {
-            createdAt: 'DESC',
-            plan: {
-              days: -1,
-            },
+        const availablePlanRepository =
+          transactionalEntityManager.getRepository(AvailablePlanView);
+        const availableNrPlan = await availablePlanRepository.findOne({
+          where: {
+            days: -1,
           },
         });
         const latestTicketHistory = await ticketHistoryRepository.findOne({
@@ -122,7 +119,7 @@ export class TicketService {
           latestTicketHistory.principal,
           settlementDate,
           latestTicketHistory.ticket!.plan!.days,
-          latestNrPlanHistory!.rate,
+          availableNrPlan!.rate,
         );
 
         const newBalance = latestTicketHistory
@@ -131,9 +128,11 @@ export class TicketService {
 
         latestTicketHistory.maturedAt = settlementDate;
         latestTicketHistory.ticket!.source!.balance = newBalance;
+        latestTicketHistory.ticket!.status = TicketStatusEnum.maturedWithdrawn;
 
         await ticketHistoryRepository.save(latestTicketHistory);
         await sourceRepository.save(latestTicketHistory.ticket!.source!);
+        await ticketRepository.save(latestTicketHistory.ticket!);
         await ticketRepository.softRemove(latestTicketHistory.ticket!);
       },
     );
