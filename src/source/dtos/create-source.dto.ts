@@ -7,9 +7,4 @@ export class CreateSourceDto {
   @IsNotEmpty()
   @IsString()
   id!: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  userId!: string;
 }

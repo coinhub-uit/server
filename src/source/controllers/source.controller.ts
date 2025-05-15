@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -24,14 +25,15 @@ import { SourceStillHasMoneyException } from 'src/source/exceptions/source-still
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceService } from 'src/source/services/source.service';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
+import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 
 @Controller('sources')
 export class SourceController {
   constructor(private sourceService: SourceService) {}
 
-  @UseGuards(UniversalJwtAuthGuard)
+  @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
-  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Create source',
   })
@@ -40,8 +42,17 @@ export class SourceController {
     type: SourceEntity,
   })
   @Post()
-  async createSource(@Body() createSourceDto: CreateSourceDto) {
-    return await this.sourceService.createSource(createSourceDto);
+  async createSource(
+    @Req()
+    req: Request & {
+      user: UserJwtRequest;
+    },
+    @Body() createSourceDto: CreateSourceDto,
+  ) {
+    return await this.sourceService.createSource(
+      createSourceDto,
+      req.user.userId,
+    );
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -63,7 +74,9 @@ export class SourceController {
     summary: "Get all source's tickets",
   })
   @ApiNotFoundResponse()
-  @ApiConflictResponse()
+  @ApiConflictResponse({
+    description: 'Source still may have money',
+  })
   @Delete(':id')
   async delete(@Param('id') sourceId: string) {
     try {

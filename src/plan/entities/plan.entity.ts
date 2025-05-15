@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { Exclude } from 'class-transformer';
 
 @ApiSchema()
 @Entity('plan')
@@ -22,9 +23,11 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ type: 'int', unique: true })
   days!: number;
 
+  @Exclude()
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
   planHistories?: PlanHistoryEntity[];
 
+  @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
   tickets?: TicketEntity[];
 }

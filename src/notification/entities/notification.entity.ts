@@ -1,4 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
@@ -34,6 +35,7 @@ export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   @Column({ type: 'boolean', default: false })
   isRead!: boolean;
 
+  @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.notifications)
   user?: UserEntity;
 }

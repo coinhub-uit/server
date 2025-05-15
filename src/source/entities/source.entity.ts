@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
@@ -37,12 +37,15 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
 
+  @Exclude()
   @OneToMany(() => TopUpEntity, (topUp) => topUp.sourceDestination)
   topUps?: TopUpEntity[];
 
+  @Exclude()
   @ManyToOne(() => UserEntity, (user) => user.sources, { nullable: false })
   user?: UserEntity;
 
+  @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.source)
   tickets?: TicketEntity[];
 }

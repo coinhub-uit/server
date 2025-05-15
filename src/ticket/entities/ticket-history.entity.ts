@@ -1,4 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { DateTransformer } from 'src/common/transformers/date.transformer';
@@ -36,14 +37,17 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   })
   interest!: Decimal;
 
+  @Exclude()
   @PrimaryColumn()
   ticketId?: number;
 
+  @Exclude()
   @ManyToOne(() => TicketEntity, (ticket) => ticket.ticketHistories, {
     nullable: false,
   })
   ticket?: TicketEntity;
 
+  @Exclude()
   @ManyToOne(
     () => PlanHistoryEntity,
     (planHistory) => planHistory.ticketHistories,

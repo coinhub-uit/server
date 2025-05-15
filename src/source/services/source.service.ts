@@ -70,18 +70,14 @@ export class SourceService {
     return ticketEntities;
   }
 
-  async createSource(sourceDetails: CreateSourceDto) {
-    const { userId, ...newSourceDetails } = sourceDetails;
+  async createSource(createSourceDto: CreateSourceDto, userId: string) {
     const source = this.sourceRepository.create({
-      ...newSourceDetails,
+      id: createSourceDto.id,
       balance: new Decimal(0),
-      user: { id: userId },
+      user: {
+        id: userId,
+      },
     });
-    try {
-      const sourceEntity = await this.sourceRepository.save(source);
-      return sourceEntity;
-    } catch {
-      // TODO: handle this later. Check usercontrller. not relly... right in this. no gneerate maps
-    }
+    return await this.sourceRepository.save(source);
   }
 }

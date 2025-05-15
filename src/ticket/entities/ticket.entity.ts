@@ -1,4 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
@@ -36,7 +37,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
     enum: TicketStatusEnum,
     default: TicketStatusEnum.active,
   })
-  status: TicketStatusEnum;
+  status!: TicketStatusEnum;
 
   @ApiProperty({ enum: MethodEnum })
   @Column({
@@ -45,12 +46,15 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   })
   method!: MethodEnum;
 
+  @Exclude()
   @ManyToOne(() => PlanEntity, (plan) => plan.tickets, { nullable: false })
   plan?: PlanEntity;
 
+  @Exclude()
   @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
   ticketHistories?: TicketHistoryEntity[];
 
+  @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets, {
     nullable: false,
   })
