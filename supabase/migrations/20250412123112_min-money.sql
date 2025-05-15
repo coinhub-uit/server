@@ -5,7 +5,7 @@ RETURNS TRIGGER AS $$
 DECLARE
   minPrincipalAmount DECIMAL(12,0);
 BEGIN
-  SELECT minPrincipalOpenTicket INTO minPrincipalAmount FROM settings LIMIT 1;
+  SELECT s."minAmountOpenTicket" INTO minPrincipalAmount FROM settings AS s LIMIT 1;
 
   IF NEW.principal < minPrincipalAmount THEN
     RAISE EXCEPTION 'principal amount % exceeds minimum allowed %', NEW.principal, minPrincipalAmount;

@@ -6,6 +6,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 @ApiSchema()
 @ViewEntity({
   name: 'available_plan',
+  materialized: true,
   expression: (dataSource: DataSource) =>
     dataSource
       .createQueryBuilder()
@@ -19,7 +20,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
       .orderBy('plan.days')
       .addOrderBy('plan_history.createdAt', 'DESC'),
 })
-export class AvailablePlanEntity {
+export class AvailablePlanView {
   @ApiProperty()
   @ViewColumn()
   planHistoryId!: string;

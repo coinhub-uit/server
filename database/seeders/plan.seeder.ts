@@ -7,12 +7,24 @@ export default class PlanSeeder implements Seeder {
     const repository = dataSource.getRepository(PlanEntity);
 
     const plans = repository.create([
-      { days: -1 },
-      { days: 30 },
-      { days: 90 },
-      { days: 180 },
+      {
+        id: 1,
+        days: -1,
+      },
+      {
+        id: 2,
+        days: 30,
+      },
+      {
+        id: 3,
+        days: 90,
+      },
+      {
+        id: 4,
+        days: 180,
+      },
     ]);
 
-    await repository.insert(plans);
+    await repository.save(plans);
   }
 }

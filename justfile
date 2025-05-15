@@ -6,7 +6,7 @@ alias b := bootstrap
 alias c := type-check
 alias d := run-docker-compose
 alias dbr := reset-database
-alias dbrd := reset-database-prod
+alias dbrp := reset-database-prod
 alias tc := type-check
 alias rs := run-supabase
 alias ss := stop-supabase
@@ -33,13 +33,15 @@ stop-supabase:
 [doc('reset db')]
 reset-database:
   supabase db reset --local
-  npm run typeorm:sync
+  npm run build
+  npm run db:sync-schema
   npm run db:seed
 
 [doc('reset db production')]
 reset-database-prod:
   supabase db reset --linked
-  npm run typeorm:sync
+  npm run build
+  npm run db:sync-schema
   npm run db:seed
 
 [doc('run docker compose')]

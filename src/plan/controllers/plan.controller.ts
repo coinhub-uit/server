@@ -22,7 +22,7 @@ import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { AdminJwtStrategy } from 'src/auth/strategies/admin.jwt.stategy';
 import { UpdatePlanRateDto } from 'src/plan/dtos/update-plan-rate.dto';
-import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
+import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
 import { PlanNotExistException } from 'src/plan/exceptions/plan-not-exist';
 import { PlanService } from 'src/plan/services/plan.service';
@@ -38,7 +38,7 @@ export class PlanController {
   @ApiBearerAuth('admin')
   @ApiOperation({ summary: 'Get available plans' })
   @ApiOkResponse({
-    type: [AvailablePlanEntity],
+    type: [AvailablePlanView],
   })
   @Get('available-plans')
   async getAvailablePlans() {

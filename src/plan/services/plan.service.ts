@@ -1,4 +1,4 @@
-import { AvailablePlanEntity } from 'src/plan/entities/available-plan.entity';
+import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { PlanEntity } from 'src/plan/entities/plan.entity';
@@ -13,8 +13,8 @@ export class PlanService {
   constructor(
     @InjectRepository(PlanEntity)
     private readonly planRepository: Repository<PlanEntity>,
-    @InjectRepository(AvailablePlanEntity)
-    private readonly availablePlanRepository: Repository<AvailablePlanEntity>,
+    @InjectRepository(AvailablePlanView)
+    private readonly availablePlanRepository: Repository<AvailablePlanView>,
     @InjectRepository(PlanHistoryEntity)
     private readonly planHistoryRepository: Repository<PlanHistoryEntity>,
   ) {}
