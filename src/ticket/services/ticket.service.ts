@@ -6,6 +6,7 @@ import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -30,7 +31,14 @@ export class TicketService {
           transactionalEntityManager.getRepository(TicketHistoryEntity);
         const planHistoryRepository =
           transactionalEntityManager.getRepository(PlanHistoryEntity);
+        const sourceRepository =
+          transactionalEntityManager.getRepository(SourceEntity);
 
+        const source = await sourceRepository.findOne({
+          where: {
+            id: createTicketDto.sourceId,
+          },
+        });
         const planHistory = await planHistoryRepository.findOne({
           where: { id: createTicketDto.planHistoryId },
           relations: {
@@ -38,6 +46,9 @@ export class TicketService {
           },
         });
 
+        if (!source) {
+          throw new SourceNotExistException(createTicketDto.sourceId);
+        }
         if (!planHistory) {
           throw new PlanHistoryNotExistException(createTicketDto.planHistoryId);
         }
@@ -59,6 +70,9 @@ export class TicketService {
           ticket: ticket,
           ticketId: ticket.id,
         });
+
+        source.balance = source.balance.minus(createTicketDto.amount);
+        await sourceRepository.save(source);
 
         await ticketHistoryRepository.save(ticketHistory);
         return ticketEntity;
