@@ -15,3 +15,7 @@ CREATE TABLE top_up (
 CREATE TABLE plan_history (
   _id INT
 );
+
+CREATE TABLE source (
+  _id INT
+);

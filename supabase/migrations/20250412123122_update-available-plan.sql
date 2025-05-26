@@ -9,6 +9,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER update_available_plan
-AFTER INSERT ON public.plan_history
+AFTER INSERT ON plan_history
 FOR EACH ROW
 EXECUTE FUNCTION refresh_available_plan();

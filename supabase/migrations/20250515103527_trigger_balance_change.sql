@@ -1,5 +1,7 @@
+-- vim:ft=plsql.postgresql
+
 CREATE OR REPLACE FUNCTION on_balance_change()
-RETURN TRIGGER AS $$
+RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.balance IS DISTINCT FROM OLD.balance THEN
     INSERT INTO public.notification (title, body)
@@ -10,9 +12,9 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpsql;
+$$ LANGUAGE PLPGSQL;
 
-CREATE TRIGGER trigger_balance_change
-AFTER UPDATE ON public.source
+CREATE TRIGGER TRIGGER_BALANCE_CHANGE
+AFTER UPDATE ON PUBLIC.SOURCE
 FOR EACH ROW
 EXECUTE FUNCTION on_balance_change();
