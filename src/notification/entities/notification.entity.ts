@@ -8,14 +8,14 @@ import {
   Entity,
   Index,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @ApiSchema()
 @Entity('notification')
 export class NotificationEntity extends AbstractEntity<NotificationEntity> {
   @ApiProperty()
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @ApiProperty()
