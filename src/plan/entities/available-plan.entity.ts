@@ -16,7 +16,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
       .addSelect('plan.id', 'planId')
       .addSelect('plan.days', 'days')
       .from(PlanHistoryEntity, 'plan_history')
-      .innerJoin(PlanEntity, 'plan', 'plan.id = plan_history.id')
+      .innerJoin(PlanEntity, 'plan', 'plan.id = plan_history.planId')
       .orderBy('plan.days')
       .addOrderBy('plan_history.createdAt', 'DESC'),
 })
