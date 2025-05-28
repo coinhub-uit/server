@@ -24,6 +24,7 @@ import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-n
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { NotAllowedToCreateTicketFromOtherSourceException } from 'src/ticket/exceptions/not-allowed-to-create-ticket-from-other-source.exception';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketService } from 'src/ticket/services/ticket.service';
 
@@ -39,7 +40,9 @@ export class TicketController {
     description: 'Create ticket of source in user account',
   })
   @ApiNotFoundResponse()
-  @ApiForbiddenResponse()
+  @ApiForbiddenResponse({
+    description: "Cannot create ticket on other user's source",
+  })
   @ApiCreatedResponse({
     type: TicketEntity,
   })
@@ -48,19 +51,20 @@ export class TicketController {
     @Req() req: Request & { user: UniversalJwtRequest },
     @Body() createTicketDto: CreateTicketDto,
   ) {
-    if (!req.user.isAdmin) {
-      throw new ForbiddenException(
-        'You are not allowed to create ticket in source which not exist in your account',
-      );
-    }
     try {
-      return this.ticketService.createTicket(createTicketDto);
+      return this.ticketService.createTicket(
+        createTicketDto,
+        req.user.isAdmin || req.user.userId,
+      );
+      // TODO: Catch cannot create other's source ticket
     } catch (e) {
-      if (
+      if (e instanceof NotAllowedToCreateTicketFromOtherSourceException) {
+        throw new ForbiddenException(e.message);
+      } else if (
         e instanceof PlanHistoryNotExistException ||
         e instanceof SourceNotExistException
       ) {
-        throw new NotFoundException();
+        throw new NotFoundException(e.message);
       }
       throw e;
     }

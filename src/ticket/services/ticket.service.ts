@@ -10,6 +10,7 @@ import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { NotAllowedToCreateTicketFromOtherSourceException } from 'src/ticket/exceptions/not-allowed-to-create-ticket-from-other-source.exception';
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 import { DataSource, EntityManager } from 'typeorm';
@@ -21,7 +22,10 @@ export class TicketService {
     private dataSource: DataSource,
   ) {}
 
-  async createTicket(createTicketDto: CreateTicketDto) {
+  async createTicket(
+    createTicketDto: CreateTicketDto,
+    userIdOrIsAdmin: string | true,
+  ) {
     const now = new Date();
     const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
@@ -34,11 +38,26 @@ export class TicketService {
         const sourceRepository =
           transactionalEntityManager.getRepository(SourceEntity);
 
+        // TODO: Skip if it's admin (checking owner)
         const source = await sourceRepository.findOne({
           where: {
             id: createTicketDto.sourceId,
           },
+          relations: {
+            user: true,
+          },
         });
+
+        if (!source) {
+          throw new SourceNotExistException(createTicketDto.sourceId);
+        }
+
+        if (userIdOrIsAdmin !== true && source.user!.id !== userIdOrIsAdmin) {
+          throw new NotAllowedToCreateTicketFromOtherSourceException(
+            createTicketDto.sourceId,
+          );
+        }
+
         const planHistory = await planHistoryRepository.findOne({
           where: { id: createTicketDto.planHistoryId },
           relations: {
@@ -46,12 +65,10 @@ export class TicketService {
           },
         });
 
-        if (!source) {
-          throw new SourceNotExistException(createTicketDto.sourceId);
-        }
         if (!planHistory) {
           throw new PlanHistoryNotExistException(createTicketDto.planHistoryId);
         }
+
         const ticket = ticketRepository.create({
           openedAt: now,
           status: TicketStatusEnum.active,
@@ -59,6 +76,7 @@ export class TicketService {
           source: { id: createTicketDto.sourceId },
           plan: planHistory.plan,
         });
+
         const ticketEntity = await ticketRepository.save(ticket);
 
         const ticketHistory = ticketHistoryRepository.create({
@@ -71,6 +89,7 @@ export class TicketService {
           ticketId: ticket.id,
         });
 
+        // NOTE: we believe front end has check this condition
         source.balance = source.balance.minus(createTicketDto.amount);
         await sourceRepository.save(source);
 
