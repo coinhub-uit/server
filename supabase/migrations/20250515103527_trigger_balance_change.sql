@@ -7,7 +7,7 @@ BEGIN
     INSERT INTO public.notification (title, body)
     VALUES (
       'Your balance change',
-      FORMAT('Your balance changed from % to %', OLD.balance, NEW.balance)
+      FORMAT('Your balance changed from %s to %s', OLD.balance, NEW.balance)
     );
   END IF;
   RETURN NEW;
