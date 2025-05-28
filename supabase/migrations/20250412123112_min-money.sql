@@ -8,7 +8,7 @@ BEGIN
   SELECT s."minAmountOpenTicket" INTO minPrincipalAmount FROM settings AS s LIMIT 1;
 
   IF NEW.principal < minPrincipalAmount THEN
-    RAISE EXCEPTION 'principal amount % exceeds minimum allowed %', NEW.principal, minPrincipalAmount;
+    RAISE EXCEPTION 'principal amount %VND does not meet the minimum requirement %VND', NEW.principal, minPrincipalAmount;
   END IF;
 
   RETURN NEW;
