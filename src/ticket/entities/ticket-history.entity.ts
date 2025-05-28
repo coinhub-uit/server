@@ -6,7 +6,13 @@ import { DateTransformer } from 'src/common/transformers/date.transformer';
 import { DecimalTransformer } from 'src/common/transformers/decimal.transformer';
 import { PlanHistoryEntity } from 'src/plan/entities/plan-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 @ApiSchema()
 @Entity('ticket_history')
@@ -16,7 +22,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
   issuedAt!: Date;
 
   @ApiProperty()
-  @Column({ type: 'date', transformer: new DateTransformer() })
+  @DeleteDateColumn({ type: 'date', transformer: new DateTransformer() })
   maturedAt!: Date;
 
   @ApiProperty({ type: String })

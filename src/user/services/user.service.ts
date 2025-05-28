@@ -180,6 +180,9 @@ export class UserService {
           },
         },
       },
+      relations: {
+        ticketHistories: true,
+      },
     });
     return ticketEntities;
   }
