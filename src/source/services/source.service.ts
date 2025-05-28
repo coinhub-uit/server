@@ -28,8 +28,9 @@ export class SourceService {
   }
 
   async deleteSourceById(sourceId: string) {
+    // PERF: Huhm find and delete?
     const source = await this.findByIdOrFail(sourceId);
-    if (source.balance.eq(0)) {
+    if (source.balance.isZero()) {
       throw new SourceStillHasMoneyException(sourceId);
     }
     return this.sourceRepository.delete(sourceId);
