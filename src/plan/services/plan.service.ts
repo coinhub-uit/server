@@ -27,6 +27,7 @@ export class PlanService {
     if (!planEntity) {
       throw new PlanNotExistException(id);
     }
+    return planEntity;
   }
 
   async findHistoryById(id: number) {
@@ -36,6 +37,7 @@ export class PlanService {
     if (!planHistoryEntity) {
       throw new PlanHistoryNotExistException(id);
     }
+    return planHistoryEntity;
   }
 
   async updateRate(updatePlanDto: UpdatePlanRateDto) {
