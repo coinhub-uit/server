@@ -57,9 +57,12 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   )
   ticketHistories: TicketHistoryEntity[];
 
-  @Exclude()
-  @ManyToOne(() => PlanEntity, (plan) => plan.tickets, { nullable: false })
-  plan?: PlanEntity;
+  @ApiProperty()
+  @ManyToOne(() => PlanEntity, (plan) => plan.tickets, {
+    nullable: false,
+    eager: true,
+  })
+  plan: PlanEntity;
 
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets, {

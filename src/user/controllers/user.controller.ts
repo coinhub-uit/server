@@ -386,7 +386,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Get tickets of user',
     description:
-      'Get all active tickets + latest ticket history of user with user id',
+      'Get all active tickets (with plan) + latest ticket history of user with user id',
   })
   @ApiForbiddenResponse()
   @ApiOkResponse({

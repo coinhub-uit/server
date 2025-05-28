@@ -151,7 +151,7 @@ export class TicketService {
           latestTicketHistory.issuedAt,
           latestTicketHistory.principal,
           settlementDate,
-          latestTicketHistory.ticket!.plan!.days,
+          latestTicketHistory.ticket!.plan.days,
           availableNrPlan!.rate,
         );
 
