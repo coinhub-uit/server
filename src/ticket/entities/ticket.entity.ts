@@ -9,7 +9,6 @@ import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -28,7 +27,7 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   openedAt!: Date;
 
   @ApiProperty({ nullable: true, type: Date })
-  @DeleteDateColumn({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', nullable: true })
   closedAt!: Date | null;
 
   @ApiProperty({ enum: TicketStatusEnum })
@@ -46,15 +45,21 @@ export class TicketEntity extends AbstractEntity<TicketEntity> {
   })
   method!: MethodEnum;
 
-  @Exclude()
-  @ManyToOne(() => PlanEntity, (plan) => plan.tickets, { nullable: false })
-  plan?: PlanEntity;
-
   @ApiProperty({
     type: [TicketHistoryEntity],
   })
-  @OneToMany(() => TicketHistoryEntity, (ticketHistory) => ticketHistory.ticket)
-  ticketHistories?: TicketHistoryEntity[];
+  @OneToMany(
+    () => TicketHistoryEntity,
+    (ticketHistory) => ticketHistory.ticket,
+    {
+      eager: true, // This because we don't mark this as undefined
+    },
+  )
+  ticketHistories: TicketHistoryEntity[];
+
+  @Exclude()
+  @ManyToOne(() => PlanEntity, (plan) => plan.tickets, { nullable: false })
+  plan?: PlanEntity;
 
   @Exclude()
   @ManyToOne(() => SourceEntity, (source) => source.tickets, {
