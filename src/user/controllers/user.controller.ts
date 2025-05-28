@@ -385,7 +385,8 @@ export class UserController {
   @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get tickets of user',
-    description: 'Get all tickets of user with user id',
+    description:
+      'Get all active tickets + latest ticket history of user with user id',
   })
   @ApiForbiddenResponse()
   @ApiOkResponse({

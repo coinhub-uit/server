@@ -6,6 +6,7 @@ import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { extname, join as joinPath } from 'path';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { RegisterDeviceDto } from 'src/user/dtos/register-device.dto';
@@ -15,7 +16,7 @@ import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -172,6 +173,7 @@ export class UserService {
   }
 
   async findTicketsById(userId: string) {
+    const dateNow = new Date(Date.now());
     const ticketEntities = await this.ticketRepository.find({
       where: {
         source: {
@@ -179,8 +181,14 @@ export class UserService {
             id: userId,
           },
         },
+        status: TicketStatusEnum.active,
+        ticketHistories: {
+          maturedAt: MoreThanOrEqual(dateNow),
+        },
       },
     });
+    console.log(ticketEntities);
+
     return ticketEntities;
   }
 
