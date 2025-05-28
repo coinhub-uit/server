@@ -29,7 +29,7 @@ export class SourceService {
 
   async deleteSourceById(sourceId: string) {
     const source = await this.findByIdOrFail(sourceId);
-    if (source.balance != new Decimal(0)) {
+    if (source.balance.eq(0)) {
       throw new SourceStillHasMoneyException(sourceId);
     }
     return this.sourceRepository.delete(sourceId);

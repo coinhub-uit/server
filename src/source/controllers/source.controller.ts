@@ -71,11 +71,11 @@ export class SourceController {
   @ApiBearerAuth('user')
   @ApiBearerAuth('admin')
   @ApiOperation({
-    summary: "Get all source's tickets",
+    summary: 'Delete source by id',
   })
   @ApiNotFoundResponse()
   @ApiConflictResponse({
-    description: 'Source still may have money',
+    description: 'Source mays still have money',
   })
   @Delete(':id')
   async delete(@Param('id') sourceId: string) {
