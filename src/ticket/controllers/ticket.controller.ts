@@ -40,7 +40,7 @@ export class TicketController {
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
-    type: TicketEntity,
+    type: Number,
   })
   @Post(':id')
   getSourceIdById(
