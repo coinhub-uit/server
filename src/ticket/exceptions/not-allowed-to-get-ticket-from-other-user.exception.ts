@@ -1,8 +1,8 @@
 import { ServiceException } from 'src/common/exceptions/service.exception';
 
 export class NotAllowedToGetTicketFromOtherUser extends ServiceException {
-  constructor(userId: string) {
+  constructor(ticketId: number) {
     super();
-    this.message = `You are not allowed to get ticket from another user with userid: ${userId}`;
+    this.message = `You are not allowed to get ticket from another user with ticket id: ${ticketId}`;
   }
 }

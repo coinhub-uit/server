@@ -11,6 +11,8 @@ import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { NotAllowedToCreateTicketFromOtherSourceException } from 'src/ticket/exceptions/not-allowed-to-create-ticket-from-other-source.exception';
+import { NotAllowedToGetSourceFromOtherUserTicket } from 'src/ticket/exceptions/not-allowed-to-get-source-from-other-user-ticket.exception';
+import { NotAllowedToGetTicketFromOtherUser } from 'src/ticket/exceptions/not-allowed-to-get-ticket-from-other-user.exception';
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
@@ -24,8 +26,8 @@ export class TicketService {
     private dataSource: DataSource,
   ) {}
 
-  async getById(ticketId: number, userIdOrIsAdmin: string | true) {
-    const ticketEntity = this.dataSource.manager.transaction(
+  async getSourceIdById(ticketId: number, userIdOrIsAdmin: string | true) {
+    const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const ticketRepository =
           transactionalEntityManager.getRepository(TicketEntity);
@@ -47,9 +49,39 @@ export class TicketService {
           userIdOrIsAdmin !== true &&
           ticket.source!.user!.id !== userIdOrIsAdmin
         ) {
-          throw new NotAllowedToCreateTicketFromOtherSourceException(
-            ticket.source!.user!.id,
-          );
+          throw new NotAllowedToGetSourceFromOtherUserTicket(ticketId);
+        }
+        return ticket;
+      },
+    );
+
+    return ticketEntity.source!.id;
+  }
+
+  async getById(ticketId: number, userIdOrIsAdmin: string | true) {
+    const ticketEntity = await this.dataSource.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const ticketRepository =
+          transactionalEntityManager.getRepository(TicketEntity);
+        const ticket = await ticketRepository.findOne({
+          where: {
+            id: ticketId,
+          },
+          relations: {
+            source: {
+              user: true,
+            },
+          },
+        });
+
+        if (!ticket) {
+          throw new TicketNotExistException('Ticket not exist');
+        }
+        if (
+          userIdOrIsAdmin !== true &&
+          ticket.source!.user!.id !== userIdOrIsAdmin
+        ) {
+          throw new NotAllowedToGetTicketFromOtherUser(ticketId);
         }
         return ticket;
       },
