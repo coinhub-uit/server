@@ -117,7 +117,10 @@ export class TicketService {
 
         const ticketHistory = ticketHistoryRepository.create({
           issuedAt: now,
-          maturedAt: dateAfter(now, planHistory.plan!.days),
+          maturedAt:
+            planHistory.plan!.days != -1
+              ? dateAfter(now, planHistory.plan!.days)
+              : undefined,
           principal: createTicketDto.amount,
           interest: (createTicketDto.amount * planHistory.rate) / 100,
           planHistory: planHistory,
