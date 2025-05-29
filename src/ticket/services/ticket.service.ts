@@ -240,7 +240,6 @@ export class TicketService {
         await ticketHistoryRepository.save(latestTicketHistory);
         await sourceRepository.save(latestTicketHistory.ticket!.source!);
         await ticketRepository.save(latestTicketHistory.ticket!);
-        await ticketRepository.softRemove(latestTicketHistory.ticket!);
       },
     );
   }
