@@ -42,13 +42,13 @@ export class TicketController {
   @ApiCreatedResponse({
     type: Number,
   })
-  @Post(':id')
-  getSourceIdById(
+  @Post(':id/sources')
+  getSourceIdByTicketId(
     @Param('id') ticketId: number,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     try {
-      return this.ticketService.getById(
+      return this.ticketService.getSourceIdByTicketId(
         ticketId,
         req.user.isAdmin || req.user.userId,
       );

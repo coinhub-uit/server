@@ -26,7 +26,10 @@ export class TicketService {
     private dataSource: DataSource,
   ) {}
 
-  async getSourceIdById(ticketId: number, userIdOrIsAdmin: string | true) {
+  async getSourceIdByTicketId(
+    ticketId: number,
+    userIdOrIsAdmin: string | true,
+  ) {
     const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const ticketRepository =
