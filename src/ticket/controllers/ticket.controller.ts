@@ -36,6 +36,34 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
+    summary: 'get ticket by id',
+  })
+  @ApiNotFoundResponse()
+  @ApiCreatedResponse({
+    type: TicketEntity,
+  })
+  @Post(':id')
+  getById(
+    @Param('id') ticketId: number,
+    @Req() req: Request & { user: UniversalJwtRequest },
+  ) {
+    try {
+      return this.ticketService.getById(
+        ticketId,
+        req.user.isAdmin || req.user.userId,
+      );
+    } catch (e) {
+      if (e instanceof TicketNotExistException) {
+        throw new NotFoundException('Ticket not found');
+      }
+      throw e;
+    }
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
+  @ApiOperation({
     summary: 'Create ticket',
     description: 'Create ticket of source in user account',
   })

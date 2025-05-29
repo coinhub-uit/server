@@ -12,15 +12,51 @@ import { TicketHistoryEntity } from 'src/ticket/entities/ticket-history.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { NotAllowedToCreateTicketFromOtherSourceException } from 'src/ticket/exceptions/not-allowed-to-create-ticket-from-other-source.exception';
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
+import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectRepository(TicketEntity)
+    private readonly ticketRepository: Repository<TicketEntity>,
     private dataSource: DataSource,
   ) {}
+
+  async getById(ticketId: number, userIdOrIsAdmin: string | true) {
+    const ticketEntity = this.dataSource.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const ticketRepository =
+          transactionalEntityManager.getRepository(TicketEntity);
+        const ticket = await ticketRepository.findOne({
+          where: {
+            id: ticketId,
+          },
+          relations: {
+            source: {
+              user: true,
+            },
+          },
+        });
+
+        if (!ticket) {
+          throw new TicketNotExistException('Ticket not exist');
+        }
+        if (
+          userIdOrIsAdmin !== true &&
+          ticket.source!.user!.id !== userIdOrIsAdmin
+        ) {
+          throw new NotAllowedToCreateTicketFromOtherSourceException(
+            ticket.source!.user!.id,
+          );
+        }
+        return ticket;
+      },
+    );
+
+    return ticketEntity;
+  }
 
   async createTicket(
     createTicketDto: CreateTicketDto,
