@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import OpenAI from 'openai';
+import { AiChatSessionResponseDto } from 'src/ai-chat/dtos/ai-chat-session.response.dto';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
@@ -39,6 +40,20 @@ export class AiChatService {
       },
     });
     return JSON.stringify(user);
+  }
+
+  getChatSession(aiChatSession: AiChatSession) {
+    const messages = aiChatSession.messages?.slice(1);
+    if (!messages) {
+      return [];
+    }
+    const aiChatSessionResponseDto = messages.map((message) => {
+      const aiChatSession = new AiChatSessionResponseDto();
+      aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
+      aiChatSession.message = message.role;
+      return aiChatSession;
+    });
+    return aiChatSessionResponseDto;
   }
 
   async ask({

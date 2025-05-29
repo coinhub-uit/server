@@ -5,6 +5,7 @@ import {
   Req,
   UseGuards,
   Delete,
+  Get,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -13,6 +14,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { AiChatSessionResponseDto } from 'src/ai-chat/dtos/ai-chat-session.response.dto';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatService } from 'src/ai-chat/services/ai-chat.service';
@@ -23,6 +25,24 @@ import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 @Controller('ai-chat')
 export class AiChatController {
   constructor(private readonly aiChatService: AiChatService) {}
+
+  @UseGuards(UserJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Get AI chat bot chat sessions',
+  })
+  @ApiForbiddenResponse()
+  @ApiOkResponse({ type: [AiChatSessionResponseDto] })
+  @Get()
+  getChatSession(
+    @Req()
+    req: Request & {
+      session: AiChatSession;
+    },
+  ) {
+    const { session: aiChatSession } = req;
+    return this.aiChatService.getChatSession(aiChatSession);
+  }
 
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
