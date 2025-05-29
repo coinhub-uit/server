@@ -120,7 +120,7 @@ export class TicketService {
           maturedAt:
             planHistory.plan!.days != -1
               ? dateAfter(now, planHistory.plan!.days)
-              : undefined,
+              : new Date('9999-12-31T23:59:59Z'),
           principal: createTicketDto.amount,
           interest: (createTicketDto.amount * planHistory.rate) / 100,
           planHistory: planHistory,

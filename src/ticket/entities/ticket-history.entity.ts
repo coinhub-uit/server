@@ -20,7 +20,7 @@ export class TicketHistoryEntity extends AbstractEntity<TicketHistoryEntity> {
 
   @ApiProperty()
   @Column({ type: 'date', transformer: new DateTransformer() })
-  maturedAt?: Date;
+  maturedAt!: Date | null;
 
   @ApiProperty({ type: String })
   @Column({
