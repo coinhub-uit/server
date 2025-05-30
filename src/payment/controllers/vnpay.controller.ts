@@ -6,7 +6,7 @@ import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpService } from 'src/payment/services/top-up.service';
 import { ReturnQueryFromVNPay } from 'vnpay';
 
-@Controller('payment/vnpay')
+@Controller('payment')
 export class VnpayController {
   constructor(private topUpService: TopUpService) {}
 

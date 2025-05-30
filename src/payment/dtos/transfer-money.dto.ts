@@ -2,7 +2,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 @ApiSchema()
-export class TranferMoneysDto {
+export class TranferMoneyDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { dateAfter } from 'lib/date-utils';
 import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
@@ -16,15 +15,11 @@ import { NotAllowedToGetTicketFromOtherUser } from 'src/ticket/exceptions/not-al
 import { TicketHistoryNotExistException } from 'src/ticket/exceptions/ticket-history-not-exist.exception';
 import { TicketNotExistException } from 'src/ticket/exceptions/ticket-not-exist.exception';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class TicketService {
-  constructor(
-    @InjectRepository(TicketEntity)
-    private readonly ticketRepository: Repository<TicketEntity>,
-    private dataSource: DataSource,
-  ) {}
+  constructor(private dataSource: DataSource) {}
 
   async getSourceIdByTicketId(
     ticketId: number,
@@ -46,7 +41,7 @@ export class TicketService {
         });
 
         if (!ticket) {
-          throw new TicketNotExistException('Ticket not exist');
+          throw new TicketNotExistException(ticketId);
         }
         if (
           userIdOrIsAdmin !== true &&
@@ -58,7 +53,7 @@ export class TicketService {
       },
     );
 
-    return ticketEntity.source!.id;
+    return ticketEntity.source!;
   }
 
   async getById(ticketId: number, userIdOrIsAdmin: string | true) {
@@ -78,7 +73,7 @@ export class TicketService {
         });
 
         if (!ticket) {
-          throw new TicketNotExistException('Ticket not exist');
+          throw new TicketNotExistException(ticketId);
         }
         if (
           userIdOrIsAdmin !== true &&

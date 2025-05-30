@@ -1,8 +1,8 @@
 import { ServiceException } from 'src/common/exceptions/service.exception';
 
 export class TicketNotExistException extends ServiceException {
-  constructor(message: string = 'Ticket does not exist') {
+  constructor(ticketId: number) {
     super();
-    this.message = message;
+    this.message = `Ticket with id ${ticketId} does not exist`;
   }
 }

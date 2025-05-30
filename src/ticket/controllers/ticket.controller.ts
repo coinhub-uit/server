@@ -42,21 +42,22 @@ export class TicketController {
   @ApiCreatedResponse({
     type: Number,
   })
-  @Post(':id/sources')
-  getSourceIdByTicketId(
+  @Get(':id/sources')
+  async getSourceIdByTicketId(
     @Param('id') ticketId: number,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     try {
-      return this.ticketService.getSourceIdByTicketId(
+      const sourceEntity = await this.ticketService.getSourceIdByTicketId(
         ticketId,
         req.user.isAdmin || req.user.userId,
       );
-    } catch (e) {
-      if (e instanceof TicketNotExistException) {
-        throw new NotFoundException('Ticket not found');
+      return sourceEntity;
+    } catch (error) {
+      if (error instanceof TicketNotExistException) {
+        throw new NotFoundException(error.message);
       }
-      throw e;
+      throw error;
     }
   }
 
@@ -70,21 +71,22 @@ export class TicketController {
   @ApiCreatedResponse({
     type: TicketEntity,
   })
-  @Post(':id')
-  getById(
+  @Get(':id')
+  async getById(
     @Param('id') ticketId: number,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     try {
-      return this.ticketService.getById(
+      const ticketEntity = await this.ticketService.getById(
         ticketId,
         req.user.isAdmin || req.user.userId,
       );
-    } catch (e) {
-      if (e instanceof TicketNotExistException) {
-        throw new NotFoundException('Ticket not found');
+      return ticketEntity;
+    } catch (error) {
+      if (error instanceof TicketNotExistException) {
+        throw new NotFoundException(error.message);
       }
-      throw e;
+      throw error;
     }
   }
 

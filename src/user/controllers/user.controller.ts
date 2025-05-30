@@ -108,7 +108,7 @@ export class UserController {
       return new StreamableFile(file);
     } catch (error) {
       if (error instanceof AvatarNotSetException) {
-        throw new NotFoundException('Avatar not set');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
@@ -166,7 +166,7 @@ export class UserController {
     } catch (error) {
       await unlink(file.path);
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found to upload avatar for');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
@@ -197,7 +197,7 @@ export class UserController {
       await this.userService.deleteAvatarById(userId);
     } catch (error) {
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
@@ -258,7 +258,7 @@ export class UserController {
       return user;
     } catch (error) {
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
@@ -290,7 +290,7 @@ export class UserController {
       await this.userService.updateById(userId, updateUserDto);
     } catch (error) {
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found to be updated');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
@@ -324,7 +324,7 @@ export class UserController {
       );
     } catch (error) {
       if (error instanceof UserNotExistException) {
-        throw new NotFoundException('User not found to be paritial updated');
+        throw new NotFoundException(error.message);
       }
       throw error;
     }
