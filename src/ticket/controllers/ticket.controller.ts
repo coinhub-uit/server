@@ -36,19 +36,19 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'get ticket by id',
+    summary: 'get source by ticket id',
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
     type: Number,
   })
-  @Get(':id/sources')
-  async getSourceIdByTicketId(
+  @Get(':id/source')
+  async getSourceByTicketId(
     @Param('id') ticketId: number,
     @Req() req: Request & { user: UniversalJwtRequest },
   ) {
     try {
-      const sourceEntity = await this.ticketService.getSourceIdByTicketId(
+      const sourceEntity = await this.ticketService.getSourceByTicketId(
         ticketId,
         req.user.isAdmin || req.user.userId,
       );

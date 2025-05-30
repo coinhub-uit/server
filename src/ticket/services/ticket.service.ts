@@ -21,10 +21,7 @@ import { DataSource, EntityManager } from 'typeorm';
 export class TicketService {
   constructor(private dataSource: DataSource) {}
 
-  async getSourceIdByTicketId(
-    ticketId: number,
-    userIdOrIsAdmin: string | true,
-  ) {
+  async getSourceByTicketId(ticketId: number, userIdOrIsAdmin: string | true) {
     const ticketEntity = await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const ticketRepository =
