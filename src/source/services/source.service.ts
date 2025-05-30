@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { CreateSourceDto } from 'src/source/dtos/create-source.dto';
 import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceAlreadyExistException } from 'src/source/exceptions/source-already-exist.exception';
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceStillHasMoneyException } from 'src/source/exceptions/source-still-has-money.exceptions';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class SourceService {
@@ -15,6 +16,7 @@ export class SourceService {
     private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(TicketEntity)
     private readonly ticketRepository: Repository<TicketEntity>,
+    private dataSource: DataSource,
   ) {}
 
   async findByIdOrFail(sourceId: string) {
@@ -72,13 +74,34 @@ export class SourceService {
   }
 
   async createSource(createSourceDto: CreateSourceDto, userId: string) {
-    const source = this.sourceRepository.create({
-      id: createSourceDto.id,
-      balance: new Decimal(0),
-      user: {
-        id: userId,
+    const sourceEntity = await this.dataSource.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const sourceRepository =
+          transactionalEntityManager.getRepository(SourceEntity);
+
+        const sourceAlreadyExist =
+          (await sourceRepository.count({
+            where: {
+              id: createSourceDto.id,
+            },
+          })) === 1;
+        if (sourceAlreadyExist) {
+          throw new SourceAlreadyExistException(createSourceDto.id);
+        }
+
+        const source = sourceRepository.create({
+          id: createSourceDto.id,
+          balance: new Decimal(0),
+          user: {
+            id: userId,
+          },
+        });
+
+        const sourceEntity = await sourceRepository.save(source);
+        return sourceEntity;
       },
-    });
-    return await this.sourceRepository.save(source);
+    );
+
+    return sourceEntity;
   }
 }

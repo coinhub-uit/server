@@ -27,6 +27,7 @@ import { SourceService } from 'src/source/services/source.service';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
+import { SourceAlreadyExistException } from 'src/source/exceptions/source-already-exist.exception';
 
 @Controller('sources')
 export class SourceController {
@@ -49,10 +50,18 @@ export class SourceController {
     },
     @Body() createSourceDto: CreateSourceDto,
   ) {
-    return await this.sourceService.createSource(
-      createSourceDto,
-      req.user.userId,
-    );
+    try {
+      const sourceEntity = await this.sourceService.createSource(
+        createSourceDto,
+        req.user.userId,
+      );
+      return sourceEntity;
+    } catch (error) {
+      if (error instanceof SourceAlreadyExistException) {
+        throw new ConflictException(error.message);
+      }
+      throw error;
+    }
   }
 
   @UseGuards(UniversalJwtAuthGuard)
@@ -83,10 +92,10 @@ export class SourceController {
       return this.sourceService.deleteSourceById(sourceId);
     } catch (error) {
       if (error instanceof SourceNotExistException) {
-        throw new NotFoundException('source not exist');
+        throw new NotFoundException(error.message);
       }
       if (error instanceof SourceStillHasMoneyException) {
-        throw new ConflictException('source still has money');
+        throw new ConflictException(error.message);
       }
       throw error;
     }
@@ -96,7 +105,7 @@ export class SourceController {
   @ApiBearerAuth('admin')
   @ApiOperation({
     summary: "Get all source's tickets + ticket history",
-    description: 'Note that it will fetch allllllllll data, no filter anything',
+    description: 'Note that it will fetch allllllllll data, no filter',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({
