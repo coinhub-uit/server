@@ -7,6 +7,8 @@ import { SourceAlreadyExistException } from 'src/source/exceptions/source-alread
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { SourceStillHasMoneyException } from 'src/source/exceptions/source-still-has-money.exceptions';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 @Injectable()
@@ -16,6 +18,8 @@ export class SourceService {
     private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(TicketEntity)
     private readonly ticketRepository: Repository<TicketEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private dataSource: DataSource,
   ) {}
 
@@ -71,6 +75,22 @@ export class SourceService {
       },
     });
     return ticketEntities;
+  }
+
+  async findUserBySourceId(sourceId: string) {
+    const userEntity = await this.userRepository.findOne({
+      where: {
+        sources: {
+          id: sourceId,
+        },
+      },
+    });
+    if (!userEntity) {
+      throw new UserNotExistException(
+        `No user have source with source id: ${sourceId}`,
+      );
+    }
+    return userEntity;
   }
 
   async createSource(createSourceDto: CreateSourceDto, userId: string) {

@@ -36,7 +36,7 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'get source by ticket id',
+    summary: 'Get source by ticket id',
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
@@ -65,7 +65,7 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'get ticket by id',
+    summary: 'Get ticket by id',
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
@@ -132,7 +132,7 @@ export class TicketController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'withdraw ticket',
+    summary: 'Withdraw ticket',
     description: 'withdraw ticket of source in user account',
   })
   @ApiNotFoundResponse()
@@ -152,7 +152,7 @@ export class TicketController {
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiOperation({
-    summary: 'simulate mature ticket',
+    summary: 'Simulate mature ticket',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse()

@@ -28,6 +28,8 @@ import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 import { SourceAlreadyExistException } from 'src/source/exceptions/source-already-exist.exception';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
 
 @Controller('sources')
 export class SourceController {
@@ -75,6 +77,28 @@ export class SourceController {
   @Get(':id')
   async getById(@Param('id') sourceId: string) {
     return this.sourceService.find(sourceId);
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('user')
+  @ApiBearerAuth('admin')
+  @ApiOperation({
+    summary: 'Get user info',
+    description: 'Get user info from source id',
+  })
+  @ApiNotFoundResponse()
+  @ApiOkResponse({ type: UserEntity })
+  @Get(':id/user')
+  async getUserBySourceId(@Param('id') sourceId: string) {
+    try {
+      const userEntity = await this.sourceService.findUserBySourceId(sourceId);
+      return userEntity;
+    } catch (error) {
+      if (error instanceof UserNotExistException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @ApiBearerAuth('user')
