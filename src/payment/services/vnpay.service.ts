@@ -19,10 +19,11 @@ import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
 import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
+import { CreateTopUpResponseDto } from 'src/payment/dtos/create-top-up.response.dto';
 
 // TODO: Cron? for checking topup status to overdue later
 @Injectable()
-export class TopUpService {
+export class VnpayService {
   constructor(
     private readonly sourceService: SourceService,
     private readonly vnpayService: _VnpayService,
@@ -83,7 +84,7 @@ export class TopUpService {
 
     await this.topUpRepository.save(topUpEntity);
 
-    return this.vnpayService.buildPaymentUrl({
+    const url = this.vnpayService.buildPaymentUrl({
       vnp_ReturnUrl: createTopUpDto.returnUrl,
       vnp_Amount: createTopUpDto.amount,
       vnp_IpAddr: createTopUpDto.ipAddress,
@@ -96,5 +97,10 @@ export class TopUpService {
         new Date(new Date(now).setMinutes(now.getMinutes() + 15)),
       ),
     });
+
+    // TODO: refactor this if constructor if have time
+    const createTopUpResponseDto = new CreateTopUpResponseDto();
+    createTopUpResponseDto.url = url;
+    return createTopUpResponseDto;
   }
 }
