@@ -13,7 +13,7 @@ export class PaymentService {
   async tranferMoney(transferMoneyDto: TranferMoneyDto) {
     const now = new Date();
 
-    const ticketEntity = await this.dataSource.manager.transaction(
+    await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const sourceRepository =
           transactionalEntityManager.getRepository(SourceEntity);
@@ -84,7 +84,5 @@ export class PaymentService {
         return fromSourceEntity;
       },
     );
-
-    return ticketEntity;
   }
 }

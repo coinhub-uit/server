@@ -39,17 +39,16 @@ export class PaymentController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Transfer moneys from source to source',
+    summary: 'Transfer money from source to source',
   })
   @ApiNotFoundResponse({
     description: 'Either from source or to source or both do not exist',
   })
+  @ApiCreatedResponse()
   @Post('tranfer')
-  async tranferMoney(tranferMoneyDto: TranferMoneyDto) {
+  async tranferMoney(@Body() tranferMoneyDto: TranferMoneyDto) {
     try {
-      const ticketEntity =
-        await this.paymentService.tranferMoney(tranferMoneyDto);
-      return ticketEntity;
+      await this.paymentService.tranferMoney(tranferMoneyDto);
     } catch (error) {
       if (
         error instanceof TransferFromSourceNotExistsException ||
