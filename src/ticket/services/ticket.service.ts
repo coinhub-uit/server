@@ -67,6 +67,11 @@ export class TicketService {
               user: true,
             },
           },
+          order: {
+            ticketHistories: {
+              issuedAt: 'DESC',
+            },
+          },
         });
 
         if (!ticket) {

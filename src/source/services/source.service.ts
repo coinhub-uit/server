@@ -73,6 +73,11 @@ export class SourceService {
           id: sourceId,
         },
       },
+      order: {
+        ticketHistories: {
+          issuedAt: 'DESC',
+        },
+      },
     });
     return ticketEntities;
   }

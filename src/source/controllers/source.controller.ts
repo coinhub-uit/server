@@ -129,7 +129,8 @@ export class SourceController {
   @ApiBearerAuth('admin')
   @ApiOperation({
     summary: "Get all source's tickets + ticket history",
-    description: 'Note that it will fetch allllllllll data, no filter',
+    description:
+      'Note that it will fetch allllllllll data, no filter. The ticket history is in order DESC of "issuedAt"',
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({

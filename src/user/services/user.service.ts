@@ -186,6 +186,11 @@ export class UserService {
           maturedAt: MoreThanOrEqual(dateNow),
         },
       },
+      order: {
+        ticketHistories: {
+          issuedAt: 'DESC',
+        },
+      },
     });
     console.log(ticketEntities);
 

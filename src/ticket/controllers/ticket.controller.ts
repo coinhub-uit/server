@@ -66,6 +66,8 @@ export class TicketController {
   @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get ticket by id',
+    description:
+      'Get ticket by id. The ticket history is in order DESC of "issuedAt"',
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
