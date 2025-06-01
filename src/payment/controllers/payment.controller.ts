@@ -26,6 +26,7 @@ import { TransferToSourceNotExistsException } from 'src/payment/exceptions/trans
 import { PaymentService } from 'src/payment/services/payment.service';
 import { VnpayService } from 'src/payment/services/vnpay.service';
 import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { ReturnQueryFromVNPay } from 'vnpay';
 
 @Controller('payment')
@@ -73,23 +74,31 @@ export class PaymentController {
     } satisfies CreateTopUpResponseDto,
     type: CreateTopUpResponseDto,
   })
+  @ApiNotFoundResponse()
   @ApiNotImplementedResponse()
   @UseGuards(UserJwtAuthGuard)
   @Post('top-up')
   async create(
     @Body() createTopUpDto: CreateTopUpDto,
   ): Promise<CreateTopUpResponseDto> {
-    switch (createTopUpDto.provider) {
-      case TopUpProviderEnum.vnpay:
-        return await this.vnpayService.createVNPayTopUp(createTopUpDto);
-      case TopUpProviderEnum.zalopay:
-        throw new NotImplementedException(
-          "Top up provider zalopay hasn't been implemented yet",
-        );
-      case TopUpProviderEnum.momo:
-        throw new NotImplementedException(
-          "Top up provider mono hasn't been implemented yet",
-        );
+    try {
+      switch (createTopUpDto.provider) {
+        case TopUpProviderEnum.vnpay:
+          return await this.vnpayService.createVNPayTopUp(createTopUpDto);
+        case TopUpProviderEnum.zalopay:
+          throw new NotImplementedException(
+            "Top up provider zalopay hasn't been implemented yet",
+          );
+        case TopUpProviderEnum.momo:
+          throw new NotImplementedException(
+            "Top up provider mono hasn't been implemented yet",
+          );
+      }
+    } catch (error) {
+      if (error instanceof SourceNotExistException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
     }
   }
 

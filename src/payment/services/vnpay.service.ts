@@ -20,6 +20,8 @@ import { TopUpProviderEnum } from 'src/payment/types/top-up-provider.enum';
 import Decimal from 'decimal.js';
 import { TopUpStatusEnum } from 'src/payment/types/top-up-status.enum';
 import { CreateTopUpResponseDto } from 'src/payment/dtos/create-top-up.response.dto';
+import { SourceEntity } from 'src/source/entities/source.entity';
+import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 
 // TODO: Cron? for checking topup status to overdue later
 @Injectable()
@@ -27,6 +29,8 @@ export class VnpayService {
   constructor(
     private readonly sourceService: SourceService,
     private readonly vnpayService: _VnpayService,
+    @InjectRepository(SourceEntity)
+    private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(TopUpEntity)
     private readonly topUpRepository: Repository<TopUpEntity>,
     private dataSource: DataSource,
@@ -71,8 +75,15 @@ export class VnpayService {
   }
 
   async createVNPayTopUp(createTopUpDto: CreateTopUpDto) {
-    await this.sourceService.findByIdOrFail(createTopUpDto.sourceDestinationId);
-
+    if (
+      (await this.sourceRepository.findOne({
+        where: {
+          id: createTopUpDto.sourceDestinationId,
+        },
+      })) == null
+    ) {
+      throw new SourceNotExistException(createTopUpDto.sourceDestinationId);
+    }
     const now = new Date();
     const topUpEntity = this.topUpRepository.create({
       provider: TopUpProviderEnum.vnpay,
