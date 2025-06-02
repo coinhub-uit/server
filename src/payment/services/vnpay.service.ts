@@ -85,7 +85,7 @@ export class VnpayService {
       throw new SourceNotExistException(createTopUpDto.sourceDestinationId);
     }
     const now = new Date();
-    const topUpEntity = this.topUpRepository.create({
+    const topUp = this.topUpRepository.create({
       provider: TopUpProviderEnum.vnpay,
       amount: new Decimal(createTopUpDto.amount),
       sourceDestination: {
@@ -93,7 +93,7 @@ export class VnpayService {
       },
     });
 
-    await this.topUpRepository.save(topUpEntity);
+    const topUpEntity = await this.topUpRepository.save(topUp);
 
     const url = this.vnpayService.buildPaymentUrl({
       vnp_ReturnUrl: createTopUpDto.returnUrl,
@@ -112,6 +112,7 @@ export class VnpayService {
     // TODO: refactor this if constructor if have time
     const createTopUpResponseDto = new CreateTopUpResponseDto();
     createTopUpResponseDto.url = url;
+    createTopUpResponseDto.topUpId = topUpEntity.id;
     return createTopUpResponseDto;
   }
 }
