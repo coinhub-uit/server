@@ -1,14 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { TranferMoneyDto } from '../dtos/transfer-money.dto';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { TransferFromSourceNotExistsException } from 'src/payment/exceptions/transfer-from-source-not-exist.exception';
 import { TransferToSourceNotExistsException } from 'src/payment/exceptions/transfer-to-source-not-exist.exception';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TopUpEntity } from 'src/payment/entities/top-up.entity';
+import { TopUpNotExistException } from 'src/payment/exceptions/top_up-not-exist';
 
 @Injectable()
 export class PaymentService {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(TopUpEntity)
+    private readonly topUpRepository: Repository<TopUpEntity>,
+    private dataSource: DataSource,
+  ) {}
+
+  async getTopUpById(topUpId: string) {
+    const topUp = await this.topUpRepository.findOne({
+      where: {
+        id: topUpId,
+      },
+    });
+    if (!topUp) {
+      throw new TopUpNotExistException(topUpId);
+    }
+    return topUp;
+  }
 
   async tranferMoney(transferMoneyDto: TranferMoneyDto) {
     const now = new Date();

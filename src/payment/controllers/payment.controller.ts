@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   NotImplementedException,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -21,6 +22,7 @@ import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { CreateTopUpResponseDto } from 'src/payment/dtos/create-top-up.response.dto';
 import { TranferMoneyDto } from 'src/payment/dtos/transfer-money.dto';
+import { TopUpNotExistException } from 'src/payment/exceptions/top_up-not-exist';
 import { TransferFromSourceNotExistsException } from 'src/payment/exceptions/transfer-from-source-not-exist.exception';
 import { TransferToSourceNotExistsException } from 'src/payment/exceptions/transfer-to-source-not-exist.exception';
 import { PaymentService } from 'src/payment/services/payment.service';
@@ -35,6 +37,26 @@ export class PaymentController {
     private paymentService: PaymentService,
     private vnpayService: VnpayService,
   ) {}
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Get Top Up By Id',
+  })
+  @ApiNotFoundResponse({})
+  @ApiCreatedResponse()
+  @Get('top-up/{id}')
+  async getTopUpById(@Param() topUpId: string) {
+    try {
+      return this.paymentService.getTopUpById(topUpId);
+    } catch (error) {
+      if (error instanceof TopUpNotExistException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
 
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
