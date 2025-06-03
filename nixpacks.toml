@@ -1,20 +1,21 @@
-providers = ['node']
+# providers = ['node']
 
 [variables]
-NIXPACKS_NODE_VERSION = '23.9'
+# NIXPACKS_NODE_VERSION = '23.9'
 CI = 'false'
 NODE_ENV = 'production'
 TZ = 'TZ=Asia/Ho_Chi_Minh'
 
-# [phases.setup]
-# nixPkgs = ['nodejs']
+[phases.setup]
+nixPkgs = ['nodejs_23']
 
 [phases.install]
-cmds = ['npm install --omit=dev --ignore-scripts', 'npm i -g @nestjs/cli']
-cacheDirectories = ['~/.npm', 'node_modules']
+cmds = ['npm install --omit=dev --ignore-scripts', 'npm i @nestjs/cli']
+cacheDirectories = ['~/.npm', '/app/node_modules']
 
 [phases.build]
-cmds = ['npm run build']
+cmds = ['npm run build --omit=dev']
+paths = ['/app/node_modules/.bin']
 
 [start]
 runImage = 'node:23.9.0-alpine'
