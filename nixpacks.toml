@@ -2,15 +2,16 @@ providers = ['node']
 
 [variables]
 NIXPACKS_NODE_VERSION = '23'
+TZ='TZ=Asia/Ho_Chi_Minh'
 
-# [phases.setup]
-# nixPkgs = ['nodejs']
+[phases.setup]
+nixPkgs = ['nodejs']
 
 [phases.install]
-cmds = ['npm ci --omit=dev --no-scripts']
-cacheDirectories = [
-  'node_modules', # default is node_modules/.cache but ...
-]
+cmds = ['npm ci --omit=dev --no-scripts', 'RUN npm i -g @nestjs/cli']
+# cacheDirectories = [
+#   'node_modules', # default is node_modules/.cache but ...
+# ]
 
 [phases.build]
 cmds = ['npm run build']
