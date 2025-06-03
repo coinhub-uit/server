@@ -14,7 +14,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "sh -c 'TZ=Asia/Ho_Chi_Minh' node ./dist/src/main'",
+    "startCommand": "node ./dist/src/main'",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300
   }
