@@ -10,13 +10,12 @@ TZ = 'TZ=Asia/Ho_Chi_Minh'
 nixPkgs = ['nodejs_23']
 
 [phases.install]
-cmds = ['npm install --omit=dev --ignore-scripts', 'npm i @nestjs/cli']
+cmds = ['npm install --omit=dev --ignore-scripts']
 cacheDirectories = ['~/.npm', '/app/node_modules']
 
 [phases.build]
-cmds = ['npm run build --omit=dev']
-paths = ['/app/node_modules/.bin']
+cmds = ['npx nest build']
 
 [start]
 runImage = 'node:23.9.0-alpine'
-cmd = 'npm run start'
+cmd = 'node /app/dist/src/main'
