@@ -1,8 +1,8 @@
 providers = ['node']
 
 [variables]
-NIXPACKS_NODE_VERSION='23.9'
-CI = false
+NIXPACKS_NODE_VERSION = '23.9'
+CI = 'false'
 NODE_ENV = 'production'
 TZ = 'TZ=Asia/Ho_Chi_Minh'
 
