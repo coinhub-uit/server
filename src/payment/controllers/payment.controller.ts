@@ -22,6 +22,7 @@ import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { CreateTopUpDto } from 'src/payment/dtos/create-top-up.dto';
 import { CreateTopUpResponseDto } from 'src/payment/dtos/create-top-up.response.dto';
 import { TranferMoneyDto } from 'src/payment/dtos/transfer-money.dto';
+import { TopUpEntity } from 'src/payment/entities/top-up.entity';
 import { TopUpNotExistException } from 'src/payment/exceptions/top_up-not-exist';
 import { TransferFromSourceNotExistsException } from 'src/payment/exceptions/transfer-from-source-not-exist.exception';
 import { TransferToSourceNotExistsException } from 'src/payment/exceptions/transfer-to-source-not-exist.exception';
@@ -43,6 +44,10 @@ export class PaymentController {
   @ApiBearerAuth('user')
   @ApiOperation({
     summary: 'Get Top Up By Id',
+  })
+  @ApiCreatedResponse({
+    description: 'Top up entity',
+    type: TopUpEntity,
   })
   @ApiNotFoundResponse({})
   @ApiCreatedResponse()
