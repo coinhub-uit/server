@@ -414,7 +414,7 @@ export class UserController {
   })
   @ApiNotFoundResponse()
   @ApiOkResponse({
-    type: NotificationEntity,
+    type: [NotificationEntity],
   })
   @Get(':id/notifications')
   async getNotifications(
