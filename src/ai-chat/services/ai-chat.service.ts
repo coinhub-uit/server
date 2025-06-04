@@ -50,7 +50,7 @@ export class AiChatService {
     const aiChatSessionResponseDto = messages.map((message) => {
       const aiChatSession = new AiChatSessionResponseDto();
       aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
-      aiChatSession.message = message.role;
+      aiChatSession.role = message.role as AiChatSessionResponseDto['role']; // NOTE: Believe me!!!
       return aiChatSession;
     });
     return aiChatSessionResponseDto;
