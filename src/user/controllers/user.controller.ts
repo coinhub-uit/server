@@ -39,6 +39,7 @@ import { AdminJwtAuthGuard } from 'src/auth/guards/admin.jwt-auth.guard';
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { avatarStorageOptions } from 'src/config/avatar-storage-options.config';
+import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { userPaginationConfig } from 'src/user/configs/user-pagination.config';
@@ -403,6 +404,31 @@ export class UserController {
       );
     }
     return await this.userService.findTicketsById(userId);
+  }
+
+  @UseGuards(UniversalJwtAuthGuard)
+  @ApiBearerAuth('admin')
+  @ApiBearerAuth('user')
+  @ApiOperation({
+    summary: 'Get notifications of user',
+  })
+  @ApiNotFoundResponse()
+  @ApiOkResponse({
+    type: NotificationEntity,
+  })
+  @Get(':id/notifications')
+  async getNotifications(
+    @Req() req: Request & { user: UniversalJwtRequest },
+    @Param('id') userId: string,
+  ) {
+    if (!req.user.isAdmin && req.user.userId !== userId) {
+      throw new ForbiddenException(
+        "You are not allowed to get other user's notifications",
+      );
+    }
+    const notificationEntities =
+      await this.userService.findNotificationsById(userId);
+    return notificationEntities;
   }
 
   @UseGuards(UniversalJwtAuthGuard)

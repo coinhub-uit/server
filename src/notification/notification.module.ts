@@ -4,10 +4,10 @@ import { NotificationEntity } from 'src/notification/entities/notification.entit
 import { NotificationController } from './controllers/notification.controller';
 import { NotificationService } from './services/notification.service';
 
-Module({
+@Module({
   imports: [TypeOrmModule.forFeature([NotificationEntity])],
   controllers: [NotificationController],
   providers: [NotificationService],
   exports: [NotificationService, TypeOrmModule],
-});
+})
 export class NotificationModule {}

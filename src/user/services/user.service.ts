@@ -4,6 +4,7 @@ import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { extname, join as joinPath } from 'path';
+import { NotificationEntity } from 'src/notification/entities/notification.entity';
 import { SourceEntity } from 'src/source/entities/source.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
@@ -29,6 +30,8 @@ export class UserService {
     private readonly sourceRepository: Repository<SourceEntity>,
     @InjectRepository(TicketEntity)
     private readonly ticketRepository: Repository<TicketEntity>,
+    @InjectRepository(NotificationEntity)
+    private readonly notificationRepository: Repository<NotificationEntity>,
   ) {}
 
   private static readonly AVATAR_FILENAME_FIRST_HEX_PATTERN = /^[^-]+-/;
@@ -195,6 +198,17 @@ export class UserService {
     console.log(ticketEntities);
 
     return ticketEntities;
+  }
+
+  async findNotificationsById(userId: string) {
+    const notificationEntities = await this.notificationRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
+    return notificationEntities;
   }
 
   async createDevice(userId: string, registerDeviceDto: RegisterDeviceDto) {

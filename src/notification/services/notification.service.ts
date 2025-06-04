@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
+import { NotificationNotExistException } from 'src/notification/exceptions/notification-not-exist.exception';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,10 +11,23 @@ export class NotificationService {
     private readonly notificationRepository: Repository<NotificationEntity>,
   ) {}
 
-  getNotificationById(id: string) {
-    return this.notificationRepository.findOneOrFail({ where: { id: id } });
+  async getNotificationById(
+    notificationId: string,
+    userIdOrIsAdmin: string | true,
+  ) {
+    const notificationEntity = await this.notificationRepository.findOne({
+      where: {
+        id: notificationId,
+        user: { id: userIdOrIsAdmin === true ? undefined : userIdOrIsAdmin },
+      },
+    });
+    if (!notificationEntity) {
+      throw new NotificationNotExistException(notificationId);
+    }
+    return notificationEntity;
   }
 
+  // FIXME: No usage?
   async create(userId: string, title: string, body: string, createdAt: Date) {
     const notification = this.notificationRepository.create({
       title: title,

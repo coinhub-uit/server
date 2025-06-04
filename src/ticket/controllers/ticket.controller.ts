@@ -21,6 +21,7 @@ import {
 import { UniversalJwtAuthGuard } from 'src/auth/guards/universal.jwt-auth.guard';
 import { UniversalJwtRequest } from 'src/auth/types/universal.jwt-request';
 import { PlanHistoryNotExistException } from 'src/plan/exceptions/plan-history-not-exist';
+import { SourceEntity } from 'src/source/entities/source.entity';
 import { SourceNotExistException } from 'src/source/exceptions/source-not-exist.execeptions';
 import { CreateTicketDto } from 'src/ticket/dtos/create-ticket.dto';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -40,7 +41,7 @@ export class TicketController {
   })
   @ApiNotFoundResponse()
   @ApiCreatedResponse({
-    type: Number,
+    type: SourceEntity,
   })
   @Get(':id/source')
   async getSourceByTicketId(
