@@ -51,7 +51,7 @@ export class PaymentController {
   })
   @ApiNotFoundResponse({})
   @ApiCreatedResponse()
-  @Get('top-up/{id}')
+  @Get('top-up/:id')
   async getTopUpById(@Param() topUpId: string) {
     try {
       return this.paymentService.getTopUpById(topUpId);
