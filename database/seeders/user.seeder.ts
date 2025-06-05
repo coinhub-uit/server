@@ -17,7 +17,7 @@ export default class UserSeeder implements Seeder {
       avatar: 'https://avatars.githubusercontent.com/u/86353526?v=4',
       birthDate: new Date(2005, 8, 24),
       citizenId: '078123456000',
-      fullname: 'Kevin Nitro',
+      fullName: 'Kevin Nitro',
     });
     userRepository.save(predefinedUser);
   }

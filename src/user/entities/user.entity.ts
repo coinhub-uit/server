@@ -33,7 +33,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
 
   @ApiProperty()
   @Column({ type: 'text' })
-  fullname!: string;
+  fullName!: string;
 
   @ApiProperty()
   @Column({ type: 'date', transformer: new DateTransformer() })

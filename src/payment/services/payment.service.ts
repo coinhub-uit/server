@@ -82,7 +82,7 @@ export class PaymentService {
 
         const receivedMoneyNotification = notificationRepository.create({
           title: 'Money Received',
-          body: `You have received $${transferMoneyDto.money} from ${fromSourceEntity.user?.fullname}.
+          body: `You have received $${transferMoneyDto.money} from ${fromSourceEntity.user?.fullName}.
           Destination account: ${toSourceEntity.id}.
           Your new balance: $${toSourceEntity.balance.toNumber()}.`,
           user: toSourceEntity.user,
@@ -91,7 +91,7 @@ export class PaymentService {
 
         const tranferMoneyNotification = notificationRepository.create({
           title: 'Money Tranferred',
-          body: `You have transferred $${transferMoneyDto.money} to ${toSourceEntity.user?.fullname}.
+          body: `You have transferred $${transferMoneyDto.money} to ${toSourceEntity.user?.fullName}.
           Source account: ${fromSourceEntity.id}.
           Remaining balance: $${fromSourceEntity.balance.toNumber()}.`,
           createdAt: now,

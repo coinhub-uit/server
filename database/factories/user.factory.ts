@@ -9,7 +9,7 @@ export default setSeederFactory(UserEntity, (faker) => {
     length: 12,
     allowLeadingZeros: true,
   });
-  user.fullname = faker.person.fullName();
+  user.fullName = faker.person.fullName();
   user.birthDate = faker.date.birthdate();
   user.address = `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}, ${faker.location.country()}`;
   user.avatar = faker.datatype.boolean() ? faker.image.avatar() : null;
