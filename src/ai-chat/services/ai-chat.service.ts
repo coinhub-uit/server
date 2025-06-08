@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import OpenAI from 'openai';
-import { AiChatSessionResponseDto } from 'src/ai-chat/dtos/ai-chat-session.response.dto';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
@@ -48,9 +47,9 @@ export class AiChatService {
       return [];
     }
     const aiChatSessionResponseDto = messages.map((message) => {
-      const aiChatSession = new AiChatSessionResponseDto();
+      const aiChatSession = new AiChatResponseDto();
       aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
-      aiChatSession.role = message.role as AiChatSessionResponseDto['role']; // NOTE: Believe me!!!
+      aiChatSession.role = message.role as AiChatResponseDto['role']; // NOTE: Believe me!!!
       return aiChatSession;
     });
     return aiChatSessionResponseDto;
@@ -110,6 +109,7 @@ You are a secure and knowledgeable banking assistant.
 
     // TODO: Declare abstract response dto and pass as arg to constructor later
     const aiChatResponseDto = new AiChatResponseDto();
+    aiChatResponseDto.role = 'assistant';
     aiChatResponseDto.message = messageContent;
     return aiChatResponseDto;
   }

@@ -14,7 +14,6 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { AiChatSessionResponseDto } from 'src/ai-chat/dtos/ai-chat-session.response.dto';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatService } from 'src/ai-chat/services/ai-chat.service';
@@ -32,7 +31,7 @@ export class AiChatController {
     summary: 'Get AI chat bot chat sessions',
   })
   @ApiForbiddenResponse()
-  @ApiOkResponse({ type: [AiChatSessionResponseDto] })
+  @ApiOkResponse({ type: [AiChatResponseDto] })
   @Get()
   getChatSession(
     @Req()
