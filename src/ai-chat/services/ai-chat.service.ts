@@ -43,6 +43,7 @@ export class AiChatService {
 
   getChatSession(aiChatSession: AiChatSession) {
     const messages = aiChatSession.messages?.slice(1);
+
     if (!messages) {
       return [];
     }

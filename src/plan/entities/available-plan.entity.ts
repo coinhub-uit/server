@@ -23,7 +23,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 export class AvailablePlanView {
   @ApiProperty()
   @ViewColumn()
-  planHistoryId!: string;
+  planHistoryId!: number;
 
   @ApiProperty()
   @ViewColumn()
@@ -31,7 +31,7 @@ export class AvailablePlanView {
 
   @ApiProperty()
   @ViewColumn()
-  planId!: string;
+  planId!: number;
 
   @ApiProperty()
   @ViewColumn()
