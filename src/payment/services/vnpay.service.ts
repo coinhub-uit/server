@@ -37,7 +37,7 @@ export class VnpayService {
   ) {}
 
   async verifyIpn(query: ReturnQueryFromVNPay) {
-    await this.dataSource.manager.transaction(
+    return await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const topUpRepository =
           transactionalEntityManager.getRepository(TopUpEntity);
