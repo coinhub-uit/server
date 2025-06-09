@@ -39,6 +39,15 @@ export class PaymentController {
     private vnpayService: VnpayService,
   ) {}
 
+  @ApiOperation({
+    summary: 'IPN URL for VNPAY',
+    description: 'This is for VNPay to callback, not for the user / admin.',
+  })
+  @Get('top-up/vnpay-ipn')
+  async ipnCallback(@Req() req: Request) {
+    return await this.vnpayService.verifyIpn(req.query as ReturnQueryFromVNPay);
+  }
+
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
@@ -124,14 +133,5 @@ export class PaymentController {
       }
       throw error;
     }
-  }
-
-  @ApiOperation({
-    summary: 'IPN URL for VNPAY',
-    description: 'This is for VNPay to callback, not for the user / admin.',
-  })
-  @Get('top-up/vnpay-ipn')
-  async ipnCallback(@Req() req: Request) {
-    return await this.vnpayService.verifyIpn(req.query as ReturnQueryFromVNPay);
   }
 }
