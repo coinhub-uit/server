@@ -108,12 +108,12 @@ export class TicketController {
     type: TicketEntity,
   })
   @Post()
-  create(
+  async create(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Body() createTicketDto: CreateTicketDto,
   ) {
     try {
-      return this.ticketService.createTicket(
+      return await this.ticketService.createTicket(
         createTicketDto,
         req.user.isAdmin || req.user.userId,
       );
