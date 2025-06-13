@@ -83,7 +83,7 @@ export class PaymentController {
     description: 'Either from source or to source or both do not exist',
   })
   @ApiCreatedResponse()
-  @Post('tranfer')
+  @Post('transfer')
   async tranferMoney(@Body() tranferMoneyDto: TranferMoneyDto) {
     try {
       await this.paymentService.tranferMoney(tranferMoneyDto);
