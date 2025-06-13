@@ -1,11 +1,11 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumberString } from 'class-validator';
 
 @ApiSchema()
 export class SettingDto {
   @ApiProperty({
     required: false,
   })
-  @IsNumber()
-  minAmountOpenTicket?: number;
+  @IsNumberString()
+  minAmountOpenTicket?: string;
 }
