@@ -164,7 +164,9 @@ export class TicketService {
         source.balance = source.balance.minus(createTicketDto.amount);
         await sourceRepository.save(source);
 
-        await ticketHistoryRepository.save(ticketHistory);
+        const ticketHistoryEntity =
+          await ticketHistoryRepository.save(ticketHistory);
+        ticketEntity.ticketHistories.push(ticketHistoryEntity);
         return ticketEntity;
       },
     );
