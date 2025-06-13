@@ -15,6 +15,9 @@ export class SettingController {
   @ApiOperation({
     summary: 'Get settings',
   })
+  @ApiOkResponse({
+    type: SettingsEntity,
+  })
   @Get()
   async get() {
     return await this.settingService.find();
