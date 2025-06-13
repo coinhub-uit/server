@@ -21,11 +21,20 @@ export class SettingService {
   }
 
   async partialUpdate(settingDto: SettingDto) {
-    return await this.settingsRepository.save({
-      id: true,
-      minAmountOpenTicket: settingDto.minAmountOpenTicket
-        ? Decimal(settingDto.minAmountOpenTicket)
-        : undefined,
-    });
+    await this.settingsRepository.update(
+      {
+        id: true,
+      },
+      {
+        minAmountOpenTicket: settingDto.minAmountOpenTicket
+          ? Decimal(settingDto.minAmountOpenTicket)
+          : undefined,
+      },
+    );
+    return (await this.settingsRepository.findOne({
+      where: {
+        id: true,
+      },
+    }))!;
   }
 }
