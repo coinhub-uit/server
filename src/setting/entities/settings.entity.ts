@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import Decimal from 'decimal.js';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import {
@@ -12,6 +12,7 @@ import { Check, Column, Entity, PrimaryColumn } from 'typeorm';
 @Check(`"id" = true`)
 @Entity({ name: 'settings' })
 export class SettingsEntity extends AbstractEntity<SettingsEntity> {
+  @Exclude()
   @PrimaryColumn({ type: 'boolean', default: true })
   id!: true;
 
