@@ -166,7 +166,7 @@ export class TicketService {
 
         const ticketHistoryEntity =
           await ticketHistoryRepository.save(ticketHistory);
-        ticketEntity.ticketHistories.push(ticketHistoryEntity);
+        ticketEntity.ticketHistories = [ticketHistoryEntity];
         return ticketEntity;
       },
     );
