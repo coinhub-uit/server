@@ -195,7 +195,6 @@ export class UserService {
         },
       },
     });
-    console.log(ticketEntities);
 
     return ticketEntities;
   }
