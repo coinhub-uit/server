@@ -206,6 +206,9 @@ export class UserService {
           id: userId,
         },
       },
+      order: {
+        createdAt: 'DESC',
+      },
     });
     return notificationEntities;
   }

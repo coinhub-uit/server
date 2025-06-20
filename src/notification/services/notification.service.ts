@@ -20,9 +20,6 @@ export class NotificationService {
         id: notificationId,
         user: { id: userIdOrIsAdmin === true ? undefined : userIdOrIsAdmin },
       },
-      order: {
-        createdAt: 'DESC',
-      },
     });
     if (!notificationEntity) {
       throw new NotificationNotExistException(notificationId);
