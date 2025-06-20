@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   const { data } = await supabase
     .from('device')
     .select('fcmToken')
-    .eq('id', payload.record.userId);
+    .eq('userId', payload.record.userId);
 
   if (data && data?.length !== 0) {
     const accessToken = await getAccessToken({
