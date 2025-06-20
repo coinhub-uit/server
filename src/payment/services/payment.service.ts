@@ -69,18 +69,13 @@ export class PaymentService {
           );
         }
 
-        fromSourceEntity.balance.minus(transferMoneyDto.money);
-        toSourceEntity.balance.plus(transferMoneyDto.money);
+        await sourceRepository.update(transferMoneyDto.fromSourceId, {
+          balance: fromSourceEntity.balance.minus(transferMoneyDto.money),
+        });
 
-        await sourceRepository.update(
-          transferMoneyDto.fromSourceId,
-          fromSourceEntity,
-        );
-
-        await sourceRepository.update(
-          transferMoneyDto.toSourceId,
-          toSourceEntity,
-        );
+        await sourceRepository.update(transferMoneyDto.toSourceId, {
+          balance: toSourceEntity.balance.plus(transferMoneyDto.money),
+        });
 
         const receivedMoneyNotification = notificationRepository.create({
           title: 'Money Received',
