@@ -75,9 +75,6 @@ export class UserController {
     return await this.userService.findAll(query);
   }
 
-  @UseGuards(UniversalJwtAuthGuard)
-  @ApiBearerAuth('user')
-  @ApiBearerAuth('admin')
   @ApiOperation({
     summary: 'Get avatar',
     description: 'Get avatar',
@@ -93,12 +90,8 @@ export class UserController {
   @Get(':id/avatar')
   async getAvatar(
     @Param('id') userId: string,
-    @Req() req: Request & { user: UniversalJwtRequest },
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!req.user.isAdmin && req.user.userId !== userId) {
-      throw new ForbiddenException('You are only allowed to get your avatar');
-    }
     try {
       const { file, filename, fileExtension } =
         await this.userService.getAvatarById(userId);
