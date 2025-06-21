@@ -130,15 +130,8 @@ export class UserService {
 
   async partialUpdateById(userId: string, userDetails: UpdateParitialUserDto) {
     const user = await this.findByIdOrFail(userId);
-    if (!userDetails.avatar) {
-      try {
-        await UserService.deleteAvatarInStorageById(userId);
-      } catch (error) {
-        console.error(
-          `Failed to delete avatar files for user ${userId} during partial update.`,
-          error,
-        );
-      }
+    if (userDetails.avatar === null) {
+      await UserService.deleteAvatarInStorageById(userId);
     }
     const updatedUser = this.userRepository.merge(user, userDetails);
     return await this.userRepository.save(updatedUser);
