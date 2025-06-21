@@ -171,11 +171,22 @@ export class UserService {
           id: userId,
         },
       },
+      order: {
+        id: 'ASC',
+      },
     });
     return sourceEntities;
   }
 
-  async findTicketsById(userId: string) {
+  async findTicketsById({
+    userId,
+    activeTicketOnly,
+    allHistories,
+  }: {
+    userId: string;
+    activeTicketOnly: boolean;
+    allHistories: boolean;
+  }) {
     const dateNow = new Date(Date.now());
     const ticketEntities = await this.ticketRepository.find({
       where: {
@@ -184,10 +195,12 @@ export class UserService {
             id: userId,
           },
         },
-        status: TicketStatusEnum.active,
-        ticketHistories: {
-          maturedAt: MoreThanOrEqual(dateNow),
-        },
+        status: activeTicketOnly ? TicketStatusEnum.active : undefined,
+        ticketHistories: allHistories
+          ? {
+              maturedAt: MoreThanOrEqual(dateNow),
+            }
+          : undefined,
       },
       order: {
         ticketHistories: {

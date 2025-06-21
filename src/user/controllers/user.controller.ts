@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
   Res,
   StreamableFile,
@@ -377,11 +378,7 @@ export class UserController {
   @UseGuards(UniversalJwtAuthGuard)
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
-  @ApiOperation({
-    summary: 'Get tickets of user',
-    description:
-      'Get all active tickets (with plan) + latest ticket history of user with user id. The ticket history is in order DESC of "issuedAt"',
-  })
+  @ApiOperation({ summary: 'Get tickets of user' })
   @ApiForbiddenResponse()
   @ApiOkResponse({
     type: [TicketEntity],
@@ -390,13 +387,19 @@ export class UserController {
   async getTickets(
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
+    @Query('activeTicketOnly') activeTicketOnly: boolean = true,
+    @Query('allHistories') allHistories: boolean = true,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
         "You are not allowed to get other user's tickets",
       );
     }
-    return await this.userService.findTicketsById(userId);
+    return await this.userService.findTicketsById({
+      userId,
+      activeTicketOnly,
+      allHistories,
+    });
   }
 
   @UseGuards(UniversalJwtAuthGuard)
