@@ -180,11 +180,11 @@ export class UserService {
   async findTicketsById({
     userId,
     activeTicketOnly,
-    allHistories,
+    latestHistoryOnly,
   }: {
     userId: string;
     activeTicketOnly: boolean;
-    allHistories: boolean;
+    latestHistoryOnly: boolean;
   }) {
     const ticketEntities = await this.ticketRepository.find({
       where: {
@@ -202,7 +202,7 @@ export class UserService {
       },
     });
 
-    if (!allHistories) {
+    if (latestHistoryOnly) {
       ticketEntities.forEach((ticket) => {
         ticket.ticketHistories = [ticket.ticketHistories[0]];
       });

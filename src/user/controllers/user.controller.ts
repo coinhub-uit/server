@@ -386,9 +386,9 @@ export class UserController {
     default: true,
   })
   @ApiQuery({
-    name: 'allHistories',
+    name: 'latestHistoryOnly',
     required: false,
-    default: true,
+    default: false,
   })
   @ApiForbiddenResponse()
   @ApiOkResponse({
@@ -399,7 +399,7 @@ export class UserController {
     @Req() req: Request & { user: UniversalJwtRequest },
     @Param('id') userId: string,
     @Query('activeTicketOnly') activeTicketOnly: boolean = true,
-    @Query('allHistories') allHistories: boolean = true,
+    @Query('latestHistoryOnly') latestHistoryOnly: boolean = false,
   ) {
     if (!req.user.isAdmin && req.user.userId !== userId) {
       throw new ForbiddenException(
@@ -409,7 +409,7 @@ export class UserController {
     return await this.userService.findTicketsById({
       userId,
       activeTicketOnly,
-      allHistories,
+      latestHistoryOnly,
     });
   }
 
