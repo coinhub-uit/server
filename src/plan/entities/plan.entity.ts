@@ -27,7 +27,7 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan, {
     eager: true,
   })
-  planHistories?: PlanHistoryEntity[];
+  planHistories!: PlanHistoryEntity[];
 
   @Exclude()
   @OneToMany(() => TicketEntity, (ticket) => ticket.plan)
