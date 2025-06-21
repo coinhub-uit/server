@@ -14,7 +14,12 @@ function ensureUploadPathExists() {
     const resolvedPath = path.resolve(uploadPath);
     if (!fs.existsSync(resolvedPath)) {
       fs.mkdirSync(resolvedPath, { recursive: true });
+      console.log(`Created upload directory at: ${resolvedPath}`);
     }
+  } else {
+    console.warn(
+      'UPLOAD_PATH environment variable is not set. Skipping upload directory creation.',
+    );
   }
 }
 
