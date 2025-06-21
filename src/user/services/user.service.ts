@@ -60,7 +60,10 @@ export class UserService {
       // NOTE: This doesn't clean the temp avatar
       const matchedFiles = files.filter((file) => file.startsWith(userId));
       await Promise.all(
-        matchedFiles.map((file) => unlink(joinPath(dir, file))),
+        matchedFiles.map((file) => {
+          console.log(`Removing ${file}`);
+          unlink(joinPath(dir, file));
+        }),
       );
     } catch (error) {
       console.error(`Failed to delete avatar files for user ${userId}:`, error);
