@@ -23,9 +23,9 @@ export class TicketService {
 
   async getSourceByTicketId(ticketId: number, userIdOrIsAdmin: string | true) {
     const ticketEntity = await this.dataSource.manager.transaction(
-      async (transactionalEntityManager: EntityManager) => {
+      async (transactionEntityManager: EntityManager) => {
         const ticketRepository =
-          transactionalEntityManager.getRepository(TicketEntity);
+          transactionEntityManager.getRepository(TicketEntity);
         const ticket = await ticketRepository.findOne({
           where: {
             id: ticketId,

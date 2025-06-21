@@ -1,30 +1,83 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotificationEntity } from 'src/notification/entities/notification.entity';
+import { NotificationForbiddenException } from 'src/notification/exceptions/notification-forbidden.exception';
 import { NotificationNotExistException } from 'src/notification/exceptions/notification-not-exist.exception';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: Repository<NotificationEntity>,
+    private dataSource: DataSource,
   ) {}
 
   async getNotificationById(
     notificationId: string,
     userIdOrIsAdmin: string | true,
   ) {
-    const notificationEntity = await this.notificationRepository.findOne({
-      where: {
-        id: notificationId,
-        user: { id: userIdOrIsAdmin === true ? undefined : userIdOrIsAdmin },
+    const notificationEntity = await this.dataSource.manager.transaction(
+      async (transactionEntityManager: EntityManager) => {
+        const notificationRepository =
+          transactionEntityManager.getRepository(NotificationEntity);
+        const notificationEntity = await notificationRepository.findOne({
+          where: {
+            id: notificationId,
+          },
+          relations: {
+            user: true,
+          },
+        });
+        if (!notificationEntity) {
+          throw new NotificationNotExistException(notificationId);
+        }
+        if (
+          userIdOrIsAdmin !== true &&
+          notificationEntity.user!.id !== userIdOrIsAdmin
+        ) {
+          throw new NotificationForbiddenException(notificationId);
+        }
+
+        return notificationEntity;
       },
-    });
-    if (!notificationEntity) {
-      throw new NotificationNotExistException(notificationId);
-    }
+    );
     return notificationEntity;
+  }
+
+  async markNotificationAsReadById(
+    notificationId: string,
+    userIdOrIsAdmin: string | true,
+  ) {
+    await this.dataSource.manager.transaction(
+      async (transactionEntityManager: EntityManager) => {
+        const notificationRepository =
+          transactionEntityManager.getRepository(NotificationEntity);
+        const notificationEntity = await notificationRepository.findOne({
+          where: {
+            id: notificationId,
+          },
+          relations: {
+            user: true,
+          },
+        });
+
+        if (!notificationEntity) {
+          throw new NotificationNotExistException(notificationId);
+        }
+
+        if (
+          userIdOrIsAdmin !== true &&
+          notificationEntity.user!.id !== userIdOrIsAdmin
+        ) {
+          throw new NotificationForbiddenException(notificationId);
+        }
+
+        await notificationRepository.update(notificationId, {
+          isRead: true,
+        });
+      },
+    );
   }
 
   // FIXME: No usage?
