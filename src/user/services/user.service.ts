@@ -186,7 +186,6 @@ export class UserService {
     activeTicketOnly: boolean;
     allHistories: boolean;
   }) {
-    const dateNow = new Date(Date.now());
     const ticketEntities = await this.ticketRepository.find({
       where: {
         source: {
@@ -205,9 +204,7 @@ export class UserService {
 
     if (!allHistories) {
       ticketEntities.forEach((ticket) => {
-        ticket.ticketHistories = ticket.ticketHistories.filter(
-          (history) => history.maturedAt >= dateNow,
-        );
+        ticket.ticketHistories = [ticket.ticketHistories[0]];
       });
     }
     return ticketEntities;
