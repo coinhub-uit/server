@@ -17,7 +17,7 @@ import { DeviceEntity } from 'src/user/entities/device.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { AvatarNotSetException } from 'src/user/exceptions/avatar-not-set.exception';
 import { UserNotExistException } from 'src/user/exceptions/user-not-exist.exception';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -102,7 +102,6 @@ export class UserService {
     return { file, filename, fileExtension };
   }
 
-  // TODO: Maybe paginate this
   async findAll(query: PaginateQuery) {
     return paginate(query, this.userRepository, userPaginationConfig);
   }
@@ -196,11 +195,6 @@ export class UserService {
           },
         },
         status: activeTicketOnly ? TicketStatusEnum.active : undefined,
-        ticketHistories: allHistories
-          ? {
-              maturedAt: MoreThanOrEqual(dateNow),
-            }
-          : undefined,
       },
       order: {
         ticketHistories: {
@@ -209,6 +203,13 @@ export class UserService {
       },
     });
 
+    if (!allHistories) {
+      ticketEntities.forEach((ticket) => {
+        ticket.ticketHistories = ticket.ticketHistories.filter(
+          (history) => history.maturedAt >= dateNow,
+        );
+      });
+    }
     return ticketEntities;
   }
 
