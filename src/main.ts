@@ -9,13 +9,10 @@ import * as path from 'path';
 
 // TODO: Async later?
 function ensureUploadPathExists() {
-  const uploadPath = process.env.UPLOAD_PATH;
-  if (uploadPath) {
-    const resolvedPath = path.resolve(uploadPath);
-    if (!fs.existsSync(resolvedPath)) {
-      fs.mkdirSync(resolvedPath, { recursive: true });
-      console.log(`Created upload directory at: ${resolvedPath}`);
-    }
+  const resolvedPath = path.resolve(process.env.UPLOAD_PATH);
+  if (!fs.existsSync(resolvedPath)) {
+    fs.mkdirSync(resolvedPath, { recursive: true });
+    console.log(`Created upload directory at: ${resolvedPath}`);
   } else {
     console.warn(
       'UPLOAD_PATH environment variable is not set. Skipping upload directory creation.',
