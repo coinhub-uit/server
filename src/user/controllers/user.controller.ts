@@ -30,6 +30,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
@@ -379,6 +380,16 @@ export class UserController {
   @ApiBearerAuth('admin')
   @ApiBearerAuth('user')
   @ApiOperation({ summary: 'Get tickets of user' })
+  @ApiQuery({
+    name: 'activeTicketOnly',
+    required: false,
+    default: true,
+  })
+  @ApiQuery({
+    name: 'allHistories',
+    required: false,
+    default: true,
+  })
   @ApiForbiddenResponse()
   @ApiOkResponse({
     type: [TicketEntity],
