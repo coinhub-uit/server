@@ -23,8 +23,10 @@ export class PlanEntity extends AbstractEntity<PlanEntity> {
   @Column({ type: 'int', unique: true })
   days!: number;
 
-  @Exclude()
-  @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan)
+  @ApiProperty()
+  @OneToMany(() => PlanHistoryEntity, (planHistory) => planHistory.plan, {
+    eager: true,
+  })
   planHistories?: PlanHistoryEntity[];
 
   @Exclude()
