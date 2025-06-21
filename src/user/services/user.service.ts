@@ -41,6 +41,7 @@ export class UserService {
       where: {
         id: userId,
       },
+      withDeleted: true,
     });
   }
 
