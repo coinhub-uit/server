@@ -7,6 +7,7 @@ import { configAppSession } from 'src/common/app-config/session.app-config';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// TODO: Async later?
 function ensureUploadPathExists() {
   const uploadPath = process.env.UPLOAD_PATH;
   if (uploadPath) {
