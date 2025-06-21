@@ -61,7 +61,6 @@ export class UserService {
       const matchedFiles = files.filter((file) => file.startsWith(userId));
       await Promise.all(
         matchedFiles.map((file) => {
-          console.log(`Removing ${file}`);
           unlink(joinPath(dir, file));
         }),
       );
