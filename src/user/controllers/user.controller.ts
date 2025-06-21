@@ -84,11 +84,6 @@ export class UserController {
   @ApiUnprocessableEntityResponse()
   @ApiNotFoundResponse()
   @ApiOkResponse()
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage(avatarStorageOptions),
-    }),
-  )
   @Get(':id/avatar')
   async getAvatar(
     @Param('id') userId: string,

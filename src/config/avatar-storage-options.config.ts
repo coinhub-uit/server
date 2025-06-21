@@ -1,9 +1,9 @@
 import { randomBytes } from 'crypto';
 import { DiskStorageOptions } from 'multer';
-import { extname } from 'path';
+import { extname, join as joinPath } from 'path';
 
 export const avatarStorageOptions: DiskStorageOptions = {
-  destination: `${process.env.UPLOAD_PATH}/avatars`,
+  destination: joinPath(process.cwd(), `${process.env.UPLOAD_PATH}/avatars`),
   filename(req, file, callback) {
     const fileExtension = extname(file.originalname);
     const userId = req.params.id;

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as fs from 'fs';
 import { createReadStream } from 'fs';
 import { readdir, rename, unlink } from 'fs/promises';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
@@ -97,16 +96,6 @@ export class UserService {
     const user = await this.findByIdOrFail(userId);
     if (!user.avatar) {
       throw new AvatarNotSetException();
-    }
-    const avatarsDir = joinPath(
-      process.cwd(),
-      `${process.env.UPLOAD_PATH}/avatars`,
-    );
-    try {
-      const files = fs.readdirSync(avatarsDir);
-      console.log(`Files in ${avatarsDir}:`, files);
-    } catch (err) {
-      console.error(`Failed to read directory ${avatarsDir}:`, err);
     }
     const filename = user.avatar;
     const file = createReadStream(
