@@ -48,7 +48,7 @@ export class UserService {
   async findByIdOrFail(userId: string) {
     const user = await this.FindById(userId);
     if (!user) {
-      throw new UserNotExistException();
+      throw new UserNotExistException(userId);
     }
     return user;
   }
@@ -86,10 +86,13 @@ export class UserService {
   }
 
   async deleteAvatarById(userId: string) {
-    const user = await this.findByIdOrFail(userId);
     await UserService.deleteAvatarInStorageById(userId);
-    user.avatar = null;
-    await this.userRepository.save(user);
+    const result = await this.userRepository.update(userId, {
+      avatar: null,
+    });
+    if (result.affected === 0) {
+      throw new UserNotExistException(userId);
+    }
   }
 
   async getAvatarById(userId: string) {
@@ -124,7 +127,7 @@ export class UserService {
       await UserService.deleteAvatarInStorageById(userId);
     }
     if (updateResult.affected === 0) {
-      throw new UserNotExistException();
+      throw new UserNotExistException(userId);
     }
   }
 

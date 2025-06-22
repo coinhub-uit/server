@@ -1,8 +1,8 @@
 import { ServiceException } from 'src/common/exceptions/service.exception';
 
 export class UserNotExistException extends ServiceException {
-  constructor(message: string = 'User does not exist') {
+  constructor(userId: string) {
     super();
-    this.message = message;
+    this.message = `User with id ${userId} does not exist`;
   }
 }
