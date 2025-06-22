@@ -191,7 +191,7 @@ export class TicketService {
   }
 
   async withdrawTicket(ticketId: number) {
-    const settlementDate = new Date();
+    const withdrawDate = new Date();
     await this.dataSource.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const ticketHistoryRepository =
@@ -223,7 +223,7 @@ export class TicketService {
         const interest = TicketService.calculateEarlyInterest(
           latestTicketHistory.issuedAt,
           latestTicketHistory.principal,
-          settlementDate,
+          withdrawDate,
           latestTicketHistory.ticket!.plan.days,
           availableNrPlan!.rate,
         );
@@ -232,7 +232,7 @@ export class TicketService {
           .ticket!.source!.balance.plus(interest)
           .plus(latestTicketHistory.principal);
 
-        latestTicketHistory.maturedAt = settlementDate;
+        latestTicketHistory.maturedAt = withdrawDate;
         latestTicketHistory.ticket!.source!.balance = newBalance;
         latestTicketHistory.ticket!.status = TicketStatusEnum.maturedWithdrawn;
 
