@@ -232,9 +232,9 @@ export class TicketService {
           .ticket!.source!.balance.plus(interest)
           .plus(latestTicketHistory.principal);
 
-        latestTicketHistory.maturedAt = withdrawDate;
+        latestTicketHistory.ticket!.closedAt = withdrawDate;
         latestTicketHistory.ticket!.source!.balance = newBalance;
-        latestTicketHistory.ticket!.status = TicketStatusEnum.maturedWithdrawn;
+        latestTicketHistory.ticket!.status = TicketStatusEnum.earlyWithdrawn;
 
         await ticketHistoryRepository.save(latestTicketHistory);
         await sourceRepository.save(latestTicketHistory.ticket!.source!);
