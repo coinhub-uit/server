@@ -152,11 +152,9 @@ export class UserService {
   }
 
   async deleteById(userId: string) {
-    await Promise.all([
-      this.userRepository.softDelete({ id: userId }),
-      this.deleteInSupabaseById(userId),
-      UserService.deleteAvatarInStorageById(userId),
-    ]);
+    await this.userRepository.softDelete({ id: userId });
+    await this.deleteInSupabaseById(userId);
+    await UserService.deleteAvatarInStorageById(userId);
   }
 
   async findSourcesById(userId: string) {
