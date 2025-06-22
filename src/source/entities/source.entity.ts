@@ -16,6 +16,8 @@ import {
   OneToMany,
   ManyToOne,
   PrimaryColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @ApiSchema()
@@ -36,6 +38,14 @@ export class SourceEntity extends AbstractEntity<SourceEntity> {
   })
   @Transform(decimalToString, { toPlainOnly: true })
   balance!: Decimal;
+
+  @ApiProperty()
+  @CreateDateColumn({ type: 'timestamptz' })
+  openedAt!: Date;
+
+  @ApiProperty({ nullable: true, type: Date, example: null })
+  @DeleteDateColumn({ type: 'timestamptz' })
+  closedAt!: Date | null;
 
   @Exclude()
   @OneToMany(() => TopUpEntity, (topUp) => topUp.sourceDestination)

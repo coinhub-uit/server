@@ -39,7 +39,7 @@ export class SourceService {
     if (!source.balance.isZero()) {
       throw new SourceStillHasMoneyException(sourceId);
     }
-    return this.sourceRepository.delete(sourceId);
+    return this.sourceRepository.softDelete(sourceId);
   }
 
   async find(sourceId: string) {
