@@ -154,7 +154,11 @@ export class TicketService {
               ? dateAfter(now, planHistory.plan!.days)
               : new Date('9999-12-31T23:59:59Z'),
           principal: createTicketDto.amount,
-          interest: (createTicketDto.amount * planHistory.rate) / 100,
+          interest:
+            (createTicketDto.amount *
+              planHistory.rate *
+              planHistory.plan!.days) /
+            (100 * 365),
           planHistory: planHistory,
           ticket: ticket,
           ticketId: ticket.id,
@@ -177,16 +181,15 @@ export class TicketService {
     issuedDate: Date,
     principal: Decimal,
     withdrawDate: Date,
-    days: number,
     earlyMaturityInterestRate: number,
   ) {
-    const diffDays = Math.ceil(
+    const diffDays = Math.floor(
       Math.abs(withdrawDate.getTime() - issuedDate.getTime()) /
         (1000 * 3600 * 24),
     );
     return principal
       .mul(diffDays * earlyMaturityInterestRate)
-      .div(days)
+      .div(365)
       .div(100);
   }
 
@@ -224,7 +227,6 @@ export class TicketService {
           latestTicketHistory.issuedAt,
           latestTicketHistory.principal,
           withdrawDate,
-          latestTicketHistory.ticket!.plan.days,
           availableNrPlan!.rate,
         );
 

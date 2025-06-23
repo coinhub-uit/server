@@ -18,12 +18,12 @@ LANGUAGE plpgsql AS $$
       p.id AS "planHistoryId",
       CASE
         WHEN t."method" = 'PIR'
-          THEN th."principal" + (th."principal" * p."rate" / 100)
+          THEN th."principal" + th."interest"
         ELSE th."principal"
       END AS "principal",
       CASE
         WHEN t."method" = 'PIR'
-          THEN (th."principal" + th."interest")*(p."rate"/100)
+          THEN (th."principal" + th."interest")*(p."rate"/100)*(p."days"/365)
         ELSE th."interest"
       END AS "interest"
       FROM ticket AS t
