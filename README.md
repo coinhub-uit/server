@@ -32,22 +32,3 @@
 
 > [!NOTE]
 > Github static host page cannot sending request to the API because it's not designed to do so. Can only be tested with a real server.
-
----
-
-## DEV
-
-1. Setup dev env
-   ```sh
-   npm i # or "just restore"
-   ```
-2. Setup `.env` file
-3. Run dev
-   - Start postgres using docker (skip if you have already had postgres database)
-   ```sh
-   just run-docker-db
-   ```
-   - Run api server
-   ```sh
-   just run-api-server-dev
-   ```
