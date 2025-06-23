@@ -44,6 +44,12 @@ reset-database-prod:
   npm run db:sync-schema
   npm run db:seed
 
+[doc('seed the database, including sync schema')]
+seed-db:
+  npm run build
+  npm run db:sync-schema
+  npm run db:seed
+
 [doc('run docker compose')]
 run-docker-compose:
   docker compose up
