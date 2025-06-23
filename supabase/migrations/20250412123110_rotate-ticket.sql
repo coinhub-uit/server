@@ -23,7 +23,7 @@ LANGUAGE plpgsql AS $$
       END AS "principal",
       CASE
         WHEN t."method" = 'PIR'
-          THEN (th."principal" + th."interest")*(p."rate"/100)*(p."days"/365)
+          THEN (th."principal" + th."interest")*(p."rate"/100)*(p."days")
         ELSE th."interest"
       END AS "interest"
       FROM ticket AS t
@@ -31,7 +31,7 @@ LANGUAGE plpgsql AS $$
       JOIN available_plan AS p ON t."planId" = p."planId"
       JOIN source AS s ON s."id" = t."sourceId"
     WHERE
-      t."closedAt" IS NULL AND t."status" = 'active'
+      t."status" = 'active'
       AND t."method" IN ('PR', 'PIR')
       AND th."maturedAt" = endDate;
 
