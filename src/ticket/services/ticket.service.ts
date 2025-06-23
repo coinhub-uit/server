@@ -176,12 +176,12 @@ export class TicketService {
   static calculateEarlyInterest(
     issuedDate: Date,
     principal: Decimal,
-    settlementDate: Date,
+    withdrawDate: Date,
     days: number,
     earlyMaturityInterestRate: number,
   ) {
     const diffDays = Math.ceil(
-      Math.abs(settlementDate.getTime() - issuedDate.getTime()) /
+      Math.abs(withdrawDate.getTime() - issuedDate.getTime()) /
         (1000 * 3600 * 24),
     );
     return principal
