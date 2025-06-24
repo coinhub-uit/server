@@ -15,7 +15,7 @@ LANGUAGE plpgsql AS $$
       th."ticketId",
       th."maturedAt" + INTERVAL '1 day' AS "issuedAt",
       th."maturedAt" + INTERVAL '1 day' * p.days + INTERVAL '1 day' AS "maturedAt",
-      p.id AS "planHistoryId",
+      p."planHistoryId" AS "planHistoryId",
       CASE
         WHEN t."method" = 'PIR'
           THEN th."principal" + th."interest"
@@ -23,7 +23,7 @@ LANGUAGE plpgsql AS $$
       END AS "principal",
       CASE
         WHEN t."method" = 'PIR'
-          THEN (th."principal" + th."interest")*(p."rate"/100)*(p."days")
+          THEN (th."principal" + th."interest")*(p."rate"/100)*(p."days"/365.0)
         ELSE th."interest"
       END AS "interest"
       FROM ticket AS t
@@ -34,6 +34,15 @@ LANGUAGE plpgsql AS $$
       t."status" = 'active'
       AND t."method" IN ('PR', 'PIR')
       AND th."maturedAt" = endDate;
+
+  UPDATE source AS s
+  SET BALANCE = s."balance" + "interest" + "principal"
+  FROM ticket AS t
+  JOIN ticket_history AS th ON t."id" = th."ticketId"
+  JOIN available_plan AS p ON t."planId"= p."planId"
+  WHERE method = 'NR'
+    AND t."sourceId" = s."id"
+    AND th."maturedAt" = endDate;
 
   UPDATE source AS s
   SET balance = s."balance" + "interest"
