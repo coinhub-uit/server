@@ -50,11 +50,11 @@ export class CreateUserDto {
     example: 'https://avatars.githubusercontent.com/u/86353526?v=4',
   })
   @IsString()
-  avatar?: string;
+  avatar: string | null;
 
   @ApiProperty({
     required: false,
   })
   @IsString()
-  address?: string;
+  address: string | null;
 }

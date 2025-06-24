@@ -52,11 +52,11 @@ export class UserEntity extends AbstractEntity<UserEntity> {
         ? value
         : `${process.env.API_SERVER_URL}/users/${obj.id}/avatar`),
   )
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, default: null })
   avatar!: string | null;
 
   @ApiProperty({ type: String, nullable: true })
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, default: null })
   address!: string | null;
 
   @Exclude()
