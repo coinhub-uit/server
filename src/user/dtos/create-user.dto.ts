@@ -31,7 +31,7 @@ export class CreateUserDto {
     example: '2005-9-27',
     examples: ['2005-9-27', new Date('2005-9-27').toISOString()],
   })
-  @Transform(stringToDate)
+  @Transform(stringToDate, { toClassOnly: true })
   @IsDate()
   @MaxDate(() => new Date())
   birthDate!: Date;

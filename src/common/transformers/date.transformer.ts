@@ -10,6 +10,7 @@ export class DateTransformer implements ValueTransformer {
   }
 }
 
-export function stringToDate({ value }: { value: string }): Date {
-  return new Date(value);
+export function stringToDate({ value }: { value: string }): Date | null {
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
 }
