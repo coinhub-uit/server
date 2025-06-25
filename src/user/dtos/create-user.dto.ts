@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import {
   IsDate,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   Length,
@@ -46,15 +47,19 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: false,
-    description: 'Avatar URL',
+    nullable: true,
+    description: 'Avatar URL. Not the image binary!',
     example: 'https://avatars.githubusercontent.com/u/86353526?v=4',
   })
+  @IsOptional()
   @IsString()
-  avatar: string | null;
+  avatar?: string | null;
 
   @ApiProperty({
     required: false,
+    nullable: true,
   })
+  @IsOptional()
   @IsString()
-  address: string | null;
+  address?: string | null;
 }
