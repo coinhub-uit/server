@@ -2,32 +2,37 @@
   "$schema": "https://raw.githubusercontent.com/olimorris/codecompanion.nvim/refs/heads/main/lua/codecompanion/workspace-schema.json",
   "name": "CoinHub Server",
   "version": "0.0.0",
-  "system_prompt": "This is a NestJS backend for a mobile app that manages deposits, similar to a banking application. The database is hosted on Supabase with project ID `${supabase_project_id}`.",
   "vars": {
     "supabase_project_id": "yopvlrbdzgkmbfilgrqf"
   },
+  "system_prompt": "This is a NestJS backend for a mobile app that manages deposits, similar to a banking application. The database is hosted on Supabase with project ID `${supabase_project_id}`.",
   "groups": [
     {
       "name": "Generate Active Tickets",
       "system_prompt": "Generate active tickets for a given source ID. For each ticket, randomly choose a method (`NR`, `PR`, or `PIR`) and create 2 to 5 ticket histories. The `issuedAt` and `maturedAt` values for each history must align with the number of days defined in the associated plan (fetched from the Supabase database). The `principal` for each history must be greater than the `minAmountOpenTicket` value from the `settings` table. Ensure that the latest history of each ticket is active, meaning `issuedAt` is before the current datetime and `maturedAt` is after it. All previous histories must be in the past (both `issuedAt` and `maturedAt` earlier than now). Don't create any ticket history whose `issuedAt` is greater than the current datetime (no furture history).\nUse MCP servers to access Supabase, and filesystem. Query Supabase via MCP to fetch plans and settings, and to prepare inserts. First, output only the SQL statements. Wait for confirmation before executing any inserts. I will provide the source ID and ticket count later.",
-      "data": ["database-docs", "ticket-flow"]
+      "data": ["database-docs", "database-rules", "ticket-flow"]
     }
   ],
   "data": {
     "project-overview": {
       "type": "file",
-      "path": "./agent/project-structure.md",
+      "path": "./docs/project-structure.md",
       "description": "This is the project structure"
     },
     "ticket-flow": {
       "type": "file",
-      "path": "./agent/ticket-flow.md",
-      "description": "See how the ticket works, created, withdrawn"
+      "path": "./docs/ticket-flow.md",
+      "description": "Below is how the ticket flow works, created, withdrawn."
+    },
+    "database-rules": {
+      "type": "file",
+      "path": "./docs/database-rules.md",
+      "description": "Below is the database rules you must follow."
     },
     "database-docs": {
       "type": "url",
       "path": "https://raw.githubusercontent.com/coinhub-uit/coinhub-uit.github.io/refs/heads/main/docs/diagrams/database/index.md",
-      "description": "Below is the database schema written in mermaid digram:",
+      "description": "Below is the database schema written in mermaid digram.",
       "opts": {
         "auto_restore_cache": true
       }

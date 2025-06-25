@@ -5,7 +5,6 @@ Each **Ticket** belongs to a **Source**. Upon creation, it is associated with a 
 Note:
 
 - Ticket cannot have the plan with the `days = -1` because that is a special plan for early withdrawing.
-- ticket's id and ticket history's id is auto generated under database. So you should use `currval` and `nextval` to insert while generate.
 
 ### Ticket Methods
 
