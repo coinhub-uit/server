@@ -5,6 +5,7 @@ import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
 import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
+import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -26,7 +27,14 @@ export class AiChatService {
 
   private async getUserInformation(userId: string) {
     const user = await this.userRepository.findOne({
-      where: { id: userId },
+      where: {
+        id: userId,
+        sources: {
+          tickets: {
+            status: TicketStatusEnum.active,
+          },
+        },
+      },
       relations: {
         sources: {
           topUps: true,
@@ -38,9 +46,9 @@ export class AiChatService {
             },
           },
         },
-        notifications: true,
       },
     });
+
     return JSON.stringify(user);
   }
 
