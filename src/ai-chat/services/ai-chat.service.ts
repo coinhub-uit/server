@@ -87,6 +87,8 @@ ${JSON.stringify(await this.availablePlanRepository.find())}
   }
 
   async ask(aiChatDto: AiChatDto) {
+    console.log(JSON.stringify(aiChatDto));
+
     const chatCompletion = await this.openai.chat.completions.create({
       metadata: { topic: 'savings_account' },
       messages: [

@@ -8,7 +8,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      whitelist: false, // nested type this cause not to run ;///?
+    }),
+  );
   app.useGlobalFilters(new GlobalFilter());
   configAppSwagger(app);
 

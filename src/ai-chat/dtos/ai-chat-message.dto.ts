@@ -12,7 +12,10 @@ export class AiChatMessagesDto {
     description:
       'System is system prompt, assistant is the AI asnwer, and user is from user',
   })
-  role!: ChatCompletionMessageParam['role'];
+  role!: Exclude<
+    ChatCompletionMessageParam['role'],
+    'developer' | 'tool' | 'function'
+  >;
 
   @ApiProperty({ type: String, nullable: true })
   content!: string | null;
