@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import OpenAI from 'openai';
-import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
-import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
-import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
+import { AiChatDto } from 'src/ai-chat/dtos/ai-chat.dto';
+import { AiChatMessagesDto } from 'src/ai-chat/dtos/ai-chat-message.dto';
 import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { TicketStatusEnum } from 'src/ticket/types/ticket-status.enum';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -49,39 +48,35 @@ export class AiChatService {
       },
     });
 
-    return JSON.stringify(user);
+    const aiChatResponseDto = new AiChatMessagesDto();
+    aiChatResponseDto.role = 'system';
+    aiChatResponseDto.content = `
+This is the information you need to know about this user (in json format). You will have to parse yourself the json. Here is the data:
+${JSON.stringify(user)}
+`;
+    return aiChatResponseDto;
   }
 
-  getChatSession(aiChatSession: AiChatSession) {
-    const messages = aiChatSession.messages;
-
-    if (!messages) {
-      return [];
-    }
-
-    const aiChatSessionResponseDto = messages.map((message) => {
-      const aiChatSession = new AiChatResponseDto();
-      aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
-      aiChatSession.role = message.role;
-      return aiChatSession;
-    });
-    return aiChatSessionResponseDto;
+  private async getAvailablePlan() {
+    const aiChatResponseDto = new AiChatMessagesDto();
+    aiChatResponseDto.role = 'system';
+    aiChatResponseDto.content = `And below is the current available plan in JSON format, try to read from it:
+${JSON.stringify(await this.availablePlanRepository.find())}
+`;
+    return aiChatResponseDto;
   }
 
-  async ask({
-    aiChatSession,
-    aiChatRequestDto,
-    userId,
-  }: {
-    aiChatSession: AiChatSession;
-    aiChatRequestDto: AiChatRequestDto;
-    userId: string;
-  }) {
-    if (!aiChatSession.messages) {
-      aiChatSession.messages = [
-        {
-          role: 'system',
-          content: `
+  async getUserContext(userId: string) {
+    return [
+      await this.getUserInformation(userId),
+      await this.getAvailablePlan(),
+    ];
+  }
+
+  async ask(aiChatDto: AiChatDto) {
+    const systemPrompt = {
+      role: 'system',
+      content: `
 You are a secure and knowledgeable banking assistant.
   - Answer questions about savings accounts, balances, interest rates, and transactions.
   - You must **not** provide advice outside of banking-related topics.
@@ -89,48 +84,22 @@ You are a secure and knowledgeable banking assistant.
   - Be precise, concise, and avoid speculation.
   - You must not answer in markdown type, just raw string.
 `,
-        },
-        {
-          role: 'system',
-          content: `This is the information you need to know about this user (in json format). You will have to parse yourself the json. Here is the data:
-${await this.getUserInformation(userId)}`,
-        },
-        {
-          role: 'system',
-          content: `And below is the current available plan in JSON format, try to read from it:
-${JSON.stringify(await this.availablePlanRepository.find())}
-`,
-        },
-      ];
-    }
-
-    aiChatSession.messages.push({
-      role: 'user',
-      content: aiChatRequestDto.message,
-    });
+    } satisfies OpenAI.Chat.Completions.ChatCompletionMessageParam;
 
     const chatCompletion = await this.openai.chat.completions.create({
       metadata: { topic: 'savings_account' },
-      messages: aiChatSession.messages,
+      messages: [
+        systemPrompt,
+        ...(aiChatDto.messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[]),
+      ],
       model: this.OPENAI_MODEL,
     });
 
     const messageContent = chatCompletion.choices[0].message.content;
-    if (messageContent) {
-      aiChatSession.messages.push({
-        role: 'assistant',
-        content: messageContent,
-      });
-    }
 
-    // TODO: Declare abstract response dto and pass as arg to constructor later
-    const aiChatResponseDto = new AiChatResponseDto();
+    const aiChatResponseDto = new AiChatMessagesDto();
     aiChatResponseDto.role = 'assistant';
-    aiChatResponseDto.message = messageContent;
+    aiChatResponseDto.content = messageContent;
     return aiChatResponseDto;
-  }
-
-  deleteSession(aiChatSession: AiChatSession) {
-    aiChatSession.destroy(() => {});
   }
 }

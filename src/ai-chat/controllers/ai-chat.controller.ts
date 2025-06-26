@@ -1,11 +1,11 @@
 import {
+  Body,
   Controller,
+  Get,
   HttpCode,
   Post,
   Req,
   UseGuards,
-  Delete,
-  Get,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,10 +14,9 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
-import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
+import { AiChatMessagesDto } from 'src/ai-chat/dtos/ai-chat-message.dto';
+import { AiChatDto } from 'src/ai-chat/dtos/ai-chat.dto';
 import { AiChatService } from 'src/ai-chat/services/ai-chat.service';
-import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
 import { UserJwtAuthGuard } from 'src/auth/guards/user.jwt-auth.guard';
 import { UserJwtRequest } from 'src/auth/types/user.jwt-request';
 
@@ -28,66 +27,28 @@ export class AiChatController {
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'Get AI chat bot chat sessions',
+    summary: 'Get user information context',
+    description: 'You should get it and prepend before sending chat message',
   })
   @ApiForbiddenResponse()
-  @ApiOkResponse({ type: [AiChatResponseDto] })
+  @ApiOkResponse({ type: [AiChatMessagesDto] })
   @Get()
-  getChatSession(
-    @Req()
-    req: Request & {
-      session: AiChatSession;
-    },
-  ) {
-    const { session: aiChatSession } = req;
-    return this.aiChatService.getChatSession(aiChatSession);
+  getChatSession(@Req() req: Request & { user: UserJwtRequest }) {
+    return this.aiChatService.getUserContext(req.user.userId);
   }
 
   @UseGuards(UserJwtAuthGuard)
   @ApiBearerAuth('user')
   @ApiOperation({
-    summary: 'AI chat bot',
+    summary: 'AI chat',
+    description: 'Remember to get user context first',
   })
-  @ApiBody({ type: AiChatRequestDto })
+  @ApiBody({ type: AiChatDto })
   @ApiForbiddenResponse()
-  @ApiOkResponse({ type: AiChatResponseDto })
+  @ApiOkResponse({ type: AiChatMessagesDto })
   @HttpCode(200)
   @Post()
-  async ask(
-    @Req()
-    req: Request & {
-      user: UserJwtRequest;
-    } & {
-      session: AiChatSession;
-    } & {
-      body: AiChatRequestDto;
-    },
-  ) {
-    const { user, session: aiChatSession, body: aiChatRequestDto } = req;
-    const userId = user.userId;
-    return await this.aiChatService.ask({
-      userId,
-      aiChatRequestDto,
-      aiChatSession,
-    });
-  }
-
-  @UseGuards(UserJwtAuthGuard)
-  @ApiBearerAuth('user')
-  @ApiOperation({
-    summary: 'Delete chat session',
-    description: 'When you are done, delete your butt',
-  })
-  @ApiForbiddenResponse()
-  @Delete()
-  deleteSession(
-    @Req()
-    req: Request & {
-      session: AiChatSession;
-    },
-  ) {
-    // TODO: this should hold response and pass through delete service
-    const aiChatSession = req.session;
-    this.aiChatService.deleteSession(aiChatSession);
+  async ask(@Body() aiChatDto: AiChatDto) {
+    return await this.aiChatService.ask(aiChatDto);
   }
 }

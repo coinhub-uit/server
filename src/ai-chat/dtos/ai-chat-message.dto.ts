@@ -2,7 +2,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { ChatCompletionMessageParam } from 'openai/resources';
 
 @ApiSchema()
-export class AiChatResponseDto {
+export class AiChatMessagesDto {
   @ApiProperty({
     enum: [
       'system',
@@ -15,5 +15,5 @@ export class AiChatResponseDto {
   role!: ChatCompletionMessageParam['role'];
 
   @ApiProperty({ type: String, nullable: true })
-  message!: string | null;
+  content!: string | null;
 }
