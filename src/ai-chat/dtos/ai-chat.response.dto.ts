@@ -1,9 +1,18 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 @ApiSchema()
 export class AiChatResponseDto {
-  @ApiProperty()
-  role!: 'user' | 'system' | 'assistant'; // NOTE: Let user know the system prompt :)
+  @ApiProperty({
+    enum: [
+      'system',
+      'user',
+      'assistant',
+    ] as const satisfies ChatCompletionMessageParam['role'][],
+    description:
+      'System is system prompt, assistant is the AI asnwer, and user is from user',
+  })
+  role!: ChatCompletionMessageParam['role'];
 
   @ApiProperty({ type: String, nullable: true })
   message!: string | null;

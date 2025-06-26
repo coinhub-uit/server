@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import { AiChatRequestDto } from 'src/ai-chat/dtos/ai-chat.request.dto';
 import { AiChatResponseDto } from 'src/ai-chat/dtos/ai-chat.response.dto';
 import { AiChatSession } from 'src/ai-chat/types/ai-chat-session.type';
+import { AvailablePlanView } from 'src/plan/entities/available-plan.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -12,6 +13,8 @@ export class AiChatService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(AvailablePlanView)
+    private readonly availablePlanRepository: Repository<AvailablePlanView>,
   ) {}
 
   private readonly openai = new OpenAI({
@@ -50,7 +53,7 @@ export class AiChatService {
     const aiChatSessionResponseDto = messages.map((message) => {
       const aiChatSession = new AiChatResponseDto();
       aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
-      aiChatSession.role = message.role as AiChatResponseDto['role']; // NOTE: Believe me!!!
+      aiChatSession.role = message.role;
       return aiChatSession;
     });
     return aiChatSessionResponseDto;
@@ -83,9 +86,15 @@ You are a secure and knowledgeable banking assistant.
 `,
         },
         {
-          role: 'assistant',
-          content: `This is the information you need to know about this user (in json format). You have to parse yourself the json. Here is the data:
-            ${await this.getUserInformation(userId)}`,
+          role: 'system',
+          content: `This is the information you need to know about this user (in json format). You will have to parse yourself the json. Here is the data:
+${await this.getUserInformation(userId)}`,
+        },
+        {
+          role: 'system',
+          content: `And below is the current available plan in JSON format, try to read from it:
+${JSON.stringify(await this.availablePlanRepository.find())}
+`,
         },
         {
           role: 'user',
