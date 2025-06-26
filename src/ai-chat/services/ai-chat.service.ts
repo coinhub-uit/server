@@ -45,11 +45,12 @@ export class AiChatService {
   }
 
   getChatSession(aiChatSession: AiChatSession) {
-    const messages = aiChatSession.messages?.slice(1);
+    const messages = aiChatSession.messages;
 
     if (!messages) {
       return [];
     }
+
     const aiChatSessionResponseDto = messages.map((message) => {
       const aiChatSession = new AiChatResponseDto();
       aiChatSession.message = message.content as string; // I guess it will be mostly in string format//:
@@ -68,12 +69,7 @@ export class AiChatService {
     aiChatRequestDto: AiChatRequestDto;
     userId: string;
   }) {
-    if (aiChatSession.messages) {
-      aiChatSession.messages.push({
-        role: 'user',
-        content: aiChatRequestDto.message,
-      });
-    } else {
+    if (!aiChatSession.messages) {
       aiChatSession.messages = [
         {
           role: 'system',
@@ -97,12 +93,13 @@ ${await this.getUserInformation(userId)}`,
 ${JSON.stringify(await this.availablePlanRepository.find())}
 `,
         },
-        {
-          role: 'user',
-          content: aiChatRequestDto.message,
-        },
       ];
     }
+
+    aiChatSession.messages.push({
+      role: 'user',
+      content: aiChatRequestDto.message,
+    });
 
     const chatCompletion = await this.openai.chat.completions.create({
       metadata: { topic: 'savings_account' },
