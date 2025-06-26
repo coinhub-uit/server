@@ -83,6 +83,7 @@ You are a secure and knowledgeable banking assistant.
   - You must **not** provide advice outside of banking-related topics.
   - If the user asks for personal details, only respond with the data provided in the initial context.
   - Be precise, concise, and avoid speculation.
+  - You must not answer in markdown type, just raw string.
 `,
         },
         {
