@@ -17,6 +17,19 @@ export class AiChatService {
     private readonly availablePlanRepository: Repository<AvailablePlanView>,
   ) {}
 
+  private readonly systemPrompt: OpenAI.Chat.Completions.ChatCompletionMessageParam =
+    {
+      role: 'system',
+      content: `
+You are a secure and knowledgeable banking assistant.
+  - Answer questions about savings accounts, balances, interest rates, and transactions.
+  - You must **not** provide advice outside of banking-related topics.
+  - If the user asks for personal details, only respond with the data provided in the initial context.
+  - Be precise, concise, and avoid speculation.
+  - You must not answer in markdown type, just raw string.
+`,
+    };
+
   private readonly openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     baseURL: process.env.OPENAI_BASE_URL,
@@ -74,22 +87,10 @@ ${JSON.stringify(await this.availablePlanRepository.find())}
   }
 
   async ask(aiChatDto: AiChatDto) {
-    const systemPrompt = {
-      role: 'system',
-      content: `
-You are a secure and knowledgeable banking assistant.
-  - Answer questions about savings accounts, balances, interest rates, and transactions.
-  - You must **not** provide advice outside of banking-related topics.
-  - If the user asks for personal details, only respond with the data provided in the initial context.
-  - Be precise, concise, and avoid speculation.
-  - You must not answer in markdown type, just raw string.
-`,
-    } satisfies OpenAI.Chat.Completions.ChatCompletionMessageParam;
-
     const chatCompletion = await this.openai.chat.completions.create({
       metadata: { topic: 'savings_account' },
       messages: [
-        systemPrompt,
+        this.systemPrompt,
         ...(aiChatDto.messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[]),
       ],
       model: this.OPENAI_MODEL,
