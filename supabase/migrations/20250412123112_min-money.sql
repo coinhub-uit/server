@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION check_min_money()
 RETURNS TRIGGER AS $$
 DECLARE
   minPrincipalAmount DECIMAL(12,0);
-  ticketPrincipal DECIMAL(12,0)
+  ticketPrincipal DECIMAL(12,0);
 BEGIN
   SELECT th."principal" INTO ticketPrincipal
   FROM ticket_history AS th
