@@ -193,6 +193,7 @@ export class UserService {
         status: activeTicketOnly ? TicketStatusEnum.active : undefined,
       },
       order: {
+        id: 'DESC',
         ticketHistories: {
           issuedAt: 'DESC',
         },
