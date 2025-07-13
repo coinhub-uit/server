@@ -4,7 +4,6 @@ default: run-api-server-dev
 
 alias b := bootstrap
 alias c := type-check
-alias d := run-docker-compose
 alias dbr := reset-database
 alias dbrp := reset-database-prod
 alias tc := type-check
@@ -49,10 +48,6 @@ seed-db:
   npm run build
   npm run db:sync-schema
   npm run db:seed
-
-[doc('run docker compose')]
-run-docker-compose:
-  docker compose up
 
 [doc('typescript type checking')]
 type-check:
