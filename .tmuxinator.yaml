@@ -1,0 +1,12 @@
+name: coinhub
+root: <%= ENV["HOME"] %>/projects/coinhub/server/
+
+on_project_stop: supabase stop
+
+windows:
+  - editor: nvim
+  - run:
+      layout: even-vertical
+      panes:
+        - npm run start
+        - supabase start
