@@ -7,6 +7,9 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Get timestamp
         id: vars
         run: echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
