@@ -27,6 +27,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: .
           push: true
           tags: |
             ghcr.io/${{ vars.ORGANIZATION_NAME }}/server:latest
