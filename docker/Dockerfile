@@ -4,7 +4,7 @@ ARG ALPINE_VERSION=""
 FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS base
 WORKDIR /app
 COPY --chown=app:app package.json package-lock.json /app/
-COPY --chown=app:app scripts /app/
+COPY --chown=app:app scripts /app/scripts
 
 FROM base AS deps-development
 ENV HUSKY=0
