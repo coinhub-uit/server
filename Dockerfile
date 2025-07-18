@@ -5,6 +5,6 @@ COPY scripts /app/scripts
 ENV HUSKY=0
 RUN npm install
 COPY . /app/
-RUN npm run build
+RUN npx nest build
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]
