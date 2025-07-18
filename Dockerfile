@@ -5,6 +5,7 @@ COPY scripts /app/scripts
 ENV HUSKY=0
 RUN npm install
 COPY . /app/
-RUN npx nest build
+RUN npm i -g @nestjs/cli
+RUN npm run build
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]
