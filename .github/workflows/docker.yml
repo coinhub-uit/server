@@ -14,6 +14,10 @@ jobs:
         id: vars
         run: echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
 
+      - name: Get env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
